@@ -4,16 +4,6 @@ Next number: 5
 
 ## To do
 
-### 1. Inspect and decompile (medium)
-Goal: "Decompile the game into decompiled/ and give me a summary ... Commit and report back before changing anything."
-- Before starting: the user copies the original .swf files into `original/`; their source folder goes in docs/local.md.
-- Set up: JPEXS ffdec (command-line mode) in `tools/`; check it runs on the installed Java 8, else install a newer Java. A Python venv with ruff for `scripts/`.
-- Several .swf files: work out which is the real game and which are loaders/preloaders.
-- Decompile into `decompiled/`; adjust the .gitignore media list to what ffdec actually exports.
-- Report (into NOTES.md): ActionScript version, main classes, how levels/units/enemies are defined (code vs data), and anything on the Kongregate API, network calls, purchases/premium checks and save data.
-- No changes to the game in this to-do.
-- Test: Claude checks the decompile completes and lists what came out; the user reads the summary.
-
 ### 2. Performance (large)
 Goal: "Make it run smoothly (it currently lags badly)."
 - Seen so far: it lags badly, played in Ruffle (the user believes).

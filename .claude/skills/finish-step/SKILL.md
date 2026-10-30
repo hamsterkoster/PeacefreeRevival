@@ -10,7 +10,7 @@ Phase 1 runs when the user says the whole step is tested. Phase 2 runs only when
 ## Phase 1: docs and commit message
 Only when the user has tested the whole step; if part of the test failed, fix that first.
 - Run the checks in CLAUDE.md "Build specifics"; all must pass.
-- Check that nothing under `original/` changed (git status shows nothing there).
+- Check that nothing under `original/` changed: the files and their SHA-256 match "Original file" in NOTES.md (`sha256sum original/*`; `original/` is gitignored, so git status can't show it).
 - Check the changed files for anything on the "Never in tracked files" list in CLAUDE.md.
 - Log the step in NOTES.md: findings, patches, test results, and the "Patched files" list for any new file in `patched/`.
 - Finished to-do: remove its entry from docs/todo.md (numbers are never reused) and update "Next:" in CLAUDE.md Status.

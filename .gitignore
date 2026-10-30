@@ -2,6 +2,9 @@
 docs/local.md
 .claude/settings.local.json
 
+# The original game files: kept out of the public history (SHA-256 in NOTES.md)
+original/
+
 # Downloaded tools (ffdec, Ruffle, Flash Player projector)
 tools/
 
@@ -11,17 +14,17 @@ __pycache__/
 .venv/
 .ruff_cache/
 
-# Media exported by ffdec: bulky, and can be exported again from original/.
-# Scripts, texts and binaryData stay tracked (binaryData may hold level data).
-decompiled/**/images/
-decompiled/**/sounds/
-decompiled/**/shapes/
-decompiled/**/morphshapes/
-decompiled/**/sprites/
-decompiled/**/frames/
-decompiled/**/movies/
-decompiled/**/fonts/
-decompiled/**/buttons/
+# ffdec output (decompiled/<name>/): only scripts, texts, binaryData (level data)
+# and the symbol list are tracked. Exported media (images, sounds, fonts, frames...)
+# is bulky and can be exported again from original/. An allowlist, so a code
+# package named "sounds" or a new media type can't slip past it.
+decompiled/*/*
+!decompiled/*/scripts/
+!decompiled/*/texts/
+!decompiled/*/binaryData/
+!decompiled/*/symbolClass/
+# Temporary export folder of scripts/decompile.py
+decompiled/*.new/
 
 # Screenshots and temp output from test runs
 screenshots/
