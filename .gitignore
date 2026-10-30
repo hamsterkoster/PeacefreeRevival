@@ -1,0 +1,33 @@
+# Local notes with this PC's paths
+docs/local.md
+.claude/settings.local.json
+
+# Downloaded tools (ffdec, Ruffle, Flash Player projector)
+tools/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.ruff_cache/
+
+# Media exported by ffdec: bulky, and can be exported again from original/.
+# Scripts, texts and binaryData stay tracked (binaryData may hold level data).
+decompiled/**/images/
+decompiled/**/sounds/
+decompiled/**/shapes/
+decompiled/**/morphshapes/
+decompiled/**/sprites/
+decompiled/**/frames/
+decompiled/**/movies/
+decompiled/**/fonts/
+decompiled/**/buttons/
+
+# Screenshots and temp output from test runs
+screenshots/
+*.tmp
+*.log
+
+# Windows
+Thumbs.db
+desktop.ini
