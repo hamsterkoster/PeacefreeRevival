@@ -17,6 +17,7 @@ FPS read by the user from the stats box, rounded: title screen / about 30 s into
 - Starling 1.4.1 on Stage3D, 800x540, 60 fps target ([game-code.md](game-code.md)).
 - Ruffle's web version uses its `wgpu-webgl` renderer here (needed for Stage3D). The graphics driver logged "GPU stall due to ReadPixels" warnings in headless Chromium; whether they cost FPS is unknown.
 - Headless Chromium showed 5.4 FPS on the title screen (measured, but headless and while taking screenshots, so only a hint).
+- Headless Chromium has no GPU, so Ruffle reports a CPU adapter and opens its "hardware acceleration is disabled" notice over the game at the first mouse-over; the notice catches the clicks meant for the game (measured, to-do 6: the first click on Settings only darkened the page). No Ruffle setting turns it off (`ruffle.js` opens it whenever the adapter type is `Cpu`); `check.py --settings` hovers once and then hides the notice (`#hardware-acceleration-modal` in the player's shadow DOM).
 
 ## Per-frame work in the game
 Every frame the game updates all 625 tiles and every enemy, re-sorts the enemy list and rebuilds 7 HUD texts (`Map.progress`, `MapHUD.update`). Not a problem in the projector at the measured scenes; it is the first place to look if a late mission lags.

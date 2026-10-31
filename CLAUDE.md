@@ -38,14 +38,15 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
     - Headless Ruffle: `.venv/Scripts/python scripts/check.py patched/PeacefreeKong-vNN-name.swf` (about 7 s; a fail takes 60 s) must print PASS. It also lists blocked network requests and Ruffle's errors.
     - Premium: the same with `--premium` before the file (about 11 s) must print PASS (Shop button on the campaign screen).
     - Shared save: the same with `--shared-save` before the file (about 6 s) must print PASS (the save is under the root path).
+    - Settings: the same with `--settings` before the file (about 15 s) must print PASS (Settings on the title screen opens the options panel, its SFX OFF is saved, Back closes it).
 - Re-decompile (not a per-step check; only after an ffdec update, on a committed tree): `.venv/Scripts/python scripts/decompile.py` (about 4 s) must end with "All scripts decompiled without errors." It refuses to replace a folder with uncommitted changes.
 - Docs to update when behaviour changes: NOTES.md (patches, test results, the patched-files list); docs/research/ (findings and dead ends, by topic); docs/decisions.md; docs/local.md (run commands); README.md (status, setup, build and play steps, Credits).
-- Must keep working: the game reaches its title screen (the headless check); in patched builds, P shows and hides the FPS box, premium is unlocked (the premium check), all builds share one save (the shared-save check), and resizing the projector window doesn't stop the game.
+- Must keep working: the game reaches its title screen (the headless check); in patched builds, P shows and hides the FPS box, premium is unlocked (the premium check), all builds share one save (the shared-save check), the Settings button opens the options panel on the title and campaign screens (the settings check covers the title), and resizing the projector window doesn't stop the game.
 - Review checklist: none yet: the built-in code-review skill. Add docs/review.md once the project has its own rules to check.
 
 ## Status
-Done: To do 1 (decompiled into `decompiled/PeacefreeKong/`; findings in docs/research/), To do 2 (performance: the projector runs it at about 60 fps; build, check and play scripts), To do 3 (premium unlock through an offline Kongregate stand-in, "Unlock All Acts" button, resize-crash fix; v04), To do 5 (one save shared by all builds; v05).
-Next: To do 6 (settings on the title and act screens, volume sliders).
+Done: To do 1 (decompiled into `decompiled/PeacefreeKong/`; findings in docs/research/), To do 2 (performance: the projector runs it at about 60 fps; build, check and play scripts), To do 3 (premium unlock through an offline Kongregate stand-in, "Unlock All Acts" button, resize-crash fix; v04), To do 5 (one save shared by all builds; v05), To do 6 step A (Settings button on the title and campaign screens; v09).
+Next: To do 6 step B (volume sliders; docs/todo/06-settings.md).
 
 ## Decisions
 One line per decision a chat must follow. Reasons, who decided and what was rejected: docs/decisions.md. The gitignore rules in Folder layout come from there too.
@@ -57,6 +58,7 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - The options menu's "Unlock All Acts" button stays in every build until the public-release decision.
 - Starling's `handleLostContext` stays on (`src/StarlingPreloader.as`): without it, resizing the projector window kills the game.
 - All builds share one save: `src/game/library/FileLibrary.as` passes `"/"` to `getLocal`; save names stay `game` and `save-N`.
+- One options panel (`OptionsInterfacer`) for the mission, title and campaign screens; it's outside a mission when the screen passes a callback (`inMission()`), never judged from `pgame.map`.
 
 ## Project docs
 - README.md: what the project is, setup, build and play, Credits.

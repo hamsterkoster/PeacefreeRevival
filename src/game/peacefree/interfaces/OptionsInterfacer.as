@@ -2,7 +2,9 @@ package game.peacefree.interfaces
 {
    import game.container.GameConfig;
    import game.library.SoundLibrary;
+   import game.peacefree.CampaignSelectorScreen;
    import game.peacefree.PeacefreeGame;
+   import starling.core.Starling;
    import starling.display.Quad;
    import starling.display.Sprite;
    import starling.text.TextField;
@@ -27,7 +29,14 @@ package game.peacefree.interfaces
 
       private var unlockActsButton:GenericScreenButton;
 
-      public function OptionsInterfacer(param1:PeacefreeGame)
+      // PeacefreeRevival: null in a mission (Map makes the panel with pgame only). Outside a
+      // mission (title and campaign screens) the screen's function that updates its sound icons
+      // and music after a change; it also marks the panel as outside a mission (inMission), which
+      // hides the mission-only rows. Not pgame.map != null: the title screen puts its background
+      // demo map there.
+      private var onSoundChange:Function;
+
+      public function OptionsInterfacer(param1:PeacefreeGame, param2:Function = null)
       {
          var unlockActsPopup:ConfirmPopup;
          var blackFilmQuad:Quad;
@@ -42,6 +51,7 @@ package game.peacefree.interfaces
          var pgame:PeacefreeGame = param1;
          super();
          this.pgame = pgame;
+         this.onSoundChange = param2;
          blackFilmQuad = new Quad(GameConfig.GAME_WIDTH,GameConfig.GAME_HEIGHT,0);
          blackFilmQuad.alpha = 0.9;
          addChild(blackFilmQuad);
@@ -52,7 +62,11 @@ package game.peacefree.interfaces
          bgmOnButton.pressedCallback = function():void
          {
             pgame.bEnabledBGM = true;
-            if(pgame.map != null)
+            if(onSoundChange != null)
+            {
+               onSoundChange();
+            }
+            else if(pgame.map != null)
             {
                pgame.map.setEnableBGM(true);
                pgame.map.mapHUD.toggleBGM(false);
@@ -67,7 +81,11 @@ package game.peacefree.interfaces
          bgmOffButton.pressedCallback = function():void
          {
             pgame.bEnabledBGM = false;
-            if(pgame.map != null)
+            if(onSoundChange != null)
+            {
+               onSoundChange();
+            }
+            else if(pgame.map != null)
             {
                pgame.map.setEnableBGM(false);
                pgame.map.mapHUD.toggleBGM(false);
@@ -90,7 +108,11 @@ package game.peacefree.interfaces
          sfxOnButton.pressedCallback = function():void
          {
             SoundLibrary.ENABLE_SFX = true;
-            if(pgame.map != null)
+            if(onSoundChange != null)
+            {
+               onSoundChange();
+            }
+            else if(pgame.map != null)
             {
                pgame.map.mapHUD.toggleSFX(false);
             }
@@ -104,7 +126,11 @@ package game.peacefree.interfaces
          sfxOffButton.pressedCallback = function():void
          {
             SoundLibrary.ENABLE_SFX = false;
-            if(pgame.map != null)
+            if(onSoundChange != null)
+            {
+               onSoundChange();
+            }
+            else if(pgame.map != null)
             {
                pgame.map.mapHUD.toggleSFX(false);
             }
@@ -138,7 +164,7 @@ package game.peacefree.interfaces
          closeButton.y = GameConfig.GAME_HEIGHT / 2 - 250;
          closeButton.pressedCallback = function():void
          {
-            pgame.map.hideOptionsInterface();
+            close();
          };
          addChild(closeButton);
          blackFilmQuad2 = new Quad(GameConfig.GAME_WIDTH,GameConfig.GAME_HEIGHT,0);
@@ -169,9 +195,19 @@ package game.peacefree.interfaces
          resumeButton.y = GameConfig.GAME_HEIGHT / 2 + 100;
          resumeButton.pressedCallback = function():void
          {
-            pgame.map.hideOptionsInterface();
+            close();
          };
          addChild(resumeButton);
+         // PeacefreeRevival: outside a mission there's no difficulty to show and no game to exit;
+         // Back moves up into the space they leave.
+         if(!inMission())
+         {
+            diffValueLabel.visible = false;
+            diffLabel.visible = false;
+            quitGameButton.visible = false;
+            resumeButton.textField.text = "Back";
+            resumeButton.y = GameConfig.GAME_HEIGHT / 2 - 40;
+         }
          // PeacefreeRevival: a button that opens every act on the campaign screen, as if each
          // earlier act was won, and saves that. It can't be undone, hence the confirm popup.
          unlockActsPopup = new ConfirmPopup(300,120,"Unlock All Acts?","Every act opens on the campaign screen.",function():void
@@ -250,8 +286,51 @@ package game.peacefree.interfaces
             _loc1_++;
          }
          pgame.saveGameData();
+         // PeacefreeRevival: the campaign screen decides which act buttons show when it's made,
+         // so it's made again (the game's own fade) to show the new acts.
+         if(parent is CampaignSelectorScreen)
+         {
+            pgame.goToCampaignScreen();
+         }
       }
       
+      // PeacefreeRevival: Map makes the panel without a callback; the screens outside a mission
+      // pass one (onSoundChange).
+      private function inMission() : Boolean
+      {
+         return onSoundChange == null;
+      }
+
+      // PeacefreeRevival: shows the panel on a screen outside a mission (title, campaign),
+      // fading in like the mission's.
+      public function showOn(param1:Sprite) : void
+      {
+         refresh();
+         alpha = 0;
+         param1.addChild(this);
+         Starling.juggler.removeTweens(this);
+         Starling.juggler.tween(this,0.5,{"alpha":1});
+      }
+
+      // PeacefreeRevival: X and Back. In a mission the map hides the panel, as before;
+      // elsewhere it fades out and leaves the screen, which keeps it for the next time.
+      private function close() : void
+      {
+         if(inMission())
+         {
+            pgame.map.hideOptionsInterface();
+            return;
+         }
+         Starling.juggler.removeTweens(this);
+         Starling.juggler.tween(this,0.5,{
+            "alpha":0,
+            "onComplete":function():void
+            {
+               removeFromParent();
+            }
+         });
+      }
+
       public function refresh() : void
       {
          // PeacefreeRevival: the button is dimmed once every act is open.
@@ -260,25 +339,31 @@ package game.peacefree.interfaces
             unlockActsButton.textField.text = "All Acts Unlocked";
             unlockActsButton.alpha = 0.25;
          }
-         if(pgame.map == null)
+         // PeacefreeRevival: the difficulty only in a mission; outside one, pgame.map is null or
+         // the title's demo map.
+         if(inMission())
          {
-            return;
+            if(pgame.map == null)
+            {
+               return;
+            }
+            switch(pgame.map.difficulty)
+            {
+               case 0:
+                  diffValueLabel.text = "EASY";
+                  break;
+               case 1:
+                  diffValueLabel.text = "NORMAL";
+                  break;
+               case 2:
+                  diffValueLabel.text = "HARD";
+                  break;
+               case 3:
+                  diffValueLabel.text = "HEROIC";
+            }
          }
-         switch(pgame.map.difficulty)
-         {
-            case 0:
-               diffValueLabel.text = "EASY";
-               break;
-            case 1:
-               diffValueLabel.text = "NORMAL";
-               break;
-            case 2:
-               diffValueLabel.text = "HARD";
-               break;
-            case 3:
-               diffValueLabel.text = "HEROIC";
-         }
-         if(pgame.map.bEnableBGM)
+         // PeacefreeRevival: in a mission the map's copy of the music setting, as before.
+         if(inMission() ? pgame.map.bEnableBGM : pgame.bEnabledBGM)
          {
             bgmOnButton.alpha = 1;
             bgmOffButton.alpha = 0.25;
@@ -313,6 +398,7 @@ package game.peacefree.interfaces
          sfxOnButton = null;
          sfxOffButton = null;
          unlockActsButton = null;
+         onSoundChange = null;
          super.dispose();
       }
    }

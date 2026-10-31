@@ -12,7 +12,8 @@ This is an unofficial fan project, not affiliated with Helgravis or Kongregate. 
 - Done: the game is decompiled and mapped ([docs/research/](docs/research/)). The lag came from the player, not the game: the Flash Player projector runs it at about 60 fps.
 - Done: premium is unlocked. Kongregate is replaced by an offline stand-in, so the game makes no network calls; bombs are free in the shop. Resizing the window no longer stops the game.
 - Done: all builds share one save, so progress carries over to each new build.
-- Next: settings on the title and act screens, with volume sliders.
+- Done: a Settings button on the title and campaign screens opens the options panel there too.
+- Next: volume sliders for music and sound effects.
 - Not yet: a ready-to-play release.
 
 ## How it works
@@ -36,17 +37,18 @@ Needs Java 8 or newer and Python 3.13.
    ```
 
 ## Build and play
-Build a patched file (pick the next free version number and a short name), check in headless Ruffle that it reaches the title screen and that premium is unlocked and the save is shared by all builds, then play it in the projector:
+Build a patched file (pick the next free version number and a short name), check in headless Ruffle that it reaches the title screen, that premium is unlocked, that the save is shared by all builds and that Settings opens the options panel, then play it in the projector:
 
 ```powershell
-.venv\Scripts\python scripts\build.py v06-shortname
-.venv\Scripts\python scripts\check.py patched\PeacefreeKong-v06-shortname.swf
-.venv\Scripts\python scripts\check.py --premium patched\PeacefreeKong-v06-shortname.swf
-.venv\Scripts\python scripts\check.py --shared-save patched\PeacefreeKong-v06-shortname.swf
-& "$PWD\tools\flashplayer\flashplayer_32_sa.exe" "$PWD\patched\PeacefreeKong-v06-shortname.swf"
+.venv\Scripts\python scripts\build.py v10-shortname
+.venv\Scripts\python scripts\check.py patched\PeacefreeKong-v10-shortname.swf
+.venv\Scripts\python scripts\check.py --premium patched\PeacefreeKong-v10-shortname.swf
+.venv\Scripts\python scripts\check.py --shared-save patched\PeacefreeKong-v10-shortname.swf
+.venv\Scripts\python scripts\check.py --settings patched\PeacefreeKong-v10-shortname.swf
+& "$PWD\tools\flashplayer\flashplayer_32_sa.exe" "$PWD\patched\PeacefreeKong-v10-shortname.swf"
 ```
 
-In patched builds, the P key shows or hides the FPS box, and the options menu inside a mission has an "Unlock All Acts" button (it can't be undone). From v05, all builds share one save, so progress carries over to each new build; the original keeps its own.
+In patched builds, the P key shows or hides the FPS box, and the options menu has an "Unlock All Acts" button (it can't be undone). From v09, the options menu also opens from the Settings button at the top left of the title and campaign screens. From v05, all builds share one save, so progress carries over to each new build; the original keeps its own.
 
 ## Folders and docs
 - `original/`: the original .swf (not in the repo). `decompiled/`: ffdec's output. `src/`: our patched classes. `patched/`: built files (not in the repo). `scripts/`: our build, check and play scripts. `tools/`: downloaded tools (not in the repo).
