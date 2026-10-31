@@ -4,7 +4,8 @@ A fan project to revive [Peacefree: Tactical Warfare](https://www.kongregate.com
 
 1. Make it run smoothly.
 2. Unlock the premium features.
-3. Later: make it moddable (new levels, enemies, mechanics).
+3. Quality-of-life changes (no gameplay changes), then a release of this Flash version.
+4. Later: a refactored version that's moddable (new levels, enemies, mechanics).
 
 This is an unofficial fan project, not affiliated with Helgravis or Kongregate. The repo doesn't contain the game's .swf: you need your own copy.
 
@@ -13,7 +14,7 @@ This is an unofficial fan project, not affiliated with Helgravis or Kongregate. 
 - Done: premium is unlocked. Kongregate is replaced by an offline stand-in, so the game makes no network calls; bombs are free in the shop. Resizing the window no longer stops the game.
 - Done: all builds share one save, so progress carries over to each new build.
 - Done: a Settings button on the title and campaign screens opens the options panel there too, with volume sliders for music and sound effects (saved, and shared by all builds).
-- Next: a report on how moddable the game is.
+- Next: quality-of-life changes (music, game options, controls), then a release of the Flash version.
 - Not yet: a ready-to-play release.
 
 ## How it works

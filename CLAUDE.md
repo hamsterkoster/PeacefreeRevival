@@ -4,9 +4,10 @@
 Revive "Peacefree: Tactical Warfare" (by Helgravis, an abandoned Kongregate Flash game) from its original .swf:
 1. Make it run smoothly (it lags badly now).
 2. Unlock the premium features. Kongregate's purchase service shut down with Flash, so they can no longer be bought or verified.
-3. Later: make it moddable (new levels, enemies, mechanics).
+3. Quality-of-life changes, no gameplay changes, then a public release of this Flash version for fans.
+4. Later: a refactored version (to-do 4 decides how) that's moddable (new levels, enemies, mechanics).
 
-Only the user plays it for now; a public release for fans is planned later.
+Only the user plays it for now.
 
 ## User and environment
 - Windows 11, PowerShell in the VS Code terminal.
@@ -46,7 +47,7 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
 
 ## Status
 Done: To do 1 (decompiled into `decompiled/PeacefreeKong/`; findings in docs/research/), To do 2 (performance: the projector runs it at about 60 fps; build, check and play scripts), To do 3 (premium unlock through an offline Kongregate stand-in, "Unlock All Acts" button, resize-crash fix; v04), To do 5 (one save shared by all builds; v05), To do 6 (Settings button on the title and campaign screens, music and SFX volume sliders in a `settings` save; v11).
-Next: To do 4 (modding assessment, report only).
+Next: To do 7 (music: mute pauses and resumes, a Next track button).
 
 ## Decisions
 One line per decision a chat must follow. Reasons, who decided and what was rejected: docs/decisions.md. The gitignore rules in Folder layout come from there too.
@@ -59,6 +60,7 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - Starling's `handleLostContext` stays on (`src/StarlingPreloader.as`): without it, resizing the projector window kills the game.
 - All builds share one save: `src/game/library/FileLibrary.as` passes `"/"` to `getLocal`; save names stay `game` and `save-N`.
 - One options panel (`OptionsInterfacer`) for the mission, title and campaign screens; it's outside a mission when the screen passes a callback (`inMission()`), never judged from `pgame.map`.
+- The Flash version gets quality-of-life changes only, no new gameplay changes; gameplay changes and modding wait for the refactored version (roadmap: to-dos 7-9, release 10, refactor 4).
 - Music and SFX volume (0-100%) live in their own `settings` save, read and written by `src/game/library/SoundLibrary.as`; the mute flags stay in the game's save, and the mute icons stay the way to mute.
 
 ## Project docs
