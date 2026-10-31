@@ -20,7 +20,13 @@ package
       public static var INSTANCE:StarlingPreloader;
       
       private static const PROGRESS_BAR_HEIGHT:Number = 20;
-      
+
+      // PeacefreeRevival: Starling's Stage3D profile (baselineConstrained) draws at most 2048
+      // pixels wide (Adobe's docs), and nothing under 32x32 (a minimized window).
+      private static const MAX_GAME_WIDTH:int = 2048;
+
+      private static const MIN_GAME_SIZE:int = 32;
+
       public static var logo:Class = adventurecat_png$a22491f7792cdedf7f3ce027265c270d1254035083;
       
       private var _starling:Object;
@@ -77,8 +83,31 @@ package
          // application lost the device context!". Must be set before Starling is created.
          Starling.handleLostContext = true;
          this._starling = new _loc3_(_loc2_,this.stage);
+         // PeacefreeRevival: the game stays 800x540 inside, whatever the window's size when
+         // Starling starts; fitToWindow scales it. The window around the game turns black (the
+         // loading screen stays white; Starling keeps the white it was made with).
+         this._starling.stage.stageWidth = GameConfig.GAME_WIDTH;
+         this._starling.stage.stageHeight = GameConfig.GAME_HEIGHT;
+         this.stage.color = 0;
+         fitToWindow();
+         this.stage.addEventListener("resize",fitToWindow);
          this._starling.start();
          this.stage.addEventListener("keyDown",onStatsKey);
+      }
+
+      // PeacefreeRevival: fits the game to the window (to-do 8): its own 800x540 shape, centred,
+      // black bars around it, at most MAX_GAME_WIDTH wide. Runs at the start and on every resize:
+      // dragging the window's edge, maximizing, fullscreen on or off (Esc included).
+      private function fitToWindow(param1:Event = null) : void
+      {
+         var scale:Number = Math.min(stage.stageWidth / GameConfig.GAME_WIDTH,stage.stageHeight / GameConfig.GAME_HEIGHT,MAX_GAME_WIDTH / GameConfig.GAME_WIDTH);
+         var gameWidth:int = Math.round(GameConfig.GAME_WIDTH * scale);
+         var gameHeight:int = Math.round(GameConfig.GAME_HEIGHT * scale);
+         if(gameWidth < MIN_GAME_SIZE || gameHeight < MIN_GAME_SIZE)
+         {
+            return;
+         }
+         this._starling.viewPort = new Rectangle(Math.round((stage.stageWidth - gameWidth) / 2),Math.round((stage.stageHeight - gameHeight) / 2),gameWidth,gameHeight);
       }
 
       // PeacefreeRevival: the P key shows or hides Starling's stats box (FPS, memory, draw calls).
@@ -90,24 +119,17 @@ package
          }
       }
       
+      // PeacefreeRevival: the game's own fullscreen toggle (PeacefreeGame.toggleFullScreen) calls
+      // these two; nothing reaches it now (its title button is off, its Esc code never runs).
+      // They stretched the game to the screen and back; if it's ever reached, they fit it instead.
       public function resizeStage(param1:Event) : void
       {
-         var _loc2_:Rectangle = new Rectangle();
-         _loc2_.width = stage.fullScreenWidth;
-         _loc2_.height = stage.fullScreenHeight;
-         Starling.current.viewPort = _loc2_;
-         _starling.stage.stageWidth = GameConfig.GAME_WIDTH;
-         _starling.stage.stageHeight = GameConfig.GAME_HEIGHT;
+         fitToWindow();
       }
-      
+
       public function resizeBack() : void
       {
-         var _loc1_:Rectangle = new Rectangle();
-         _loc1_.width = GameConfig.GAME_WIDTH;
-         _loc1_.height = GameConfig.GAME_HEIGHT;
-         Starling.current.viewPort = _loc1_;
-         _starling.stage.stageWidth = GameConfig.GAME_WIDTH;
-         _starling.stage.stageHeight = GameConfig.GAME_HEIGHT;
+         fitToWindow();
       }
    }
 }

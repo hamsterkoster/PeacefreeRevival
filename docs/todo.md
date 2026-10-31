@@ -4,10 +4,7 @@ Next number: 11
 
 ## To do
 
-The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9; 7 is done), its release (10), then the refactor (4) and modding.
-
-### 8. Game options: start speed, fullscreen, window sizes (medium)
-In its own file: [todo/08-game-options.md](todo/08-game-options.md) (steps A and B, with Progress).
+The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9; 7 and 8 are done), its release (10), then the refactor (4) and modding.
 
 ### 9. Controls: a list of the mission keys, then rebindable keys (large)
 Goal: "Controls list might even have customizable hotkeys instead, if possible."

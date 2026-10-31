@@ -190,6 +190,9 @@ package game.peacefree
             });
             GameConfig.STAGE.addChild(sprite);
          }
+         // PeacefreeRevival: the Facebook and Twitter buttons (Flash pictures over the game, shown by
+         // the Tech screen) go on Starling's native overlay instead of the stage: Starling moves
+         // and scales the overlay with the game when it fits the window (to-do 8).
          if(FBBUTTON == null)
          {
             fbSprite = new flash.display.Sprite();
@@ -206,7 +209,7 @@ package game.peacefree
                FBBUTTON.alpha = 0.25;
                SoundLibrary.playSFX("aid");
             });
-            GameConfig.STAGE.addChild(fbSprite);
+            Starling.current.nativeOverlay.addChild(fbSprite);
          }
          if(TWITTERBUTTON == null)
          {
@@ -224,7 +227,7 @@ package game.peacefree
                TWITTERBUTTON.alpha = 0.25;
                SoundLibrary.playSFX("aid");
             });
-            GameConfig.STAGE.addChild(twitterSprite);
+            Starling.current.nativeOverlay.addChild(twitterSprite);
          }
          toggleSFX(false);
          toggleBGM(false);

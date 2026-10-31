@@ -6,6 +6,7 @@ Run from the project folder:
     .venv/Scripts/python scripts/check.py --shared-save patched/PeacefreeKong-v05-sharedsave.swf
     .venv/Scripts/python scripts/check.py --settings patched/PeacefreeKong-v06-settings.swf
     .venv/Scripts/python scripts/check.py --mission patched/PeacefreeKong-v14-startspeed.swf
+    .venv/Scripts/python scripts/check.py --resize patched/PeacefreeKong-v16-scaling.swf
 
 Opens the file in headless Chromium (Playwright, browser in tools/ms-playwright/)
 on the local Ruffle page, and takes a screenshot every second until the title
@@ -34,6 +35,12 @@ Settings on the campaign screen, Unlock All Acts and Yes, Act 2 (Act 1's
 tutorial hides the speed buttons), Start, and clicks through Act 2's opening
 dialogue until the mission's speed buttons show; it passes when 1x is the lit
 one (the game's own start speed is 4x).
+
+With --resize it goes on from the title screen: makes the player 1400x810, wider
+than the game's shape like most screens, and passes when the game fits it
+(1200x810, centred, black bars left and right): the bars are black, the logo is
+at its scaled place, and Settings, clicked at its scaled place, opens the
+options panel.
 """
 
 import argparse
@@ -91,7 +98,7 @@ MIN_TEXT_WHITE = 0.06
 # difficulty button's label is 21% white once an open act other than Act 1 is
 # chosen, and 0% for Act 1, which has no difficulty buttons.
 PLAY_BUTTON = (289, 465)
-UNLOCK_ACTS_BUTTON = (400, 350)
+UNLOCK_ACTS_BUTTON = (345, 350)  # inside the button both at x 300-500 (v15 and older) and 190-390 (v16 on)
 UNLOCK_YES = (339, 364)
 ACT_2_BUTTON = (73, 115)
 START_BUTTON = (669, 505)
@@ -103,6 +110,12 @@ NORMAL_LABEL_AREA = (318, 510, 382, 530)
 HUD_SPEED_AREAS = {1: (678, 52, 700, 72), 4: (712, 52, 744, 72), 8: (755, 52, 792, 72)}
 MIN_HUD_GREEN = 0.10
 HUD_TIMEOUT_SECONDS = 30
+# --resize (to-do 8): the player's new size; the game fits it at 1.5 times its
+# 800x540, 100 pixels in, with black bars left and right.
+RESIZED_PLAYER = (1400, 810)
+RESIZED_SCALE = 1.5
+RESIZED_LEFT = 100
+MIN_BAR_BLACK = 0.98
 # Ruffle opens this notice over the game at the first mouse-over when it draws
 # with the CPU, as it does headless; it would catch the clicks.
 HIDE_RUFFLE_NOTICE = """() => {
@@ -135,6 +148,15 @@ def is_white(r: int, g: int, b: int) -> bool:
 
 def is_hud_green(r: int, g: int, b: int) -> bool:
     return g > 150 and r < 120 and b < 120
+
+
+def is_black(r: int, g: int, b: int) -> bool:
+    return r < 16 and g < 16 and b < 16
+
+
+def resized(coords: tuple[int, ...]) -> tuple[int, ...]:
+    """A point (x, y) or an area (x1, y1, x2, y2) in the 800x540 player, moved to the resized player."""
+    return tuple(round(v * RESIZED_SCALE + (0 if i % 2 else RESIZED_LEFT)) for i, v in enumerate(coords))
 
 
 def shoot(page, box) -> bytes:
@@ -268,6 +290,43 @@ def try_mission(page, box) -> tuple[str, bytes]:
     return f"no speed buttons {HUD_TIMEOUT_SECONDS} s after Start in Act 2", png
 
 
+def try_resize(page) -> tuple[str, bytes]:
+    """--resize, on the title screen: what went wrong ("" if nothing) and the last screenshot."""
+    width, height = RESIZED_PLAYER
+    page.set_viewport_size({"width": width + 40, "height": height + 40})
+    page.evaluate(
+        """([width, height]) => {
+        for (const element of [document.getElementById("game"), document.querySelector("ruffle-player")]) {
+            element.style.width = width + "px";
+            element.style.height = height + "px";
+        }
+    }""",
+        [width, height],
+    )
+    page.wait_for_timeout(1000)
+    box = page.locator("ruffle-player").bounding_box(timeout=5000)
+    page.mouse.move(box["x"] + width // 2, box["y"] + height - 100)
+    page.wait_for_timeout(300)
+    page.evaluate(HIDE_RUFFLE_NOTICE)
+    for _ in range(20):  # the Settings button shows when the title's animation ends
+        png = shoot(page, box)
+        if share(png, resized(SETTINGS_LABEL_AREA), is_white) >= MIN_TEXT_WHITE:
+            break
+        page.wait_for_timeout(500)
+    else:
+        return f"no Settings button at its place in a {width}x{height} player", png
+    for area in ((0, 0, RESIZED_LEFT - 5, height), (width - RESIZED_LEFT + 5, 0, width, height)):
+        if share(png, area, is_black) < MIN_BAR_BLACK:
+            return f"no black bar at {area} in a {width}x{height} player", png
+    if share(png, resized(LOGO_AREA), is_logo_blue) < MIN_LOGO_BLUE:
+        return f"the logo isn't at its scaled place in a {width}x{height} player", png
+    click(page, box, resized(SETTINGS_BUTTON))
+    png = shoot(page, box)
+    if share(png, resized(PANEL_LABEL_AREA), is_white) < MIN_TEXT_WHITE:
+        return f"Settings, clicked at its scaled place, didn't open the options panel in a {width}x{height} player", png
+    return "", png
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Check that a .swf gets past the loading screen in Ruffle (headless).")
     parser.add_argument("swf", type=Path, help="the .swf file, for example patched/PeacefreeKong-v01-fpsmeter.swf")
@@ -276,6 +335,7 @@ def main() -> int:
     mode.add_argument("--shared-save", action="store_true", help="check that the save is shared by all builds instead")
     mode.add_argument("--settings", action="store_true", help="also check the title screen's Settings button and options panel")
     mode.add_argument("--mission", action="store_true", help="also do the --settings steps, then check that Act 2 starts at the start speed")
+    mode.add_argument("--resize", action="store_true", help="also check that the game fits a 1400x810 player")
     args = parser.parse_args()
     swf = args.swf.resolve()
     if not swf.is_file():
@@ -291,7 +351,7 @@ def main() -> int:
     from playwright.sync_api import sync_playwright
 
     SCREENSHOTS.mkdir(exist_ok=True)
-    suffix = "-premium" if args.premium else "-sharedsave" if args.shared_save else "-settings" if args.settings else "-mission" if args.mission else ""
+    suffix = "-premium" if args.premium else "-sharedsave" if args.shared_save else "-settings" if args.settings else "-mission" if args.mission else "-resize" if args.resize else ""
     screenshot = SCREENSHOTS / f"check-{swf.stem}{suffix}.png"
     blocked: list[str] = []
     ruffle_log: list[str] = []
@@ -300,7 +360,7 @@ def main() -> int:
     save_key = ""  # --shared-save: the save's localStorage key, once the game has saved
     per_file = False  # --shared-save: the save is under another path, such as the file's own
     previous = ""  # --premium: what the last screenshot showed, "shop", "locked" or ""
-    step_error = ""  # --settings, --mission: what went wrong after the title screen showed
+    step_error = ""  # --settings, --mission, --resize: what went wrong after the title screen showed
 
     def block(route):
         blocked.append(route.request.url)
@@ -366,6 +426,12 @@ def main() -> int:
                 except PlaywrightError as error:
                     step_error = f"the browser failed: {str(error).splitlines()[0]}"
                 passed = not step_error
+            if passed and args.resize:
+                try:
+                    step_error, png = try_resize(page)
+                except PlaywrightError as error:
+                    step_error = f"the browser failed: {str(error).splitlines()[0]}"
+                passed = not step_error
             seconds = time.monotonic() - start
             browser.close()
     finally:
@@ -386,6 +452,10 @@ def main() -> int:
         return 0
     if passed and args.mission:
         print(f"PASS: {swf.name} starts Act 2 at the start speed set in Settings ({START_SPEED}x), after {seconds:.0f} s (screenshot: {shown})")
+        return 0
+    if passed and args.resize:
+        width, height = RESIZED_PLAYER
+        print(f"PASS: {swf.name} fits a {width}x{height} player (black bars, logo and Settings at their scaled places), after {seconds:.0f} s (screenshot: {shown})")
         return 0
     if passed and args.premium:
         print(f"PASS: {swf.name} shows the Shop button (premium unlocked) after {seconds:.0f} s (screenshot: {shown})")

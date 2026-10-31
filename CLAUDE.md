@@ -42,14 +42,15 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
     - Shared save: the same with `--shared-save` before the file (about 6 s) must print PASS (the save is under the root path).
     - Settings: the same with `--settings` before the file (about 15-40 s) must print PASS (Settings on the title screen opens the options panel, dragging the muted music slider saves 75% and unmutes, the Start Speed row's 1x is saved, Back closes it).
     - Mission: the same with `--mission` before the file (about 60-80 s) must print PASS (the settings steps, then Unlock All Acts, Act 2 starts at the saved 1x).
+    - Resize: the same with `--resize` before the file (about 15 s) must print PASS (a 1400x810 player shows the game at 1200x810 with black bars; Settings clicked at its scaled place opens the panel).
 - Re-decompile (not a per-step check; only after an ffdec update, on a committed tree): `.venv/Scripts/python scripts/decompile.py` (about 4 s) must end with "All scripts decompiled without errors." It refuses to replace a folder with uncommitted changes.
 - Docs to update when behaviour changes: NOTES.md (patches, test results, the patched-files list); docs/research/ (findings and dead ends, by topic); docs/decisions.md; docs/local.md (run commands); README.md (status, setup, build and play steps, Credits; when a section grows past about a screen, move it into docs/NAME.md and link it from the README).
-- Must keep working: the game reaches its title screen (the headless check); in patched builds, P shows and hides the FPS box, premium is unlocked (the premium check), all builds share one save (the shared-save check), the Settings button opens the options panel on the title and campaign screens and its volume sliders are saved (the settings check covers the title), a new act other than Act 1 starts at the Start Speed (the mission check), mute pauses and unmute continues the same song (a projector test: the checks can't hear), and resizing the projector window doesn't stop the game.
+- Must keep working: the game reaches its title screen (the headless check); in patched builds, P shows and hides the FPS box, premium is unlocked (the premium check), all builds share one save (the shared-save check), the Settings button opens the options panel on the title and campaign screens and its volume sliders are saved (the settings check covers the title), a new act other than Act 1 starts at the Start Speed (the mission check), mute pauses and unmute continues the same song (a projector test: the checks can't hear), resizing the projector window doesn't stop the game, the game fits its window with black bars (the resize check covers a bigger player), and the panel's Fullscreen button and Esc work (a projector test).
 - Review checklist: none yet: the built-in code-review skill. Add docs/review.md once the project has its own rules to check.
 
 ## Status
-Done: To do 1-3 and 5-7, To do 8 step A (latest build v15); what each added: README.md Status and NOTES.md.
-Next: To do 8, step B (the game scales with its window, a Fullscreen button).
+Done: To do 1-3 and 5-8 (latest build v17); what each added: README.md Status and NOTES.md.
+Next: To do 9, step A (a Controls page listing the mission keys).
 
 ## Decisions
 One line per decision a chat must follow. Reasons, who decided and what was rejected: docs/decisions.md. The gitignore rules in Folder layout come from there too.
@@ -66,6 +67,7 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - Music and SFX volume (0-100%) and the start speed live in their own `settings` save, read and written by `src/game/library/SoundLibrary.as`; the mute flags stay in the game's save, and the mute icons stay the way to mute.
 - The start speed applies in `CampaignSelectorScreen.startAct` to every new act but Act 1 (the tutorial keeps 4x); loaded saves keep their own speed.
 - Window sizes come from the game scaling to fit its window (its own shape, black bars, at most 2048 wide), fullscreen included; no launcher, no stretching.
+- Only `StarlingPreloader.fitToWindow` sets Starling's viewport; Flash objects over the game go on `Starling.current.nativeOverlay`, and game code reads the mouse from it, not from the stage (window pixels).
 - Mute pauses and unmute continues the song (`SoundLibrary.pauseBGM`/`resumeBGM`; a paused song counts as playing in `isBGMPlaying`); only screen and story changes stop it for good. Missions go through `src/game/peacefree/Map.as` (`setEnableBGM`, `nextBGM` for the panel's Next button).
 
 ## Project docs

@@ -1,5 +1,6 @@
 package game.peacefree.interfaces
 {
+   import flash.events.Event;
    import game.container.GameConfig;
    import game.library.SoundLibrary;
    import game.peacefree.CampaignSelectorScreen;
@@ -43,6 +44,9 @@ package game.peacefree.interfaces
       private static const START_SPEEDS:Array = [1,4,8];
 
       private var speedButtons:Array;
+
+      // PeacefreeRevival: "Fullscreen" in a window, "Windowed" in fullscreen (to-do 8).
+      private var fullScreenButton:GenericScreenButton;
 
       // PeacefreeRevival: null in a mission (Map makes the panel with pgame only). Outside a
       // mission (title and campaign screens) the screen's function that updates its sound icons
@@ -239,7 +243,8 @@ package game.peacefree.interfaces
          unlockActsPopup.visible = false;
          unlockActsButton = new GenericScreenButton(200,40,"Unlock All Acts",20);
          unlockActsButton.bChangeAlpha = false;
-         unlockActsButton.x = GameConfig.GAME_WIDTH / 2 - unlockActsButton.width / 2;
+         // PeacefreeRevival: left of Fullscreen on the bottom row (to-do 8).
+         unlockActsButton.x = GameConfig.GAME_WIDTH / 2 - unlockActsButton.width - 10;
          unlockActsButton.y = resumeButton.y + resumeButton.height + 20;
          unlockActsButton.pressedCallback = function():void
          {
@@ -250,6 +255,19 @@ package game.peacefree.interfaces
             }
          };
          addChild(unlockActsButton);
+         // PeacefreeRevival: fullscreen on and off (to-do 8), right of Unlock All Acts. The game
+         // fits the screen the way it fits a window (StarlingPreloader.fitToWindow); Esc also
+         // leaves fullscreen (Flash Player), and the label follows (onFullScreen).
+         fullScreenButton = new GenericScreenButton(200,40,"Fullscreen",20);
+         fullScreenButton.x = GameConfig.GAME_WIDTH / 2 + 10;
+         fullScreenButton.y = unlockActsButton.y;
+         fullScreenButton.pressedCallback = function():void
+         {
+            toggleFullScreen();
+         };
+         addChild(fullScreenButton);
+         showFullScreenLabel();
+         GameConfig.STAGE.addEventListener("fullScreen",onFullScreen,false,0,true);
          addChild(blackFilmQuad2);
          addChild(confirmPopup);
          addChild(unlockActsPopup);
@@ -318,6 +336,38 @@ package game.peacefree.interfaces
       private function isMusicOn() : Boolean
       {
          return inMission() ? pgame.map.bEnableBGM : pgame.bEnabledBGM;
+      }
+
+      // PeacefreeRevival: the projector allows fullscreen at any time. A browser allows it only
+      // during a real click, and Starling handles the press a frame later, so there it's refused:
+      // nothing changes (Ruffle in a page isn't a target).
+      private function toggleFullScreen() : void
+      {
+         try
+         {
+            GameConfig.STAGE.displayState = isFullScreen() ? "normal" : "fullScreenInteractive";
+         }
+         catch(error:Error)
+         {
+         }
+         showFullScreenLabel();
+      }
+
+      private static function isFullScreen() : Boolean
+      {
+         return GameConfig.STAGE.displayState != "normal";
+      }
+
+      private function showFullScreenLabel() : void
+      {
+         fullScreenButton.textField.text = isFullScreen() ? "Windowed" : "Fullscreen";
+      }
+
+      // PeacefreeRevival: the stage's fullScreen event, on entering or leaving it (the button or
+      // Esc). A weak listener, so a panel the game drops can still be freed.
+      private function onFullScreen(param1:Event) : void
+      {
+         showFullScreenLabel();
       }
 
       // PeacefreeRevival: a Start Speed button for speed param1 at (param2, param3), added to the
@@ -498,6 +548,7 @@ package game.peacefree.interfaces
       
       override public function dispose() : void
       {
+         GameConfig.STAGE.removeEventListener("fullScreen",onFullScreen);
          while(numChildren > 0)
          {
             getChildAt(0).removeFromParent(true);
@@ -509,6 +560,7 @@ package game.peacefree.interfaces
          nextButton = null;
          unlockActsButton = null;
          speedButtons = null;
+         fullScreenButton = null;
          onSoundChange = null;
          super.dispose();
       }
