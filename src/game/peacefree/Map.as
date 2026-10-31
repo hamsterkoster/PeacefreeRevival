@@ -2266,9 +2266,13 @@ package game.peacefree
          }
       }
       
+      // PeacefreeRevival: the options panel's Controls page lists these keys
+      // (OptionsInterfacer.CONTROLS); a changed key goes there too. They do nothing while the
+      // panel is open (to-do 9): the mission is frozen then (progress), but they still acted
+      // on it (Aid at once, the speed). onKeyUp still runs, so a held key isn't left pressed.
       public function onKeyDown(param1:KeyboardEvent) : void
       {
-         if(!mapHUD.visible || mapHUD.alpha == 0)
+         if(bShowingOptions || !mapHUD.visible || mapHUD.alpha == 0)
          {
             return;
          }

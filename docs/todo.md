@@ -7,12 +7,7 @@ Next number: 11
 The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9; 7 and 8 are done), its release (10), then the refactor (4) and modding.
 
 ### 9. Controls: a list of the mission keys, then rebindable keys (large)
-Goal: "Controls list might even have customizable hotkeys instead, if possible."
-- Problem: missions have about 10 keyboard shortcuts in a fixed `switch` (`Map.onKeyDown`, `Map.as:2254`, and `onKeyUp`, 2458; key codes 192 for the backtick, 81 Q, 70 F, 69 E, 82 R, 84 T, 71 G, 88 X, 67 C and more), plus our P for the FPS box (`src/StarlingPreloader.as`) and Esc to leave fullscreen (`PeacefreeGame.as:503-512`). Claude found nowhere the game shows them (from the code, not checked in play).
-- Read first: those functions and what each key does (follow each `case`); `PeacefreeGame.onKeyDown`/`onKeyUp` (`PeacefreeGame.as:491-499`); `OptionsInterfacer` (the panel a Controls page opens from); the `settings` save (`SoundLibrary.saveSettings`).
-- Approach, in steps: A, a "Controls" button in the panel opening a page that lists each key and what it does (read-only). B, rebindable keys: each row's key is a button that waits for the next key press; the bindings go in the `settings` save; `Map.onKeyDown`/`onKeyUp` look keys up in the bindings instead of fixed codes (needs `Map.as` patched); a "Reset to defaults" button.
-- Ask the user: build A first and decide B after seeing the list (suggested: yes); a key already in use (suggested: the two actions swap keys); P and Esc (suggested: not rebindable, only the mission keys).
-- Test: the headless checks pass, plus a `--settings` step that opens the Controls page; in the projector, the list matches what the keys do, and (B) a rebound key works in a mission and after a restart.
+Goal: "Controls list might even have customizable hotkeys instead, if possible." In its own file with its Progress list: docs/todo/09-controls.md (step A built; B undecided).
 
 ### 10. Release prep for the Flash version (medium, report first)
 Goal: "I want to make a flash version that has quality of life stuff (but not gameplay changes) that we can release, then make a refactored version where we can make all our changes."

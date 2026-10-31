@@ -48,6 +48,32 @@ package game.peacefree.interfaces
       // PeacefreeRevival: "Fullscreen" in a window, "Windowed" in fullscreen (to-do 8).
       private var fullScreenButton:GenericScreenButton;
 
+      // PeacefreeRevival: the Controls page's rows (to-do 9), from Map.onKeyDown,
+      // StarlingPreloader.onStatsKey and Flash Player: a string is a heading, a pair a key and
+      // what it does. Mission keys work only while the HUD shows, commands only while their
+      // button shows.
+      private static const CONTROLS:Array = [
+         "In a mission",
+         ["W A S D, arrow keys", "Move the map (or drag it with the mouse)"],
+         ["Space", "Pause / unpause"],
+         ["C / X", "Speed up / slow down (X at 1x pauses)"],
+         ["Q", "Rush: then click a tile to speed up its mission"],
+         ["E", "Blast: then click a tile to damage enemies"],
+         ["R", "Zap: then click a tile to stun enemies"],
+         ["F", "Aid: free resources from HQ"],
+         ["T", "HyPEL: then click a tile (once unlocked)"],
+         ["G", "Quick Menu (first closes a tile\'s menu)"],
+         ["1 - 9", "Pick that numbered option in the open menu"],
+         ["` (left of 1)", "Close the tile\'s menu and the Quick Menu"],
+         "Anywhere",
+         ["P", "Show / hide the FPS box"],
+         ["Ctrl+F", "Fullscreen (in the projector)"],
+         ["Esc", "Leave fullscreen"]
+      ];
+
+      // PeacefreeRevival: the Controls page, over the whole panel while it shows.
+      private var controlsPage:Sprite;
+
       // PeacefreeRevival: null in a mission (Map makes the panel with pgame only). Outside a
       // mission (title and campaign screens) the screen's function that updates its sound icons
       // and music after a change; it also marks the panel as outside a mission (inMission), which
@@ -68,6 +94,7 @@ package game.peacefree.interfaces
          var confirmPopup:ConfirmPopup;
          var quitGameButton:GenericScreenButton;
          var resumeButton:GenericScreenButton;
+         var controlsButton:GenericScreenButton;
          var pgame:PeacefreeGame = param1;
          super();
          this.pgame = pgame;
@@ -241,10 +268,11 @@ package game.peacefree.interfaces
          unlockActsPopup.x = GameConfig.GAME_WIDTH / 2 - unlockActsPopup.width / 2;
          unlockActsPopup.y = GameConfig.GAME_HEIGHT / 2;
          unlockActsPopup.visible = false;
-         unlockActsButton = new GenericScreenButton(200,40,"Unlock All Acts",20);
+         unlockActsButton = new GenericScreenButton(180,40,"Unlock All Acts",20);
          unlockActsButton.bChangeAlpha = false;
-         // PeacefreeRevival: left of Fullscreen on the bottom row (to-do 8).
-         unlockActsButton.x = GameConfig.GAME_WIDTH / 2 - unlockActsButton.width - 10;
+         // PeacefreeRevival: the middle of the bottom row, Controls | Unlock All Acts | Fullscreen
+         // (to-dos 8 and 9).
+         unlockActsButton.x = GameConfig.GAME_WIDTH / 2 - unlockActsButton.width / 2;
          unlockActsButton.y = resumeButton.y + resumeButton.height + 20;
          unlockActsButton.pressedCallback = function():void
          {
@@ -258,8 +286,8 @@ package game.peacefree.interfaces
          // PeacefreeRevival: fullscreen on and off (to-do 8), right of Unlock All Acts. The game
          // fits the screen the way it fits a window (StarlingPreloader.fitToWindow); Esc also
          // leaves fullscreen (Flash Player), and the label follows (onFullScreen).
-         fullScreenButton = new GenericScreenButton(200,40,"Fullscreen",20);
-         fullScreenButton.x = GameConfig.GAME_WIDTH / 2 + 10;
+         fullScreenButton = new GenericScreenButton(180,40,"Fullscreen",20);
+         fullScreenButton.x = unlockActsButton.x + unlockActsButton.width + 20;
          fullScreenButton.y = unlockActsButton.y;
          fullScreenButton.pressedCallback = function():void
          {
@@ -268,9 +296,82 @@ package game.peacefree.interfaces
          addChild(fullScreenButton);
          showFullScreenLabel();
          GameConfig.STAGE.addEventListener("fullScreen",onFullScreen,false,0,true);
+         // PeacefreeRevival: left of Unlock All Acts (to-do 9); opens the Controls page.
+         controlsButton = new GenericScreenButton(180,40,"Controls",20);
+         controlsButton.x = unlockActsButton.x - controlsButton.width - 20;
+         controlsButton.y = unlockActsButton.y;
+         controlsButton.pressedCallback = function():void
+         {
+            controlsPage.visible = true;
+         };
+         addChild(controlsButton);
          addChild(blackFilmQuad2);
          addChild(confirmPopup);
          addChild(unlockActsPopup);
+         controlsPage = makeControlsPage();
+         addChild(controlsPage);
+      }
+
+      // PeacefreeRevival: the Controls page (to-do 9), hidden until Controls is pressed: a black
+      // page over the panel, its title, the CONTROLS rows (keys in the panel's orange, right-
+      // aligned; what they do in white) and Back, which shows the panel again. Only Back leaves
+      // it, so the panel always closes, and opens again, without it.
+      private function makeControlsPage() : Sprite
+      {
+         var page:Sprite = new Sprite();
+         var title:TextField;
+         var field:TextField;
+         var backButton:GenericScreenButton;
+         var rowY:Number = 60;
+         page.addChild(new Quad(GameConfig.GAME_WIDTH,GameConfig.GAME_HEIGHT,0));
+         title = new TextField(300,40,"Controls",Fonts.getDefaultFont().fontName,28,16777215,true);
+         title.x = GameConfig.GAME_WIDTH / 2 - title.width / 2;
+         title.y = 12;
+         title.vAlign = "center";
+         title.hAlign = "center";
+         title.touchable = false;
+         page.addChild(title);
+         for each(var row:Object in CONTROLS)
+         {
+            if(row is String)
+            {
+               rowY += rowY > 60 ? 6 : 0;
+               field = new TextField(GameConfig.GAME_WIDTH,24,String(row),Fonts.getDefaultFont().fontName,18,11184810,true);
+               field.hAlign = "center";
+               addControlsField(page,field,0,rowY);
+            }
+            else
+            {
+               field = new TextField(200,24,row[0],Fonts.getDefaultFont().fontName,18,15569185,true);
+               field.hAlign = "right";
+               addControlsField(page,field,100,rowY);
+               field = new TextField(460,24,row[1],Fonts.getDefaultFont().fontName,18,16777215,true);
+               field.hAlign = "left";
+               addControlsField(page,field,320,rowY);
+            }
+            rowY += 24;
+         }
+         backButton = new GenericScreenButton(200,50,"Back",24);
+         backButton.x = GameConfig.GAME_WIDTH / 2 - backButton.width / 2;
+         backButton.y = GameConfig.GAME_HEIGHT - backButton.height - 20;
+         backButton.pressedCallback = function():void
+         {
+            page.visible = false;
+         };
+         page.addChild(backButton);
+         page.visible = false;
+         return page;
+      }
+
+      // PeacefreeRevival: puts a Controls page text at (param3, param4) on page param1.
+      private static function addControlsField(param1:Sprite, param2:TextField, param3:Number, param4:Number) : void
+      {
+         param2.x = param3;
+         param2.y = param4;
+         param2.vAlign = "center";
+         param2.autoScale = true;
+         param2.touchable = false;
+         param1.addChild(param2);
       }
 
       // PeacefreeRevival: true when acts 2 to LAST_ACT are all in the save's unlocked acts.
@@ -561,6 +662,7 @@ package game.peacefree.interfaces
          unlockActsButton = null;
          speedButtons = null;
          fullScreenButton = null;
+         controlsPage = null;
          onSoundChange = null;
          super.dispose();
       }

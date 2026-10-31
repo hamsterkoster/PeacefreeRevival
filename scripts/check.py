@@ -27,8 +27,10 @@ With --settings it goes on from the title screen: mutes the music with the
 title's music icon, clicks Settings, checks that the options panel shows, drags
 the music slider from 35% to 75% and checks that the settings save holds 75
 (and SFX 100) and the game's save says music is on again (dragging unmutes),
-clicks the Start Speed row's 1x and checks that the settings save holds 1, then
-clicks Back and checks that the panel has gone.
+clicks the Start Speed row's 1x and checks that the settings save holds 1,
+clicks Controls and checks that the Controls page shows, clicks its Back and
+checks that the panel shows again, then clicks the panel's Back and checks that
+the panel has gone.
 
 With --mission it does the --settings steps, then goes on into a mission: Play,
 Settings on the campaign screen, Unlock All Acts and Yes, Act 2 (Act 1's
@@ -83,6 +85,11 @@ SETTINGS_BUTTON = (67, 18)
 MUSIC_ICON = (192, 17)  # the title's music icon, right of the SFX icon (measured)
 BACK_BUTTON = (400, 280)
 SPEED_1X_BUTTON = (390, 210)  # the panel's Start Speed row (to-do 8)
+# The panel's Controls button, left on its bottom row, and the Controls page's
+# title and Back button (to-do 9).
+CONTROLS_BUTTON = (200, 350)
+CONTROLS_TITLE_AREA = (340, 15, 460, 50)
+CONTROLS_BACK_BUTTON = (400, 495)
 START_SPEED = 1
 # The music slider's bar runs from x 360 (0%) to 560 (100%) at y 90; its knob
 # starts at the game's own 35%. Dragged to 75%.
@@ -98,7 +105,7 @@ MIN_TEXT_WHITE = 0.06
 # difficulty button's label is 21% white once an open act other than Act 1 is
 # chosen, and 0% for Act 1, which has no difficulty buttons.
 PLAY_BUTTON = (289, 465)
-UNLOCK_ACTS_BUTTON = (345, 350)  # inside the button both at x 300-500 (v15 and older) and 190-390 (v16 on)
+UNLOCK_ACTS_BUTTON = (345, 350)  # inside the button at x 300-500 (v15 and older), 190-390 (v16-v17) and 310-490 (v18 on)
 UNLOCK_YES = (339, 364)
 ACT_2_BUTTON = (73, 115)
 START_BUTTON = (669, 505)
@@ -256,6 +263,14 @@ def try_settings(page, box, host: str) -> tuple[str, bytes]:
     speed = saved_number(page, settings_key, b"startSpeed")
     if speed != START_SPEED:
         return f"the Start Speed row's {START_SPEED}x saved {speed}", png
+    click(page, box, CONTROLS_BUTTON)
+    png = shoot(page, box)
+    if share(png, CONTROLS_TITLE_AREA, is_white) < MIN_TEXT_WHITE:
+        return "Controls didn't open the Controls page", png
+    click(page, box, CONTROLS_BACK_BUTTON)
+    png = shoot(page, box)
+    if share(png, CONTROLS_TITLE_AREA, is_white) >= MIN_TEXT_WHITE or share(png, PANEL_LABEL_AREA, is_white) < MIN_TEXT_WHITE:
+        return "the Controls page's Back didn't show the options panel again", png
     click(page, box, BACK_BUTTON)
     png = shoot(page, box)
     if share(png, PANEL_LABEL_AREA, is_white) >= MIN_TEXT_WHITE:
@@ -448,7 +463,7 @@ def main() -> int:
         print(f"PASS: {swf.name} saves under the root ({save_key}), shared by all builds, after {seconds:.0f} s (screenshot: {shown})")
         return 0
     if passed and args.settings:
-        print(f"PASS: {swf.name} opens the options panel from the title screen, saves its music slider at {DRAGGED_VOLUME}% (unmuted) and start speed {START_SPEED}x, and closes it, after {seconds:.0f} s (screenshot: {shown})")
+        print(f"PASS: {swf.name} opens the options panel from the title screen, saves its music slider at {DRAGGED_VOLUME}% (unmuted) and start speed {START_SPEED}x, opens and leaves the Controls page, and closes it, after {seconds:.0f} s (screenshot: {shown})")
         return 0
     if passed and args.mission:
         print(f"PASS: {swf.name} starts Act 2 at the start speed set in Settings ({START_SPEED}x), after {seconds:.0f} s (screenshot: {shown})")
