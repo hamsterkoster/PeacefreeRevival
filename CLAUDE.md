@@ -19,9 +19,10 @@ Only the user plays it for now. Don't build what's under "Later" in docs/todo.md
 - `original/`: the original .swf files, gitignored (SHA-256 in NOTES.md). Never edit, move or overwrite anything here.
 - `decompiled/`: ffdec output, one folder per .swf, made by `scripts/decompile.py`. Scripts, texts and binaryData are tracked; exported media is gitignored.
 - `src/`: our edited copies of only the classes we patch, same layout as `decompiled/PeacefreeKong/scripts/`, tracked.
-- `patched/`: rebuilt .swf files with versioned names (`PeacefreeKong-vNN-name.swf`), made by `scripts/build.py`, gitignored (SHA-256 in NOTES.md); never overwrite an older one.
+- `patched/`: rebuilt .swf files with versioned names (`PeacefreeKong-vNN-name.swf`), made by `scripts/build.py`, gitignored (SHA-256 in NOTES.md); never overwrite an older one. `patched/air/`: AIR apps made from them (`PeacefreeRevival-vNN-name-N/`) by `scripts/package_air.py`, gitignored, never overwritten either.
+- `air/`: the AIR app's descriptor (`application.xml`), tracked.
 - `scripts/`: our own scripts (Python), tracked.
-- `tools/`: downloaded tools (ffdec, Ruffle, Flash Player projector), gitignored.
+- `tools/`: downloaded tools (ffdec, Ruffle, Flash Player projector, the AIR SDK in `tools/air/`), gitignored.
 - `NOTES.md`: log of every patch, build and test result.
 
 Git doesn't track empty folders; each shows up in the repo once it holds files.
@@ -43,14 +44,15 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
     - Settings: the same with `--settings` before the file (about 40-55 s) must print PASS (Settings on the title screen opens the options panel, dragging the muted music slider saves 75% and unmutes, the Start Speed row's 1x is saved, Controls opens its page and the page's Back returns, Back closes it).
     - Mission: the same with `--mission` before the file (about 60-90 s) must print PASS (the settings steps, then Unlock All Acts, Act 2 starts at the saved 1x).
     - Resize: the same with `--resize` before the file (about 15 s) must print PASS (a 1400x810 player shows the game at 1200x810 with black bars; Settings clicked at its scaled place opens the panel).
+    - AIR app: `.venv/Scripts/python scripts/package_air.py patched/PeacefreeKong-vNN-name.swf` (about 5 s; the build must hold `REVIVAL_VERSION` from `src/`) prints the new folder, then the same with `--check` before that folder (about 10 s) must print PASS (the app's window reaches the title screen; a window opens and closes; it starts the app's real save, as a player would).
 - Re-decompile (not a per-step check; only after an ffdec update, on a committed tree): `.venv/Scripts/python scripts/decompile.py` (about 4 s) must end with "All scripts decompiled without errors." It refuses to replace a folder with uncommitted changes.
 - Docs to update when behaviour changes: NOTES.md (patches, test results, the patched-files list); docs/research/ (findings and dead ends, by topic); docs/decisions.md; docs/local.md (run commands); README.md (status, setup, build and play steps, Credits; when a section grows past about a screen, move it into docs/NAME.md and link it from the README).
-- Must keep working: the game reaches its title screen (the headless check); in patched builds, P shows and hides the FPS box, premium is unlocked (the premium check), all builds share one save (the shared-save check), the Settings button opens the options panel on the title and campaign screens, its volume sliders are saved and its Controls page opens (the settings check covers the title), mission keys do nothing while the panel is open, a new act other than Act 1 starts at the Start Speed (the mission check), mute pauses and unmute continues the same song (a projector test: the checks can't hear), resizing the projector window doesn't stop the game, the game fits its window with black bars (the resize check covers a bigger player), and the panel's Fullscreen button and Esc work (a projector test).
+- Must keep working: the game reaches its title screen (the headless check), also as the AIR app (the AIR check); in patched builds, P shows and hides the FPS box, premium is unlocked (the premium check), all builds share one save (the shared-save check), the Settings button opens the options panel on the title and campaign screens, its volume sliders are saved and its Controls page opens (the settings check covers the title), mission keys do nothing while the panel is open, a new act other than Act 1 starts at the Start Speed (the mission check), mute pauses and unmute continues the same song (a projector test: the checks can't hear), resizing the projector window doesn't stop the game, the game fits its window with black bars (the resize check covers a bigger player), and the panel's Fullscreen button and Esc work (a projector test).
 - Review checklist: none yet: the built-in code-review skill. Add docs/review.md once the project has its own rules to check.
 
 ## Status
-Done: To do 1-3 and 5-11 (latest build v21; to-do 10 is the release report, docs/research/release.md); what each added: README.md Status and NOTES.md.
-Next: To do 12 (AIR app test); the release decisions are made (docs/decisions.md, 2026-10-31), built in to-dos 11-14.
+Done: To do 1-3, 5-11 and 12 step A (latest build v21; to-do 10 is the release report, docs/research/release.md; 12 A is the AIR app); what each added: README.md Status and NOTES.md.
+Next: To do 12, step B (the AIR app as an installer and a zip; docs/todo/12-air-app.md); the release decisions are made (docs/decisions.md, 2026-10-31), built in to-dos 11-14.
 
 ## Decisions
 One line per decision a chat must follow. Reasons, who decided and what was rejected: docs/decisions.md. The gitignore rules in Folder layout come from there too.
@@ -62,6 +64,7 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - The options menu's "Unlock All Acts" button stays in every build, the public release included.
 - The release has everything in v19, free bombs included; the shop's texts say free instead of Kreds, and the title shows a release version (`TitleScreen.REVIVAL_VERSION`, "Revival 1.0"; raise it for each release) and "unofficial fan patch" (to-do 10's report, choice 1; to-do 11).
 - The release is the patched .swf for any player, plus a Windows AIR app (the .swf packaged as it is, with its own runtime) if a test build runs well; never a projector .exe with the game inside (Adobe's terms).
+- The AIR app (`air/application.xml`, `scripts/package_air.py`; Wipro's free tier, 64-bit, .exe unsigned) ships as both an installer and a zip; its ID `io.github.hamsterkoster.PeacefreeRevival` decides the save folder and never changes after the release.
 - The README lists the players as: AIR app (if its test works), projector (linked to the Wayback Machine's copy of Adobe's download, with its SHA-256; never bundled), Ruffle app. No browser version until Ruffle's WebGPU renderer passes a test.
 - No request to the developer before the release: it's an unofficial fan patch, taken down if they ask, with full credits to Adventure Cat, LLC and Helgravis (README Credits, release notes, the AIR download's readme).
 - The release is a GitHub release in this repo (the repo goes public first); afterwards, ask Flashpoint's curators and announce on the game's Kongregate page. Not on itch.io, Newgrounds, Kongregate or the Internet Archive.
@@ -79,9 +82,9 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 ## Project docs
 - README.md: what the project is, setup, build and play, Credits.
 - docs/local.md: this PC's paths and commands (gitignored).
-- docs/todo.md: the to-do list.
+- docs/todo.md: the to-do list; a bigger to-do has its own file in docs/todo/ with its Progress list.
 - docs/decisions.md: every decision with its reason.
-- docs/research/: findings by topic: game-code.md (the file, code map, content format, saves), premium.md, network.md, performance.md, release.md (to-do 10's release report: what goes in, form, player, permission, where, save names).
+- docs/research/: findings by topic: game-code.md (the file, code map, content format, saves), premium.md, network.md, performance.md, release.md (to-do 10's release report: what goes in, form, player, permission, where, save names; the AIR SDK's terms and the AIR app, measured).
 - NOTES.md: patch, build and test log.
 
 ## Never in tracked files

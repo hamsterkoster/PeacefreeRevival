@@ -4,19 +4,10 @@ Next number: 15
 
 ## To do
 
-The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9, done), its release (to-do 10's report, [research/release.md](research/release.md), and the six release decisions of 2026-10-31; built in 11-14, 11 done), then the refactor (4) and modding.
+The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9, done), its release (to-do 10's report, [research/release.md](research/release.md), and the six release decisions of 2026-10-31; built in 11-14, 11 done, 12 step A done), then the refactor (4) and modding.
 
-### 12. AIR app test (small to medium)
-Goal: "if the AIR app test works that should be an option as well" (release decisions, choice 2).
-- Problem: fans should be able to double-click and play without installing a player. Harman's AIR SDK can package the finished .swf as a Windows app with its own runtime, with no recompiling. Whether the game runs well that way is untested; from the code, nothing the patched game runs is blocked in AIR.
-- Read first: docs/research/release.md section 2 (C); docs/decisions.md (2026-10-31: form, players); Harman's AIR SDK pages and license (airsdk.harman.com: the download, the free tier and its splash screen; the current terms weren't read in to-do 10); `src/StarlingPreloader.as` (`fitToWindow`, `handleLostContext`); the Fullscreen button in `src/game/peacefree/interfaces/OptionsInterfacer.as`.
-- Approach:
-  - The AIR SDK into `tools/air/`. If Harman needs an account or a license click, the user does that.
-  - A tracked app descriptor (id, name, a resizable 800x540 window, `renderMode` direct for Stage3D).
-  - `scripts/package_air.py` runs `adt -package -target bundle` on a patched .swf into a versioned, gitignored folder under `patched/`.
-  - Measure the folder's size, the splash screen and where the saves go.
-- Ask the user: the app's name (suggested: "Peacefree Revival"); signing the .exe (suggested: no; Windows warns the first time, and signing costs a yearly fee).
-- Test: Claude checks that the .exe starts and opens its window. The user plays it: the P key's FPS box (about 60 like the projector?), Settings, a mission, saving and loading, resizing, Fullscreen and Esc. If it runs well, to-do 14 offers it next to the .swf; if not, why goes into docs/research/release.md.
+### 12. AIR app: a Windows app that needs no Flash Player (medium)
+Goal: "if the AIR app test works that should be an option as well" (release decisions, choice 2). In its own file with its Progress list: docs/todo/12-air-app.md (step A done: the app runs well; next step B, an installer and a zip).
 
 ### 13. Browser test with Ruffle's WebGPU renderer (small)
 Goal: "any way to have this be playable in the browser, if not download option is fine" (to-do 10's questions).
@@ -31,9 +22,10 @@ Goal: "a flash version that has quality of life stuff (but not gameplay changes)
 - Problem: everything for the first public release besides game code: the downloads, a README for fans, credits, release notes, the "Before a public release" list below, the GitHub release, then Flashpoint and Kongregate.
 - Read first: docs/decisions.md (2026-10-31: form, players, permission and credits, where); docs/research/release.md; "Before a public release" below; README.md; docs/local.md (the projector's Wayback Machine link and SHA-256).
 - Approach:
-  - Release files: `Peacefree-Revival-1.0.swf`, plus `Peacefree-Revival-1.0-Windows.zip` if to-do 12 passed.
+  - Release files: `Peacefree-Revival-1.0.swf`, plus the AIR app (to-do 12) as an installer and a zip, such as `Peacefree-Revival-1.0-Windows-Setup.exe` and `Peacefree-Revival-1.0-Windows.zip`.
+  - A one-line privacy statement (the game collects nothing and makes no network calls): the AIR license asks for one, linked in the app (docs/research/release.md, "The AIR SDK's current terms").
   - README: a "Play" section at the top for fans (the AIR app, the projector link with its SHA-256, the Ruffle app); the note "unofficial fan patch; taken down if the developer asks"; Credits naming Adventure Cat, LLC and Helgravis, and Audionautix for the music (the game's own Credits screen names them; docs/research/release.md section 4).
-  - Release notes from CHANGELOG.md, and a readme in the AIR zip.
+  - Release notes from CHANGELOG.md, and a readme in the AIR zip and installer.
   - Then the "Before a public release" list. The user makes the repo public and confirms the GitHub release.
   - Afterwards, Claude drafts and the user posts: the question to Flashpoint's curators and the comment on the game's Kongregate page.
 - Likely three steps (A the package and docs, B the checklist, C publishing and announcing), so it gets its own file, docs/todo/14-release.md, when its build starts.

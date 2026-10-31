@@ -6,6 +6,8 @@ docs/local.md
 original/
 # Patched builds contain the whole original too; scripts/build.py makes them again
 patched/*.swf
+# AIR apps made from them (scripts/package_air.py), with the AIR runtime
+patched/air/
 
 # Downloaded tools (ffdec, Ruffle, Flash Player projector)
 tools/

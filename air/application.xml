@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PeacefreeRevival: the AIR app descriptor that scripts/package_air.py packages a patched .swf
+     with, as a Windows app with its own runtime (to-do 12). What each element does: the AIR SDK's
+     templates/air/descriptor-template.xml. -->
+<application xmlns="http://ns.adobe.com/air/application/51.5">
+    <!-- Decides where the app keeps its saves (in the user's AppData\Roaming), so it never changes
+         after a release. -->
+    <id>io.github.hamsterkoster.PeacefreeRevival</id>
+    <filename>Peacefree Revival</filename>
+    <name>Peacefree Revival</name>
+    <!-- package_air.py fills both in from TitleScreen.REVIVAL_VERSION ("Revival 1.0" gives 1.0.0). -->
+    <versionNumber>0.0.0</versionNumber>
+    <versionLabel>Revival 0.0</versionLabel>
+    <copyright>Peacefree: Tactical Warfare by Helgravis, (c) Adventure Cat, LLC. Unofficial fan patch.</copyright>
+    <initialWindow>
+        <content>Peacefree.swf</content>
+        <title>Peacefree: Tactical Warfare - Revival</title>
+        <visible>true</visible>
+        <resizable>true</resizable>
+        <maximizable>true</maximizable>
+        <!-- No <width> or <height>: AIR then makes the game's part of the window 800x540, the SWF's
+             size, like the projector. With 800x540 there, AIR counted the title bar and borders in,
+             leaving 784x500 for the game (measured in to-do 12). The game scales to fit its window
+             (StarlingPreloader.fitToWindow). -->
+        <!-- Stage3D, which Starling draws with. -->
+        <renderMode>direct</renderMode>
+        <!-- The game sets the stage quality to low, as the projector shows it; AIR keeps it high
+             without this. -->
+        <allowLowQuality>true</allowLowQuality>
+        <!-- The free tier's splash screen: light, dark or auto (AIR 51.5 release notes). -->
+        <splash>dark</splash>
+    </initialWindow>
+</application>
