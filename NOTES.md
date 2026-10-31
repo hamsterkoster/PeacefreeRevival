@@ -21,8 +21,28 @@ One line per file in `patched/`: what it contains and its test status. The files
 - `PeacefreeKong-v09-settings.swf`: v08 with Settings first in the top left and the two sound icons to its right. SHA-256 `c055f2986786b038996b9d13835c066ca33d465282323b48e8fbb7b72e36acc9`. Headless checks pass. Tested by the user in the projector (to-do 6, step A).
 - `PeacefreeKong-v10-sliders.swf`: v09 with volume sliders for music and SFX in the options panel and the volumes in their own `settings` save (`src/game/library/SoundLibrary.as`, `interfaces/OptionsInterfacer.as`). SHA-256 `47fa7312907cb91a699a44464164b548ef0b0a87a717d8154d9fb85a71e39775`. Headless checks passed. Replaced by v11 after the review, before any test in a player (to-do 6, step B).
 - `PeacefreeKong-v11-sliders.swf`: v10 with the review's fixes (volumes also saved when the panel closes; no sound effects played at 0%). SHA-256 `b6a2f982f645e6d11f55619cdf2b02743b6abca1b6818b126a506c0588ee5f92`. Headless checks pass. Tested by the user in the projector (to-do 6, step B).
+- `PeacefreeKong-v12-music.swf`: v11 with mute pausing and unmute continuing the song everywhere, and a Next button in the mission's options panel (`src/game/library/SoundLibrary.as`, `game/peacefree/Map.as`, `TitleScreen.as`, `CampaignSelectorScreen.as`, `interfaces/OptionsInterfacer.as`). SHA-256 `e53119d92ab423be3418e0cc59032063cd457eb611d8b6b745dc9998cb6f0ace`. Headless checks passed. Replaced by v13 after the review, before any test in a player (to-do 7).
+- `PeacefreeKong-v13-music.swf`: v12 with the review's fixes (a song paused at its very end goes on to the next one; no crash when Flash has no free sound channel). SHA-256 `81e47e59d0d53275c546bcb1a1b4d5fe57229328b13a5e759e20c72cc9982d3f`. Headless checks pass. Tested by the user in the projector (to-do 7).
 
 ## Log
+
+### 2026-10-31, To do 7: music mute pauses and resumes, a Next track button
+Mute now pauses the song and unmute continues it, on the title, campaign and mission screens; a Next button in the mission's options panel skips to the next song. Findings: "Music" in docs/research/game-code.md; decision: docs/decisions.md.
+
+**Done**
+- `src/game/library/SoundLibrary.as`: `pauseBGM` (remembers the song, its position and its end function), `resumeBGM` (plays it from there at the current volume), `stopBGM` and a new song forget it; a paused song counts as playing in `isBGMPlaying`. Playing a song moved into `startBGM`, shared by both.
+- `src/game/peacefree/Map.as` (new copy, 21 lines differ from the original): `setEnableBGM` pauses and continues instead of stopping and skipping to the next song; new `nextBGM` stops the song and starts the list's next one. `MapHUD` and the panel keep calling `setEnableBGM`.
+- `src/game/peacefree/TitleScreen.as`, `CampaignSelectorScreen.as`: `toggleBGM` pauses on mute and continues on unmute (with nothing paused, starts the menu music as before).
+- `src/game/peacefree/interfaces/OptionsInterfacer.as`: a 70x40 "Next" button right of the music readout, only in missions, dimmed and doing nothing while the music is muted.
+- Built v12, then v13 after the review (6,531,291 bytes; builds about 23 s; measured). Before that, `Map.as` unchanged in a scratch build: compiled in 15 s, title check PASS (measured).
+- No new headless check: the check can't hear the music. A mission check is noted in to-do 8.
+- A wrong first theory: "the title's demo map starts `act_1` when the title is muted"; the game has no `act_1` song (`SoundAssets.as`). Marked in docs/research/game-code.md.
+- Review (built-in code-review, medium), 8 findings. Fixed: a song paused at its very end now goes on to what its end does (the next song) instead of maybe never ending; no crash when `Sound.play` gives no channel. Can't happen in this game (all four songs are embedded and cached at start, nothing loads while playing): muting or Next while a song loads, and the leftover song on the title that follows from it. Can't happen: Next during the story's music pause (set and cleared in one call). Not taken: splitting `isBGMPlaying` into playing and paused (the demo map would make it forget the paused song); one helper for the two-line mute blocks in three classes (the original screens already repeat each other).
+
+**Test results**
+- Claude, v12 and v13: title check PASS (5-7 s), premium check PASS (13 s), shared-save check PASS (6-7 s), settings check PASS (23-24 s), no Ruffle errors from the game (all measured).
+- The user tested v13 in the projector: "tested" (the checklist: mute and unmute continue the same song on the title, campaign and mission screens; Next in the mission's panel; Next dimmed while muted; no Next outside missions; menu music from the start after leaving a mission).
+- Finish (Claude): lint, title check (4 s), premium check (13 s), shared-save check (7 s) and settings check (21 s) on v13 pass; `src/` unchanged since the v13 build; the original's SHA-256 matches. To-do 7 is done and removed from docs/todo.md.
 
 ### 2026-10-31, To do 6, step B: volume sliders
 Step B replaces the panel's ON/OFF buttons for music and SFX with sliders and keeps the volumes in their own save. Findings: "Sound and the settings panel" in docs/research/game-code.md; decision (made before step A): docs/decisions.md.

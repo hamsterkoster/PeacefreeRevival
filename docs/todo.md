@@ -4,25 +4,16 @@ Next number: 11
 
 ## To do
 
-The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9), its release (10), then the refactor (4) and modding.
-
-### 7. Music: mute pauses and resumes, a Next track button (medium)
-Goal: "For the music mute, it seems to stop the music and then restart it, rather than muting/unmuting." and "If we want to allow skipping tracks that should be a separate button in my opinion."
-- Problem: muting stops the song. Unmuting starts `main_menu` from the beginning on the title and campaign screens (`PeacefreeGame.playBGM`/`stopBGM`, `PeacefreeGame.as:681-692`) and skips to the next song in a mission (`Map.setEnableBGM` moves `bgIndex` on, `Map.as:1891`). Wanted: mute pauses, unmute continues the same song from where it was, on every screen; skipping is its own button.
-- Decided (the user, 2026-10-31): resume everywhere, missions included. Rejected: keeping the original behaviour; resuming only on the title and campaign screens with "unmute = next song" kept in missions (Claude's first suggestion), because skipping should be a separate button.
-- Read first: `src/game/library/SoundLibrary.as` (`playBGM`, `stopBGM`, `currentBGMChannel`); `toggleBGM` in `src/game/peacefree/TitleScreen.as` and `CampaignSelectorScreen.as`; `Map.as:1891-1937` (`setEnableBGM`, `playBGM`, and `pauseBGM`, which also stops); `MapHUD.toggleBGM` (`MapHUD.as:913`); the music slider's unmute in `src/game/peacefree/interfaces/OptionsInterfacer.as`.
-- Approach: `SoundLibrary` gets a pause that remembers the song and its position (`SoundChannel.position`) and continues a paused song from there when it's played again; screen changes still stop it for good. Missions: patch `Map.setEnableBGM` (first build `Map.as`, 2,634 lines, unchanged and run the checks, to see that it recompiles cleanly), or else change its two callers (`MapHUD.toggleBGM`, the panel). A "Next track" button in the panel beside the music slider, missions only.
-- Ask the user: the button's place (suggested: a small "Next" button right of the music readout, missions only); Next while muted (suggested: dimmed, does nothing).
-- Test: the headless checks pass (they can't hear the music; the build session decides whether a check can see the paused song); in the projector, mute and unmute continue the same song on the title, campaign and mission screens, and Next starts the next song in a mission.
+The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9; 7 is done), its release (10), then the refactor (4) and modding.
 
 ### 8. Game options: start speed, fullscreen, window sizes (medium)
 Goal: Claude's suggestions "starting game speed" and "fullscreen button" ("Your suggestions sound good. Lets add 1-3 to the to do."), and "For 2, maybe we can have different window sizes?"
 - Problem: every new mission starts at 4x speed (`Map.as:232`, `mapHUD.changeSpeed(4)`; a loaded save keeps its own, `Map.as:405`); the game has 1x, 4x and 8x. The game has a working fullscreen toggle (`PeacefreeGame.toggleFullScreen`, `PeacefreeGame.as:1037`; Esc leaves it, 503-512), but the developer switched its title button off (`TitleScreen.as:162`, `if(false && ...)`). Flash Player can't resize its own window from ActionScript (only Adobe AIR can), so window sizes need something outside the game; dragging the window edge already works.
 - Read first: those lines; `MapHUD.changeSpeed` (`MapHUD.as:585`); `resizeStage`/`resizeBack` in `src/StarlingPreloader.as` and the `handleLostContext` decision (CLAUDE.md Decisions: resizing once killed the game); `SoundLibrary.saveVolumes` (the `settings` save to extend); docs/local.md (the projector's path and run command).
-- Approach: in the panel, a "Start speed" row (1x / 4x / 8x, saved in `settings`, applied where a new mission starts; needs `Map.as` or its caller patched, which to-do 7 may already have done) and a "Fullscreen" button calling the game's own toggle. A Python launcher in `scripts/` that starts the projector with a build and sets its window size through the Windows API.
+- Approach: in the panel, a "Start speed" row (1x / 4x / 8x, saved in `settings`, applied where a new mission starts; `src/game/peacefree/Map.as` is already patched since to-do 7's v13, and recompiles cleanly) and a "Fullscreen" button calling the game's own toggle. A Python launcher in `scripts/` that starts the projector with a build and sets its window size through the Windows API.
 - Steps (suggested): A start speed and the Fullscreen button (in the game), B the launcher (outside it).
 - Ask the user: the start speed default (suggested: 4x, the game's own); the window sizes (suggested: 800x540, 1200x810 and 1600x1080, the game's own shape); the launcher's form (suggested: `.venv/Scripts/python scripts/projector.py patched/<file> --size 1200x810`).
-- Test: the headless checks pass, plus a `--settings` step for the speed row if a screenshot can show it; in the projector, a new mission starts at the chosen speed, Fullscreen and Esc work and the game keeps running, and the launcher opens the chosen size.
+- Test: the headless checks pass, plus a `--settings` step for the speed row if a screenshot can show it, and a new headless check that starts a mission (`check.py --mission`, suggested; to-do 7 put it here: start speed and the panel's Next track button are mission-only, and no check enters a mission yet); in the projector, a new mission starts at the chosen speed, Fullscreen and Esc work and the game keeps running, and the launcher opens the chosen size.
 
 ### 9. Controls: a list of the mission keys, then rebindable keys (large)
 Goal: "Controls list might even have customizable hotkeys instead, if possible."

@@ -54,7 +54,16 @@ package game.library
       private var parsedData:Array = null;
       
       private var currentBGMChannel:SoundChannel = null;
-      
+
+      // PeacefreeRevival: the song in currentBGMChannel, or the one pauseBGM stopped, and the
+      // function its playBGM call gave for when it ends (to-do 7).
+      private var currentBGM:String = null;
+
+      private var currentBGMEnd:Function = null;
+
+      // PeacefreeRevival: where pauseBGM stopped currentBGM, in ms; -1 when no song is paused.
+      private var pausedPosition:Number = -1;
+
       private var bBuffering:Boolean = false;
       
       private var delayed:Array = [];
@@ -83,6 +92,7 @@ package game.library
          return BGM_VOLUME;
       }
       
+      // PeacefreeRevival: stops for good: also forgets a paused song.
       public static function stopBGM() : void
       {
          if(INSTANCE == null)
@@ -94,23 +104,72 @@ package game.library
             INSTANCE.currentBGMChannel.stop();
          }
          INSTANCE.currentBGMChannel = null;
+         INSTANCE.currentBGM = null;
+         INSTANCE.currentBGMEnd = null;
+         INSTANCE.pausedPosition = -1;
       }
-      
+
+      // PeacefreeRevival: mute (to-do 7). Stops the song but remembers it and where it was, for
+      // resumeBGM; with nothing playing (or already paused) nothing changes.
+      public static function pauseBGM() : void
+      {
+         if(INSTANCE == null || INSTANCE.currentBGMChannel == null)
+         {
+            return;
+         }
+         INSTANCE.pausedPosition = INSTANCE.currentBGMChannel.position;
+         INSTANCE.currentBGMChannel.stop();
+         INSTANCE.currentBGMChannel = null;
+      }
+
+      // PeacefreeRevival: unmute (to-do 7). Continues the paused song from where it was, at the
+      // current volume; paused at its very end, what its end does instead (the next song). False
+      // when no song is paused.
+      public static function resumeBGM() : Boolean
+      {
+         var _loc1_:Sound = null;
+         var _loc2_:Number = NaN;
+         if(INSTANCE == null || INSTANCE.pausedPosition < 0)
+         {
+            return false;
+         }
+         _loc1_ = INSTANCE.retrieve(INSTANCE.currentBGM);
+         _loc2_ = INSTANCE.pausedPosition;
+         INSTANCE.pausedPosition = -1;
+         if(_loc1_ == null)
+         {
+            return false;
+         }
+         if(_loc2_ >= _loc1_.length)
+         {
+            INSTANCE.currentBGMEnd();
+            return true;
+         }
+         startBGM(_loc1_,_loc2_);
+         return true;
+      }
+
+      // PeacefreeRevival: a paused song counts as playing, so the callers that start music when
+      // none plays (PeacefreeGame.playBGM, Map.playBGM) don't call playBGM, which would forget
+      // it. The title's background demo map calls it every frame while nothing plays (for
+      // "act_1", a song the game doesn't have, so it plays nothing).
       public static function isBGMPlaying() : Boolean
       {
          if(INSTANCE == null)
          {
             return false;
          }
-         return INSTANCE.isBuffering() || INSTANCE.currentBGMChannel != null;
+         return INSTANCE.isBuffering() || INSTANCE.currentBGMChannel != null || INSTANCE.pausedPosition >= 0;
       }
-      
+
       public static function playBGM(param1:String, param2:Function, param3:Boolean = true) : void
       {
          var sound:Sound;
          var soundID:String = param1;
          var onPlayEnd:Function = param2;
          var bBuffer:Boolean = param3;
+         // PeacefreeRevival: a new song replaces a paused one.
+         INSTANCE.pausedPosition = -1;
          if(INSTANCE.currentBGMChannel != null)
          {
             INSTANCE.currentBGMChannel.stop();
@@ -129,7 +188,22 @@ package game.library
             }
             return;
          }
-         INSTANCE.currentBGMChannel = sound.play();
+         INSTANCE.currentBGM = soundID;
+         INSTANCE.currentBGMEnd = onPlayEnd;
+         startBGM(sound,0);
+      }
+
+      // PeacefreeRevival: plays currentBGM's sound param1 from param2 ms (0 for a new song, more
+      // when resumed); at its end, its playBGM call's function. Moved out of playBGM. Flash gives
+      // no channel when none is free; then nothing plays, as if the song had stopped.
+      private static function startBGM(param1:Sound, param2:Number) : void
+      {
+         var onPlayEnd:Function = INSTANCE.currentBGMEnd;
+         INSTANCE.currentBGMChannel = param1.play(param2);
+         if(INSTANCE.currentBGMChannel == null)
+         {
+            return;
+         }
          INSTANCE.currentBGMChannel.soundTransform = SoundLibrary.getBGMVolume();
          INSTANCE.currentBGMChannel.addEventListener("soundComplete",function():void
          {

@@ -42,12 +42,12 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
     - Settings: the same with `--settings` before the file (about 15 s) must print PASS (Settings on the title screen opens the options panel, dragging the muted music slider saves 75% and unmutes, Back closes it).
 - Re-decompile (not a per-step check; only after an ffdec update, on a committed tree): `.venv/Scripts/python scripts/decompile.py` (about 4 s) must end with "All scripts decompiled without errors." It refuses to replace a folder with uncommitted changes.
 - Docs to update when behaviour changes: NOTES.md (patches, test results, the patched-files list); docs/research/ (findings and dead ends, by topic); docs/decisions.md; docs/local.md (run commands); README.md (status, setup, build and play steps, Credits).
-- Must keep working: the game reaches its title screen (the headless check); in patched builds, P shows and hides the FPS box, premium is unlocked (the premium check), all builds share one save (the shared-save check), the Settings button opens the options panel on the title and campaign screens and its volume sliders are saved (the settings check covers the title), and resizing the projector window doesn't stop the game.
+- Must keep working: the game reaches its title screen (the headless check); in patched builds, P shows and hides the FPS box, premium is unlocked (the premium check), all builds share one save (the shared-save check), the Settings button opens the options panel on the title and campaign screens and its volume sliders are saved (the settings check covers the title), mute pauses and unmute continues the same song (a projector test: the checks can't hear), and resizing the projector window doesn't stop the game.
 - Review checklist: none yet: the built-in code-review skill. Add docs/review.md once the project has its own rules to check.
 
 ## Status
-Done: To do 1 (decompiled into `decompiled/PeacefreeKong/`; findings in docs/research/), To do 2 (performance: the projector runs it at about 60 fps; build, check and play scripts), To do 3 (premium unlock through an offline Kongregate stand-in, "Unlock All Acts" button, resize-crash fix; v04), To do 5 (one save shared by all builds; v05), To do 6 (Settings button on the title and campaign screens, music and SFX volume sliders in a `settings` save; v11).
-Next: To do 7 (music: mute pauses and resumes, a Next track button).
+Done: To do 1 (decompiled into `decompiled/PeacefreeKong/`; findings in docs/research/), To do 2 (performance: the projector runs it at about 60 fps; build, check and play scripts), To do 3 (premium unlock through an offline Kongregate stand-in, "Unlock All Acts" button, resize-crash fix; v04), To do 5 (one save shared by all builds; v05), To do 6 (Settings button on the title and campaign screens, music and SFX volume sliders in a `settings` save; v11), To do 7 (mute pauses and unmute continues the song everywhere, a Next button in the mission's options panel; v13).
+Next: To do 8 (game options: start speed, fullscreen, window sizes).
 
 ## Decisions
 One line per decision a chat must follow. Reasons, who decided and what was rejected: docs/decisions.md. The gitignore rules in Folder layout come from there too.
@@ -62,6 +62,7 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - One options panel (`OptionsInterfacer`) for the mission, title and campaign screens; it's outside a mission when the screen passes a callback (`inMission()`), never judged from `pgame.map`.
 - The Flash version gets quality-of-life changes only, no new gameplay changes; gameplay changes and modding wait for the refactored version (roadmap: to-dos 7-9, release 10, refactor 4).
 - Music and SFX volume (0-100%) live in their own `settings` save, read and written by `src/game/library/SoundLibrary.as`; the mute flags stay in the game's save, and the mute icons stay the way to mute.
+- Mute pauses and unmute continues the song (`SoundLibrary.pauseBGM`/`resumeBGM`; a paused song counts as playing in `isBGMPlaying`); only screen and story changes stop it for good. Missions go through `src/game/peacefree/Map.as` (`setEnableBGM`, `nextBGM` for the panel's Next button).
 
 ## Project docs
 - README.md: what the project is, setup, build and play, Credits.

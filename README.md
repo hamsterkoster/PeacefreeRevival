@@ -14,7 +14,8 @@ This is an unofficial fan project, not affiliated with Helgravis or Kongregate. 
 - Done: premium is unlocked. Kongregate is replaced by an offline stand-in, so the game makes no network calls; bombs are free in the shop. Resizing the window no longer stops the game.
 - Done: all builds share one save, so progress carries over to each new build.
 - Done: a Settings button on the title and campaign screens opens the options panel there too, with volume sliders for music and sound effects (saved, and shared by all builds).
-- Next: quality-of-life changes (music, game options, controls), then a release of the Flash version.
+- Done: muting the music pauses the song and unmuting continues it, on every screen; in a mission, the options panel has a Next button to skip to the next song.
+- Next: quality-of-life changes (game options, controls), then a release of the Flash version.
 - Not yet: a ready-to-play release.
 
 ## How it works

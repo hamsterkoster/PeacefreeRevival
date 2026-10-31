@@ -356,15 +356,18 @@ package game.peacefree
          {
             pgame.bEnabledBGM = !pgame.bEnabledBGM;
          }
+         // PeacefreeRevival: mute pauses the song and unmute continues it (to-do 7); with none
+         // paused, unmute starts the menu music as before.
          if(pgame.bEnabledBGM)
          {
             bgmButton.alpha = 1;
+            SoundLibrary.resumeBGM();
             pgame.playBGM();
          }
          else
          {
             bgmButton.alpha = 0.35;
-            pgame.stopBGM();
+            SoundLibrary.pauseBGM();
          }
          pgame.saveGameData();
       }

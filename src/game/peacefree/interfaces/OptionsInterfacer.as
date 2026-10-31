@@ -31,6 +31,9 @@ package game.peacefree.interfaces
 
       private var sfxSlider:Sprite;
 
+      // PeacefreeRevival: skips to the mission's next song (to-do 7).
+      private var nextButton:GenericScreenButton;
+
       // PeacefreeRevival: the campaign's acts are 1 to LAST_ACT; act 1 is always open.
       private static const LAST_ACT:int = 11;
 
@@ -89,6 +92,21 @@ package game.peacefree.interfaces
          bgmLabel.touchable = false;
          bgmLabel.autoScale = true;
          addChild(bgmLabel);
+         // PeacefreeRevival: Next, right of the music readout: missions only (the menus have one
+         // song); dimmed and doing nothing while the music is muted (refresh).
+         nextButton = new GenericScreenButton(70,40,"Next",20);
+         nextButton.bChangeAlpha = false;
+         nextButton.x = musicSlider.x + SLIDER_WIDTH + 100;
+         nextButton.y = musicSlider.y;
+         nextButton.pressedCallback = function():void
+         {
+            if(isMusicOn())
+            {
+               pgame.map.nextBGM();
+            }
+         };
+         nextButton.visible = inMission();
+         addChild(nextButton);
          // PeacefreeRevival: letting go plays a click at the new volume: outside a mission no
          // other sound effect plays to hear it by.
          sfxSlider = makeSlider(GameConfig.GAME_HEIGHT / 2 - 140,function(param1:int):void
@@ -430,6 +448,7 @@ package game.peacefree.interfaces
          }
          showSlider(musicSlider,SoundLibrary.getMusicVolume(),isMusicOn());
          showSlider(sfxSlider,SoundLibrary.getSFXVolume(),SoundLibrary.ENABLE_SFX);
+         nextButton.alpha = isMusicOn() ? 1 : 0.35;
       }
       
       override public function dispose() : void
@@ -442,6 +461,7 @@ package game.peacefree.interfaces
          diffValueLabel = null;
          musicSlider = null;
          sfxSlider = null;
+         nextButton = null;
          unlockActsButton = null;
          onSoundChange = null;
          super.dispose();
