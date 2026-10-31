@@ -25,7 +25,7 @@ Only the user plays it for now; a public release for fans is planned later.
 Git doesn't track empty folders; each shows up in the repo once it holds files.
 
 ## Working style
-- One to-do per chat, built with the /build-todo skill ("Build To do N"); new ones written with /add-todo.
+- One to-do per chat, built with the /build-todo skill (`/build-todo N`, or `/build-todo N, step B` for one step of a bigger to-do); new ones written with /add-todo.
 - Commit after each working step; end a step with the finish-step skill.
 - If a change breaks the rebuild or the game, revert to the last working commit instead of piling on fixes.
 - Installing tools (into `tools/` or with winget) is fine; ask before anything else outside this folder or anything that can't be undone.

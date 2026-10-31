@@ -19,7 +19,7 @@ Only when the user has tested the whole step; if part of the test failed, fix th
 - Update the other docs the change affects (CLAUDE.md "Build specifics": Docs to update).
 - If the step added anything made by someone else (a tool, library, asset, or copied or adapted code), add it to README.md "Credits" with its author, license and link.
 - Give the commit message as plain text in a code block.
-- Say what comes next: the next step or to-do, and the short message to start it in a new chat.
+- Say what comes next: the next step or to-do, and the command to start it in a new chat, in its own code block: `/build-todo N`, or `/build-todo N, step B` for the next step of a bigger to-do.
 
 ## Phase 2: commit (only when the user says "commit")
 Other Claude sessions may be editing this folder at the same time.
