@@ -11,8 +11,8 @@ Only the user plays it for now. Don't build what's under "Later" in docs/todo.md
 
 ## User and environment
 - Windows 11, PowerShell in the VS Code terminal.
-- git 2.56, Java 8 (1.8.0_431), Python 3.13, winget, gh (signed in as HaminKo). No Node.
-- GitHub: the repo is hamsterkoster/PeacefreeRevival (private), owned by the hamsterkoster organization; pushes and gh use the HaminKo account, an admin of it.
+- git 2.56, Java 8 (1.8.0_431), Python 3.13, winget, gh (signed in). No Node.
+- GitHub: the repo is hamsterkoster/PeacefreeRevival (private), owned by the hamsterkoster organization; pushes and gh use a personal account, an admin of it (named in docs/local.md).
 - Real paths: docs/local.md (gitignored).
 
 ## Folder layout
@@ -80,3 +80,4 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 The repo goes public later, with its full history.
 - Personal paths (user folder, drive paths): they go in docs/local.md.
 - Kongregate account names, IDs or tokens (for example from save data or test logs).
+- The GitHub login used for pushes: it goes in docs/local.md. Current files only; old commits that hold it are fine.
