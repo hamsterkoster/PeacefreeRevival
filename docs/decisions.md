@@ -2,6 +2,13 @@
 
 One entry per decision, newest first: the date and decision as the heading, then the reason, who decided, and what was rejected and why. CLAUDE.md "Decisions" keeps only the rule that follows from each one.
 
+## 2026-10-31: All builds share one save, under the root path; v04's save carried over
+- What: from v05, `src/game/library/FileLibrary.as` calls `SharedObject.getLocal(name, "/")`, so every build reads and writes the same `game` and `save-N` saves, wherever the file is and whatever it's called. The save names stay `game` and `save-N`. The original .swf isn't patched and keeps its own save. Claude copied v04's `game.sol` once to the shared spot (only because none was there); the older saves stay untouched.
+- Reason: the user's request: progress should carry over to each new build instead of starting at the tutorial again ([research/game-code.md](research/game-code.md)). One line in the one class every save goes through. `"/"` rather than the builds' folder, so a save also follows a build that's moved or downloaded elsewhere.
+- Decided by: the user, taking the suggested answers, to-do 5: v04's save (newest, all acts), a one-time copy without a script, the original kept separate, the names unchanged.
+- Rejected: unique names such as `peacefree-game` (they would avoid sharing a file with another local Flash game that uses `getLocal("game", "/")`, which is rare, but the copy would have had to rewrite the name inside the file). Merging v01's better records into the save: not worth the work. A copy script: one copy doesn't need one, and fans won't have our old per-build saves. Reading the old per-file save when the shared one is empty: a new build's own path never had a save, so it wouldn't help.
+- Follows: if the public release needs it, unique names can come later with one more one-time copy.
+
 ## 2026-10-31: An "Unlock All Acts" button in the mission's options menu, in every build for now
 - What: `src/game/peacefree/interfaces/OptionsInterfacer.as` adds the button under "Back to Game". After a confirm popup it adds acts 2-11 to the save's unlocked acts, as if each earlier act was won, and saves. It can't be undone. It unlocks acts only; medals for the Tech screen still come from achievements.
 - Reason: the user wants to skip the long tutorial when testing; every build has its own save, so each new build starts at the tutorial ([research/game-code.md](research/game-code.md)). The options menu is the game's only settings panel, and it exists only inside a mission.
@@ -16,7 +23,7 @@ One entry per decision, newest first: the date and decision as the heading, then
 - Rejected: nothing else fixes it from inside the game. Accepted costs: more memory (texture copies) and a blank minimap after a resize until it redraws.
 
 ## 2026-10-31: Saves shared between builds: a to-do of its own
-- What: making all builds share one save (to-do 5) waits; for now each build has its own save.
+- What: making all builds share one save (to-do 5) waits; for now each build has its own save. Done in to-do 5: see "All builds share one save" above.
 - Reason: it changes where the user's saves live, so it gets its own decision.
 - Decided by: the user, taking the suggested answer, to-do 3.
 

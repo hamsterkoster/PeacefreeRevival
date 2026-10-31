@@ -14,8 +14,23 @@ One line per file in `patched/`: what it contains and its test status. The files
 - `PeacefreeKong-v02-premium.swf`: the first version of the Kongregate stand-in, replaced by v03 after the review, before any test in a player. SHA-256 `a349e92a113e757c3309c85b899a5c0906c81a2526e45d9e6841791135253a88`. Headless checks passed. Not for playing (to-do 3).
 - `PeacefreeKong-v03-premium.swf`: v01 plus premium unlocked through an offline stand-in for Kongregate, in `src/game/library/KongregateAPI.as`. SHA-256 `c2e00acf3c94372073896befa331a406f6f40628b51ddae99a267ae1a13976f2`. Headless checks pass. The user started testing it in the projector, found the long tutorial and the resize crash; replaced by v04 (to-do 3).
 - `PeacefreeKong-v04-premium.swf`: v03 plus the options menu's "Unlock All Acts" button (`src/game/peacefree/interfaces/OptionsInterfacer.as`) and the resize-crash fix (`handleLostContext` in `src/StarlingPreloader.as`). SHA-256 `446fac3e2c72c421726c1bf5b520d3fb7dbd57e225b56dff715efe9e3a3fa245`. Headless checks pass. Tested by the user in the projector (to-do 3).
+- `PeacefreeKong-v05-sharedsave.swf`: v04 plus one save shared by all builds (`"/"` as the save path in `src/game/library/FileLibrary.as`). SHA-256 `de7c9cbce0b8f8d815dea9416ab5d062cf5dff1a6e9f9b57a419cbe831be0688`. Headless checks pass. Tested by the user in the projector (to-do 5).
 
 ## Log
+
+### 2026-10-31, To do 5: shared saves between builds
+Every save and load goes through `FileLibrary.loadSharedData`, which called `getLocal(name)` without a path, so Flash kept a separate save for each file path. Findings: "Save data" in docs/research/game-code.md; decision: docs/decisions.md.
+
+**Done**
+- `src/game/library/FileLibrary.as`: `getLocal(name, "/")`, for `game` and the saved missions (`save-N`) alike.
+- Built `PeacefreeKong-v05-sharedsave.swf` (6,527,759 bytes; measured).
+- `scripts/check.py --shared-save`: opens the game with `show_premium=true` (the game saves when the campaign screen opens) and reads Ruffle's `localStorage`: passes on the root key `127.0.0.1//game`, fails at once on any other key for `game`, such as v04's `127.0.0.1/game.swf/game`. Review (built-in code-review, medium): the first version passed on any key ending in `/game` without `game.swf`, picked the first matching key, and waited on the screenshot; now it needs the exact root key, built from the page's host, and reads before the screenshot. Left as notes: another local Flash game with `getLocal("game", "/")` would share the save (decided, docs/decisions.md); the check tests where the save is written, not that a second build reads it (the user's projector test does); three stop flags in the check's loop.
+- Copied v04's `game.sol` once to the shared spot in the projector's save folder (none was there; SHA-256 of the copy matches). The older saves are untouched.
+
+**Test results**
+- Claude, v05: title check PASS (4 s), premium check PASS (12 s), shared-save check PASS (5 s; 7 s after the review fix). Shared-save check on v04: FAIL at once with `127.0.0.1/game.swf/game`, as it should (all measured).
+- The user tested v05 in the projector: v04's progress shows, a setting survives a restart, a renamed copy of v05 in another folder shows the same save, and the P key, premium and resizing still work. Result: "Tested, looks good." Afterwards the projector's save folder had a newly written `#localWithNet\game.sol` and no per-file folder for v05 or the copy (measured), so the projector stores the save under the root as intended.
+- Finish (Claude): lint, title check (5 s), premium check (10 s) and shared-save check (5 s) on v05 pass; `src/` unchanged since the v05 build; the original's SHA-256 matches.
 
 ### 2026-10-31, To do 3: premium unlock
 Premium, the bombs and the shop all depend on Kongregate's answers, which all pass through `KongregateAPI.as`; v03 replaces that class with an offline stand-in. The to-do 1 suggestion (`isPremiumPlayer()` returns true) was not enough: bombs at 0 and a stuck shop. Findings: docs/research/premium.md; decisions: docs/decisions.md.
