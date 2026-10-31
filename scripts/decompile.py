@@ -27,6 +27,15 @@ DEFAULT_SWF = ROOT / "original" / "PeacefreeKong.swf"
 FAILURE_MARKERS = re.compile(r"Decompilation error|Not decompiled due to timeout|§§[a-z]+\(")
 
 
+def ffdec_problem() -> str | None:
+    """Why ffdec can't run (missing jar or java), or None when it can."""
+    if not FFDEC_JAR.is_file():
+        return f"ffdec not found at {FFDEC_JAR} (unzip the ffdec release zip into tools/ffdec/)"
+    if shutil.which("java") is None:
+        return "java is not on PATH"
+    return None
+
+
 def output_dir_for(swf: Path) -> Path:
     """The export folder for a .swf: decompiled/<file name without .swf>."""
     out = (DECOMPILED / swf.stem).resolve()
@@ -69,11 +78,9 @@ def main() -> int:
     if not swf.is_file():
         print(f"error: file not found: {swf}", file=sys.stderr)
         return 1
-    if not FFDEC_JAR.is_file():
-        print(f"error: ffdec not found at {FFDEC_JAR} (unzip the ffdec release zip into tools/ffdec/)", file=sys.stderr)
-        return 1
-    if shutil.which("java") is None:
-        print("error: java is not on PATH", file=sys.stderr)
+    problem = ffdec_problem()
+    if problem:
+        print(f"error: {problem}", file=sys.stderr)
         return 1
     try:
         out = output_dir_for(swf)

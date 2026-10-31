@@ -4,6 +4,8 @@ docs/local.md
 
 # The original game files: kept out of the public history (SHA-256 in NOTES.md)
 original/
+# Patched builds contain the whole original too; scripts/build.py makes them again
+patched/*.swf
 
 # Downloaded tools (ffdec, Ruffle, Flash Player projector)
 tools/

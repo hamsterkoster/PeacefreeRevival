@@ -8,11 +8,35 @@ Log of findings, patches and test results. Newest entry first; each entry has th
 - `original/` is gitignored; this hash is how we check the file is unchanged.
 
 ## Patched files
-One line per file in `patched/`: what it contains and its test status.
+One line per file in `patched/`: what it contains and its test status. The files are gitignored (each contains the whole original); `scripts/build.py` makes them again from `src/`, byte for byte.
 
-(none yet)
+- `PeacefreeKong-v01-fpsmeter.swf`: the original plus the P key for Starling's stats box (FPS, memory, draw calls), in `src/StarlingPreloader.as`. SHA-256 `4b6e2df90472e64097ba61147486b1c4ff27608a8c5d3de68dc681f81f723112`. Tested by the user in all three players (to-do 2).
 
 ## Log
+
+### 2026-10-30, To do 2: performance
+The lag is the player, not the game: the Flash Player projector runs the game at about 60 fps. The user's decision: play in the projector, no fixes for Ruffle, so the planned step B (less per-frame work) was dropped.
+
+**Done**
+- Players in `tools/`: Flash Player projector 32.0.0.465 (`flashplayer_32_sa.exe` from the Wayback Machine copy of Adobe's download URL; valid Adobe Inc. signature), Ruffle nightly 2026-10-29 app and web version (SHA-256 matched GitHub's). Playwright 1.64.1 with Chrome Headless Shell 156 in `tools/ms-playwright/` (282 MB, measured). Pillow 13.0.0 for the check's pixel test.
+- `scripts/build.py vNN-name`: checks the original's SHA-256, compiles every class in `src/` into a copy with ffdec's `-replace`, writes `patched/PeacefreeKong-vNN-name.swf`. 16-17 s (measured); the same input gives the same file (same SHA-256 twice, measured). A compile error, an unknown class, a reused version number and a bad name each stop it with nothing written (tested). ffdec prints "This feature is EXPERIMENTAL" for its AS3 compiler, and adds a second `[SWF(...)]` metadata line to the preloader class (harmless; the file header is unchanged).
+- `scripts/check.py <file>`: the slow check. Headless Chromium plays the file in Ruffle's web version and passes once the title screen's blue logo shows (logo area 38% logo blue on the title screen, 0% while loading; measured). 7-12 s for a pass, 60 s for a fail (measured). Blocks and lists requests to other sites.
+- `scripts/play.py <file>`: plays a file in Ruffle in the user's browser, through the same local page (`scripts/ruffle_page.py`).
+- `patched/*.swf` is gitignored (see CLAUDE.md Decisions).
+
+**Test results** (FPS read by the user from the stats box, rounded: title screen / about 30 s into Act 1)
+- Flash Player projector: about 60 / 60. Played best.
+- Ruffle app: about 40 / 40. Okay but slow.
+- Ruffle in the browser (`play.py`, the default browser): about 20 / 15. Worst.
+- Ruffle also drew some graphics wrong, for example a white background where it should be black.
+- Not measured: a busy moment late in a mission (the user's original complaint). If that lags in the projector, it needs a new to-do.
+
+**Findings**
+- Correction to to-do 1: the game size is 800x540, not 2272x1280. `StarlingPreloader` calls `GameConfig.setScreenResolution(800,540,...)` at startup (`StarlingPreloader.as:38`); 2272x1280 is only the default in `GameConfig`.
+- The only network call the game makes is the Kongregate API load at start (`http://www.kongregate.com/flash/API_AS3_Local.swf`). In a browser on another site it fails (CORS), and the game carries on.
+- Ruffle's web version uses its `wgpu-webgl` renderer here (needed for Stage3D). The graphics driver logged "GPU stall due to ReadPixels" warnings in headless Chromium; whether they cost FPS is unknown.
+- Headless Chromium showed 5.4 FPS on the title screen (measured, but headless and while taking screenshots, so only a hint).
+- Every frame the game updates all 625 tiles and every enemy, re-sorts the enemy list and rebuilds 7 HUD texts (`Map.progress`, `MapHUD.update`). Not a problem in the projector at the measured scenes; it is the first place to look if a late mission lags.
 
 ### 2026-10-30, To do 1: inspect and decompile
 All findings come from reading the decompiled code; nothing was run in a player yet. Numbers marked (measured) were measured, the rest are counts from the code.
@@ -72,5 +96,5 @@ All findings come from reading the decompiled code; nothing was run in a player 
 - Premium isn't in the save, so unlocking it needs no save editing.
 
 **Leads for to-do 2 (performance)**
-- Rendering is Starling on Stage3D at a 2272x1280 game size and 60 fps. Ruffle's Stage3D support is newer than its 2D rendering, so the player is the first suspect (estimate, not tested).
+- Rendering is Starling on Stage3D at a 2272x1280 game size and 60 fps. (Corrected in to-do 2: the game size is 800x540.) Ruffle's Stage3D support is newer than its 2D rendering, so the player is the first suspect (estimate, not tested).
 - The only network wait is the Kongregate API load at start, which doesn't block the game.
