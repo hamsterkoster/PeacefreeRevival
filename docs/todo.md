@@ -32,6 +32,16 @@ Goal: "Explain how hard it would be to add new levels, new enemy types, and new 
 - No changes to the game; a report only.
 - Test: the user reads the report.
 
+## Later, only if the user asks
+- Gameplay changes, new levels, enemies and mechanics, and modding: in the refactored version (to-do 4), not the Flash version.
+
+## Before a public release
+- Pick a license (LICENSE file; ask the user, with a suggestion). It can only cover our own work (`scripts/`, the docs); the game's code in `decompiled/` and `src/` stays Helgravis's.
+- Search all tracked files for the "Never in tracked files" list in CLAUDE.md. If old commits hold any of it, publish a new repo with one clean commit instead of rewriting history.
+- A fresh subagent that hasn't seen the project checks README.md and the docs it links against the code, and only reports; the user decides the fixes.
+- A screenshot of the game in the README.
+- Start CHANGELOG.md (Keep a Changelog: Unreleased first, then versions newest first) with the first version.
+
 ## Writing a to-do
 - Title with size (small / medium / large) and the goal in the user's words.
 - Problem / Goal: what is wrong or wanted, with an example. For a bug or research to-do, also what the user has seen (it exists, where, what works) and what is already ruled out.
@@ -40,4 +50,4 @@ Goal: "Explain how hard it would be to add new levels, new enemy types, and new 
 - Ask the user: open questions, each with a suggested answer.
 - Test: what Claude checks, and what the user tests by hand.
 
-Each to-do starts as an entry in the list. When one grows past ~10 lines, move it into its own file, docs/todo/NN-name.md.
+Each to-do starts as an entry in the list. When one grows past ~10 lines, offer to move it into its own file, docs/todo/NN-name.md.
