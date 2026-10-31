@@ -12,8 +12,8 @@ This is an unofficial fan project, not affiliated with Helgravis or Kongregate. 
 - Done: the game is decompiled and mapped ([docs/research/](docs/research/)). The lag came from the player, not the game: the Flash Player projector runs it at about 60 fps.
 - Done: premium is unlocked. Kongregate is replaced by an offline stand-in, so the game makes no network calls; bombs are free in the shop. Resizing the window no longer stops the game.
 - Done: all builds share one save, so progress carries over to each new build.
-- Done: a Settings button on the title and campaign screens opens the options panel there too.
-- Next: volume sliders for music and sound effects.
+- Done: a Settings button on the title and campaign screens opens the options panel there too, with volume sliders for music and sound effects (saved, and shared by all builds).
+- Next: a report on how moddable the game is.
 - Not yet: a ready-to-play release.
 
 ## How it works

@@ -5,24 +5,31 @@ package game.peacefree.interfaces
    import game.peacefree.CampaignSelectorScreen;
    import game.peacefree.PeacefreeGame;
    import starling.core.Starling;
+   import starling.display.DisplayObject;
    import starling.display.Quad;
    import starling.display.Sprite;
+   import starling.events.Touch;
+   import starling.events.TouchEvent;
    import starling.text.TextField;
-   
+
    public class OptionsInterfacer extends Sprite
    {
-      
+
       private var pgame:PeacefreeGame;
-      
+
       private var diffValueLabel:TextField;
-      
-      private var bgmOnButton:GenericScreenButton;
-      
-      private var bgmOffButton:GenericScreenButton;
-      
-      private var sfxOnButton:GenericScreenButton;
-      
-      private var sfxOffButton:GenericScreenButton;
+
+      // PeacefreeRevival: the volume sliders replace the rows' ON/OFF buttons (to-do 6): a bar
+      // SLIDER_WIDTH wide, 0-100% in VOLUME_STEP steps.
+      private static const SLIDER_WIDTH:int = 200;
+
+      private static const KNOB_WIDTH:int = 14;
+
+      private static const VOLUME_STEP:int = 5;
+
+      private var musicSlider:Sprite;
+
+      private var sfxSlider:Sprite;
 
       // PeacefreeRevival: the campaign's acts are 1 to LAST_ACT; act 1 is always open.
       private static const LAST_ACT:int = 11;
@@ -55,91 +62,58 @@ package game.peacefree.interfaces
          blackFilmQuad = new Quad(GameConfig.GAME_WIDTH,GameConfig.GAME_HEIGHT,0);
          blackFilmQuad.alpha = 0.9;
          addChild(blackFilmQuad);
-         bgmOnButton = new GenericScreenButton(80,40,"ON");
-         bgmOnButton.bChangeAlpha = false;
-         bgmOnButton.x = GameConfig.GAME_WIDTH / 2 - 40;
-         bgmOnButton.y = GameConfig.GAME_HEIGHT / 2 - 200;
-         bgmOnButton.pressedCallback = function():void
+         // PeacefreeRevival: dragging a muted slider unmutes it, as the row's ON button did.
+         musicSlider = makeSlider(GameConfig.GAME_HEIGHT / 2 - 200,function(param1:int):void
          {
-            pgame.bEnabledBGM = true;
-            if(onSoundChange != null)
+            SoundLibrary.setMusicVolume(param1);
+            if(!isMusicOn())
             {
-               onSoundChange();
-            }
-            else if(pgame.map != null)
-            {
-               pgame.map.setEnableBGM(true);
-               pgame.map.mapHUD.toggleBGM(false);
+               pgame.bEnabledBGM = true;
+               if(onSoundChange != null)
+               {
+                  onSoundChange();
+               }
+               else if(pgame.map != null)
+               {
+                  pgame.map.setEnableBGM(true);
+                  pgame.map.mapHUD.toggleBGM(false);
+               }
             }
             refresh();
-         };
-         addChild(bgmOnButton);
-         bgmOffButton = new GenericScreenButton(80,40,"OFF");
-         bgmOffButton.bChangeAlpha = false;
-         bgmOffButton.x = bgmOnButton.x + bgmOnButton.width + 20;
-         bgmOffButton.y = bgmOnButton.y;
-         bgmOffButton.pressedCallback = function():void
-         {
-            pgame.bEnabledBGM = false;
-            if(onSoundChange != null)
-            {
-               onSoundChange();
-            }
-            else if(pgame.map != null)
-            {
-               pgame.map.setEnableBGM(false);
-               pgame.map.mapHUD.toggleBGM(false);
-            }
-            refresh();
-         };
-         addChild(bgmOffButton);
+         });
          bgmLabel = new TextField(200,40,"Music Volume",Fonts.getDefaultFont().fontName,24,16777215,true);
-         bgmLabel.x = bgmOnButton.x - 225;
-         bgmLabel.y = bgmOnButton.y;
+         bgmLabel.x = musicSlider.x - 225;
+         bgmLabel.y = musicSlider.y;
          bgmLabel.vAlign = "center";
          bgmLabel.hAlign = "right";
          bgmLabel.touchable = false;
          bgmLabel.autoScale = true;
          addChild(bgmLabel);
-         sfxOnButton = new GenericScreenButton(80,40,"ON");
-         sfxOnButton.bChangeAlpha = false;
-         sfxOnButton.x = GameConfig.GAME_WIDTH / 2 - 40;
-         sfxOnButton.y = GameConfig.GAME_HEIGHT / 2 - 140;
-         sfxOnButton.pressedCallback = function():void
+         // PeacefreeRevival: letting go plays a click at the new volume: outside a mission no
+         // other sound effect plays to hear it by.
+         sfxSlider = makeSlider(GameConfig.GAME_HEIGHT / 2 - 140,function(param1:int):void
          {
-            SoundLibrary.ENABLE_SFX = true;
-            if(onSoundChange != null)
+            SoundLibrary.setSFXVolume(param1);
+            if(!SoundLibrary.ENABLE_SFX)
             {
-               onSoundChange();
-            }
-            else if(pgame.map != null)
-            {
-               pgame.map.mapHUD.toggleSFX(false);
+               SoundLibrary.ENABLE_SFX = true;
+               if(onSoundChange != null)
+               {
+                  onSoundChange();
+               }
+               else if(pgame.map != null)
+               {
+                  pgame.map.mapHUD.toggleSFX(false);
+               }
             }
             refresh();
-         };
-         addChild(sfxOnButton);
-         sfxOffButton = new GenericScreenButton(80,40,"OFF");
-         sfxOffButton.bChangeAlpha = false;
-         sfxOffButton.x = sfxOnButton.x + sfxOnButton.width + 20;
-         sfxOffButton.y = sfxOnButton.y;
-         sfxOffButton.pressedCallback = function():void
+         },function():void
          {
-            SoundLibrary.ENABLE_SFX = false;
-            if(onSoundChange != null)
-            {
-               onSoundChange();
-            }
-            else if(pgame.map != null)
-            {
-               pgame.map.mapHUD.toggleSFX(false);
-            }
-            refresh();
-         };
-         addChild(sfxOffButton);
+            SoundLibrary.playSFX("click");
+         });
          sfxLabel = new TextField(200,40,"SFX Volume",Fonts.getDefaultFont().fontName,24,16777215,true);
-         sfxLabel.x = sfxOnButton.x - 225;
-         sfxLabel.y = sfxOnButton.y;
+         sfxLabel.x = sfxSlider.x - 225;
+         sfxLabel.y = sfxSlider.y;
          sfxLabel.vAlign = "center";
          sfxLabel.hAlign = "right";
          sfxLabel.touchable = false;
@@ -301,6 +275,95 @@ package game.peacefree.interfaces
          return onSoundChange == null;
       }
 
+      // PeacefreeRevival: in a mission the map's copy of the music setting, as before.
+      private function isMusicOn() : Boolean
+      {
+         return inMission() ? pgame.map.bEnableBGM : pgame.bEnabledBGM;
+      }
+
+      // PeacefreeRevival: a volume slider in the row at y = param1, added to the panel (Starling
+      // 1.4.1 has none, and build.py can't add a class): a bar, its fill, a knob and a readout.
+      // Pressing or dragging calls param2 with the volume under the pointer; letting go saves
+      // both volumes and calls param3. The pointer may leave the bar while dragging: Starling
+      // keeps sending that touch to the slider.
+      private function makeSlider(param1:Number, param2:Function, param3:Function = null) : Sprite
+      {
+         var slider:Sprite = new Sprite();
+         var hitQuad:Quad;
+         var barQuad:Quad;
+         var fillQuad:Quad;
+         var knobQuad:Quad;
+         var readout:TextField;
+         var onRelease:Function = param3;
+         var onDrag:Function = param2;
+         slider.x = GameConfig.GAME_WIDTH / 2 - 40;
+         slider.y = param1;
+         hitQuad = new Quad(SLIDER_WIDTH + KNOB_WIDTH,40,0);
+         hitQuad.x = -KNOB_WIDTH / 2;
+         hitQuad.alpha = 0;
+         slider.addChild(hitQuad);
+         barQuad = new Quad(SLIDER_WIDTH,8,6710886);
+         barQuad.y = 16;
+         barQuad.touchable = false;
+         slider.addChild(barQuad);
+         fillQuad = new Quad(SLIDER_WIDTH,8,15569185);
+         fillQuad.y = 16;
+         fillQuad.name = "fill";
+         fillQuad.touchable = false;
+         slider.addChild(fillQuad);
+         knobQuad = new Quad(KNOB_WIDTH,30,16777215);
+         knobQuad.y = 5;
+         knobQuad.name = "knob";
+         knobQuad.touchable = false;
+         slider.addChild(knobQuad);
+         readout = new TextField(80,40,"",Fonts.getDefaultFont().fontName,24,16777215,true);
+         readout.x = SLIDER_WIDTH + 20;
+         readout.name = "readout";
+         readout.vAlign = "center";
+         readout.hAlign = "left";
+         readout.touchable = false;
+         slider.addChild(readout);
+         slider.addEventListener("touch",function(param1:TouchEvent):void
+         {
+            var _loc2_:Touch = param1.getTouch(slider);
+            if(_loc2_ == null || _loc2_.phase == "hover" || _loc2_.phase == "stationary")
+            {
+               return;
+            }
+            onDrag(volumeAt(_loc2_.getLocation(slider).x));
+            if(_loc2_.phase == "ended")
+            {
+               SoundLibrary.saveVolumes();
+               if(onRelease != null)
+               {
+                  onRelease();
+               }
+            }
+         });
+         addChild(slider);
+         return slider;
+      }
+
+      // PeacefreeRevival: the volume at x on a slider, rounded to VOLUME_STEP, 0 to 100.
+      private static function volumeAt(param1:Number) : int
+      {
+         var _loc2_:Number = Math.max(0,Math.min(1,param1 / SLIDER_WIDTH));
+         return Math.round(_loc2_ * 100 / VOLUME_STEP) * VOLUME_STEP;
+      }
+
+      // PeacefreeRevival: shows volume param2 on slider param1; a muted one (param3 false) is
+      // dimmed and says "Off".
+      private static function showSlider(param1:Sprite, param2:int, param3:Boolean) : void
+      {
+         var _loc4_:DisplayObject = param1.getChildByName("fill");
+         var _loc5_:DisplayObject = param1.getChildByName("knob");
+         _loc4_.scaleX = param2 / 100;
+         _loc5_.x = SLIDER_WIDTH * param2 / 100 - KNOB_WIDTH / 2;
+         _loc4_.alpha = param3 ? 1 : 0.35;
+         _loc5_.alpha = _loc4_.alpha;
+         TextField(param1.getChildByName("readout")).text = param3 ? param2 + "%" : "Off";
+      }
+
       // PeacefreeRevival: shows the panel on a screen outside a mission (title, campaign),
       // fading in like the mission's.
       public function showOn(param1:Sprite) : void
@@ -316,6 +379,9 @@ package game.peacefree.interfaces
       // elsewhere it fades out and leaves the screen, which keeps it for the next time.
       private function close() : void
       {
+         // PeacefreeRevival: the sliders save when let go; this also covers a drag that never
+         // ended on the slider.
+         SoundLibrary.saveVolumes();
          if(inMission())
          {
             pgame.map.hideOptionsInterface();
@@ -362,27 +428,8 @@ package game.peacefree.interfaces
                   diffValueLabel.text = "HEROIC";
             }
          }
-         // PeacefreeRevival: in a mission the map's copy of the music setting, as before.
-         if(inMission() ? pgame.map.bEnableBGM : pgame.bEnabledBGM)
-         {
-            bgmOnButton.alpha = 1;
-            bgmOffButton.alpha = 0.25;
-         }
-         else
-         {
-            bgmOnButton.alpha = 0.25;
-            bgmOffButton.alpha = 1;
-         }
-         if(SoundLibrary.ENABLE_SFX)
-         {
-            sfxOnButton.alpha = 1;
-            sfxOffButton.alpha = 0.25;
-         }
-         else
-         {
-            sfxOnButton.alpha = 0.25;
-            sfxOffButton.alpha = 1;
-         }
+         showSlider(musicSlider,SoundLibrary.getMusicVolume(),isMusicOn());
+         showSlider(sfxSlider,SoundLibrary.getSFXVolume(),SoundLibrary.ENABLE_SFX);
       }
       
       override public function dispose() : void
@@ -393,10 +440,8 @@ package game.peacefree.interfaces
          }
          pgame = null;
          diffValueLabel = null;
-         bgmOnButton = null;
-         bgmOffButton = null;
-         sfxOnButton = null;
-         sfxOffButton = null;
+         musicSlider = null;
+         sfxSlider = null;
          unlockActsButton = null;
          onSoundChange = null;
          super.dispose();

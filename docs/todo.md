@@ -4,10 +4,6 @@ Next number: 7
 
 ## To do
 
-### 6. Settings on the title and act screens, volume sliders (medium)
-Goal: "Settings should be accessible from the main page / act selection page. The volumes should also be a slider not just on/off."
-- In two steps; the to-do, the user's answers and its Progress list: [todo/06-settings.md](todo/06-settings.md).
-
 ### 4. Modding assessment (medium, report only)
 Goal: "Explain how hard it would be to add new levels, new enemy types, and new mechanics in this codebase, and whether making a level/content data format would be worthwhile. Briefly compare continuing to patch the .swf with rebuilding the game in HTML5."
 - Also: what a public release for fans needs: what goes in it, where fans would get it (for example a GitHub release or Flashpoint Archive), and which player they'd use. Read first: "How content is defined" in docs/research/game-code.md, and the player comparison in docs/research/performance.md (projector about 60 fps, Ruffle app 40, Ruffle in the browser 15-20 with drawing errors).

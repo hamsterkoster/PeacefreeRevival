@@ -21,15 +21,18 @@ when the campaign screen opens) and passes when the save is stored under the
 root, where all builds share it; it fails at once when the save is stored under
 the file's own path, so each build has its own save.
 
-With --settings it goes on from the title screen: clicks Settings, checks that
-the options panel shows, clicks the panel's SFX OFF and checks that the save
-says so, then clicks Back and checks that the panel has gone.
+With --settings it goes on from the title screen: mutes the music with the
+title's music icon, clicks Settings, checks that the options panel shows, drags
+the music slider from 35% to 75% and checks that the settings save holds 75
+(and SFX 100) and the game's save says music is on again (dragging unmutes), then clicks Back and
+checks that the panel has gone.
 """
 
 import argparse
 import base64
 import os
 import re
+import struct
 import sys
 import time
 from io import BytesIO
@@ -56,13 +59,19 @@ MIN_BUTTON_SHARE = 0.25
 # (measured): the game's save is 127.0.0.1/game.swf/game under the file's path
 # (v04), 127.0.0.1//game under the root (v05).
 SAVE_NAME = "/game"
+SETTINGS_SAVE_NAME = "/settings"  # the volumes (to-do 6), under the root like the game's save
 # --settings: the title screen's Settings button and the options panel's buttons
 # (to-do 6). White text shows each: the button's label is 13% white once the
 # title's animation has shown it, and 0% before; the panel's "Music Volume"
 # label is 17% white with the panel open, and 0% without (measured).
 SETTINGS_BUTTON = (67, 18)
-SFX_OFF_BUTTON = (500, 150)
+MUSIC_ICON = (192, 17)  # the title's music icon, right of the SFX icon (measured)
 BACK_BUTTON = (400, 260)
+# The music slider's bar runs from x 360 (0%) to 560 (100%) at y 90; its knob
+# starts at the game's own 35%. Dragged to 75%.
+MUSIC_KNOB = (430, 90)
+MUSIC_DRAG_TO = (510, 90)
+DRAGGED_VOLUME = 75
 SETTINGS_LABEL_AREA = (25, 5, 110, 30)
 PANEL_LABEL_AREA = (200, 75, 335, 105)
 MIN_TEXT_WHITE = 0.06
@@ -108,8 +117,33 @@ def saved_flag(page, key: str, name: bytes) -> bool | None:
     return {2: False, 3: True}.get(data[at]) if len(name) <= at < len(data) else None
 
 
-def try_settings(page, box, save_key: str) -> tuple[str, bytes]:
+def saved_number(page, key: str, name: bytes) -> float | None:
+    """A number from a save in Ruffle's localStorage, None if it isn't there.
+
+    In AMF3 a number follows its name as 0x04 and an integer of 1 to 4 bytes
+    (7 bits each but the 4th's 8, high bit set while more follow), or 0x05 and
+    an 8-byte double.
+    """
+    stored = page.evaluate("key => localStorage.getItem(key)", key)
+    data = base64.b64decode(stored) if stored else b""
+    at = data.find(name) + len(name)
+    if len(name) <= at and at + 9 <= len(data) and data[at] == 0x05:
+        return struct.unpack(">d", data[at + 1 : at + 9])[0]
+    if len(name) <= at and at + 2 <= len(data) and data[at] == 0x04:  # the save may end soon after
+        value = 0
+        for i, byte in enumerate(data[at + 1 : at + 5]):
+            if i == 3:
+                return (value << 8) | byte
+            value = (value << 7) | (byte & 0x7F)
+            if not byte & 0x80:
+                return value
+    return None
+
+
+def try_settings(page, box, host: str) -> tuple[str, bytes]:
     """--settings, on the title screen: what went wrong ("" if nothing) and the last screenshot."""
+    game_key = f"{host}/{SAVE_NAME}"
+    settings_key = f"{host}/{SETTINGS_SAVE_NAME}"
 
     def shoot() -> bytes:
         return page.screenshot(clip=box, timeout=5000)
@@ -128,16 +162,31 @@ def try_settings(page, box, save_key: str) -> tuple[str, bytes]:
         page.wait_for_timeout(500)
     else:
         return "no Settings button on the title screen", png
+    if saved_flag(page, game_key, b"bEnabledBGM") is not True:  # a new browser: no save but the title's
+        return "the save doesn't start with music on", png
+    click(MUSIC_ICON)
+    if saved_flag(page, game_key, b"bEnabledBGM") is not False:
+        return "the title's music icon didn't mute the music", shoot()
     click(SETTINGS_BUTTON)
     png = shoot()
     if share(png, PANEL_LABEL_AREA, is_white) < MIN_TEXT_WHITE:
         return "Settings didn't open the options panel", png
-    if saved_flag(page, save_key, b"bEnableFX") is not True:  # a new browser: no save but the title's
-        return "the save doesn't start with SFX on", png
-    click(SFX_OFF_BUTTON)
+    page.mouse.move(box["x"] + MUSIC_KNOB[0], box["y"] + MUSIC_KNOB[1])
+    page.mouse.down()
+    page.wait_for_timeout(200)
+    page.mouse.move(box["x"] + MUSIC_DRAG_TO[0], box["y"] + MUSIC_DRAG_TO[1], steps=8)
+    page.wait_for_timeout(200)
+    page.mouse.up()
+    page.wait_for_timeout(1000)
     png = shoot()
-    if saved_flag(page, save_key, b"bEnableFX") is not False:
-        return "the panel's SFX OFF wasn't saved", png
+    volume = saved_number(page, settings_key, b"music")
+    if volume != DRAGGED_VOLUME:
+        return f"the music slider dragged to {DRAGGED_VOLUME}% saved {volume}", png
+    volume = saved_number(page, settings_key, b"sfx")
+    if volume != 100:  # saved with the music's volume, at its start value
+        return f"the settings save holds SFX volume {volume}, not 100", png
+    if saved_flag(page, game_key, b"bEnabledBGM") is not True:
+        return "dragging the muted music slider didn't unmute the music", png
     click(BACK_BUTTON)
     png = shoot()
     if share(png, PANEL_LABEL_AREA, is_white) >= MIN_TEXT_WHITE:
@@ -192,7 +241,8 @@ def main() -> int:
     except FileNotFoundError as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
-    root_key = f"{urlparse(url).hostname}/{SAVE_NAME}"  # --shared-save, --settings: the save's key under the root
+    host = urlparse(url).hostname
+    root_key = f"{host}/{SAVE_NAME}"  # --shared-save: the save's key under the root
     try:
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
@@ -235,7 +285,7 @@ def main() -> int:
                     passed = share(png, LOGO_AREA, is_logo_blue) >= MIN_LOGO_BLUE
             if passed and args.settings:
                 try:
-                    settings_error, png = try_settings(page, box, root_key)
+                    settings_error, png = try_settings(page, box, host)
                 except PlaywrightError as error:
                     settings_error = f"the browser failed: {str(error).splitlines()[0]}"
                 passed = not settings_error
@@ -255,7 +305,7 @@ def main() -> int:
         print(f"PASS: {swf.name} saves under the root ({save_key}), shared by all builds, after {seconds:.0f} s (screenshot: {shown})")
         return 0
     if passed and args.settings:
-        print(f"PASS: {swf.name} opens the options panel from the title screen, saves its SFX OFF and closes it, after {seconds:.0f} s (screenshot: {shown})")
+        print(f"PASS: {swf.name} opens the options panel from the title screen, saves its music slider at {DRAGGED_VOLUME}% (unmuted) and closes it, after {seconds:.0f} s (screenshot: {shown})")
         return 0
     if passed and args.premium:
         print(f"PASS: {swf.name} shows the Shop button (premium unlocked) after {seconds:.0f} s (screenshot: {shown})")
