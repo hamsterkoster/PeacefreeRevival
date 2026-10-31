@@ -12,6 +12,7 @@ Only the user plays it for now.
 ## User and environment
 - Windows 11, PowerShell in the VS Code terminal.
 - git 2.56, Java 8 (1.8.0_431), Python 3.13, winget, gh (signed in as HaminKo). No Node.
+- GitHub: the repo is hamsterkoster/PeacefreeRevival (private), owned by the hamsterkoster organization; pushes and gh use the HaminKo account, an admin of it.
 - Real paths: docs/local.md (gitignored).
 
 ## Folder layout
