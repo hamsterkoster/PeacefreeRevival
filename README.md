@@ -19,7 +19,7 @@ This is an unofficial fan project, not affiliated with Helgravis or Kongregate. 
 - Done: the game grows and shrinks with its window (drag the edge or maximize), keeping its shape with black bars; the options panel has a Fullscreen button (Esc leaves fullscreen).
 - Done: a Controls button in the options panel opens a page listing the keys and what they do; in a mission, the keys do nothing while the options panel is open.
 - Done: a report on releasing the Flash version ([docs/research/release.md](docs/research/release.md)): what goes in, in what form, which player, permission, where, and the save names.
-- Next: deciding the report's choices, then building them.
+- Next: building the release: free-bomb texts in the shop, save names of its own and a release version on the title; a test of a Windows app that needs no Flash Player; a test of browser play; then the release itself.
 - Not yet: a ready-to-play release.
 
 ## How it works

@@ -8,12 +8,12 @@ Sources: the repo (marked measured, or "from the code"), web pages (listed at th
 
 | Choice | Recommendation |
 |---|---|
-| What goes in | Everything in v19. Keep the free bombs and "Unlock All Acts". Change the shop's "10 Kreds" texts to say the bombs are free. |
-| Form | The full patched .swf. A patch file only if Helgravis allows patches but not hosting. |
-| Player | Link to the Flash Player projector, don't bundle it; the Ruffle app as the second choice. Browser: test Ruffle's WebGPU renderer first. |
-| Permission | One email to the address on the developer's own site before the release. No answer in about 4 weeks: release as an unofficial fan patch, taken down on request. A "no": no release. |
-| Where | A GitHub release in this repo (plus a GitHub Pages page if the browser test passes). Ask Flashpoint's curators afterwards. Not itch.io, Newgrounds or Kongregate. |
-| Save names | Prefix them (`peacefree-game` and so on), with a one-time read of the old names so existing progress carries over. |
+| What goes in | Everything in v19. Keep the free bombs and "Unlock All Acts". Change the shop's "10 Kreds" texts to say the bombs are free. **Decided 2026-10-31:** as recommended, with the release version on the title. |
+| Form | The full patched .swf. A patch file only if Helgravis allows patches but not hosting. **Decided 2026-10-31:** the patched .swf for any player, plus a Windows AIR app with the game packaged in, if a test build runs well (section 2). |
+| Player | Link to the Flash Player projector, don't bundle it; the Ruffle app as the second choice. Browser: test Ruffle's WebGPU renderer first. **Decided 2026-10-31:** the README lists the AIR app (if its test works), then the projector (linked to the Wayback Machine's copy of Adobe's download, with its SHA-256), then the Ruffle app; the WebGPU test comes before any browser version. |
+| Permission | One email to the address on the developer's own site before the release. No answer in about 4 weeks: release as an unofficial fan patch, taken down on request. A "no": no release. **Decided 2026-10-31:** no email; an unofficial release, taken down if the developer asks, with full credits to Adventure Cat, LLC and Helgravis. |
+| Where | A GitHub release in this repo (plus a GitHub Pages page if the browser test passes). Ask Flashpoint's curators afterwards. Not itch.io, Newgrounds or Kongregate. **Decided 2026-10-31:** as recommended, plus a comment with the link on the game's Kongregate page; the Internet Archive skipped for now. |
+| Save names | Prefix them (`peacefree-game` and so on), with a one-time read of the old names so existing progress carries over. **Decided 2026-10-31:** as recommended; the old saves are never deleted. |
 
 ## 1. What goes in
 v19 holds: the offline Kongregate stand-in (premium owned, bombs counted locally, no network calls), the P key's FPS box, one shared save, the Settings button with volume sliders and Start Speed, music pause and Next, the window fit and Fullscreen button, the Controls page, and "Unlock All Acts". Each is listed in NOTES.md "Patched files".
@@ -34,6 +34,11 @@ Measured on the original and v19: only the two code tags differ (166 KB and 414 
   - Fans don't have Python, so the patcher would be new work: an .exe or a web page in JavaScript.
   - If Kongregate stops serving the file, nobody can patch any more.
 - Recommended: A, given the user's position on hosting. B is the fallback if Helgravis allows patches but not hosting.
+- **C. An app fans just double-click** (added 2026-10-31, after the user asked for a file fans can just run). A .swf always needs a player, so this means shipping a player with it:
+  - A projector .exe with the game inside (the projector's File > Create Projector): one file at about 60 fps, but it ships Adobe's Flash Player, which Adobe's terms don't allow (section 3). Rejected.
+  - An AIR app: Harman's AIR SDK packages the finished .swf as it is, with no recompiling, into a Windows folder with its own runtime ("captive runtime"); fans unzip it and run `Peacefree.exe`. Distributing apps is what the SDK is for. Its free tier covers developers under $50k a year and shows a Harman splash screen at startup (Harman's pricing document of 2020; the current license wasn't read). It should run about as fast as the projector, being the same runtime family (an estimate, not tested). From the code: nothing the patched game runs is blocked in AIR. `Security.allowDomain` is only in the original `KongregateAPI.as`, which our stand-in replaces, and the one `ExternalInterface` call (`GameConfig.isSiteLocked`) is never called. Its costs: AIR keeps saves in the app's own folder, so they aren't shared with the projector builds (fans start fresh anyway; existing progress needs a one-time copy). The .exe isn't code-signed, so Windows warns the first time it runs ("Windows protected your PC", then More info, Run anyway); signing costs a yearly fee. Fullscreen and window resizing in AIR are untested.
+  - Ruffle bundled with the .swf and a start file: allowed, but slower (section 3).
+- **Decided 2026-10-31:** the patched .swf, so fans can use the player they choose, and an AIR app as a second download if a test build runs well. Decided by the user; the AIR test is a new to-do.
 
 ## 3. Player, and the browser
 Measured in to-do 2 (FPS from the stats box, [performance.md](performance.md)): projector about 60 fps; Ruffle app about 40; Ruffle in the browser 15-20. Ruffle also drew some graphics wrong.
@@ -42,7 +47,7 @@ Measured in to-do 2 (FPS from the stats box, [performance.md](performance.md)): 
 - **Ruffle app:** we may bundle it or link to it (MIT or Apache-2.0), and it runs on Windows, macOS and Linux. It's slower, with some drawing errors. It's the second choice in the README.
 - **Browser (Ruffle's web version):** too slow as measured. Ruffle's own blog says Stage3D games run well only in its desktop app (2023). One untested chance: the renderer order in Ruffle's code is `wgpu-webgl`, then `webgpu` (from the strings in `tools/ruffle/web/`'s .wasm). So our browser test most likely ran on WebGL, and WebGPU (in Chrome and Edge on Windows) was never tried. It can be forced with the `preferredRenderer: "webgpu"` setting.
   - Suggested: a small to-do that adds a renderer option to `scripts/play.py`, then you read the FPS box in your browser. If it's close to 60 fps and draws right, a GitHub Pages page with Ruffle is a small to-do. If not, the release is a download only, and browser play waits for the refactor (to-do 4 compares an HTML5 rebuild).
-- **An AIR build** (a Windows app without Flash Player) is part of to-do 4, not this release.
+- **An AIR build** (a Windows app without Flash Player) is part of to-do 4, not this release. Replaced 2026-10-31: packaging the finished .swf as an AIR app needs no recompiling, so it can be part of this release (section 2, C). To-do 4 is about compiling the whole game with the AIR SDK.
 
 ## 4. Permission
 - **The rights holder:** the developer's site names Adventure Cat, LLC ("'Peacefree' is a game created by Adventure Cat, LLC. All rights reserved.", © 2014). Helgravis is the Kongregate account. README's Credits should name both.
@@ -86,11 +91,12 @@ Measured in to-do 2 (FPS from the stats box, [performance.md](performance.md)): 
 - Recommended: before the release, `FileLibrary` adds a `peacefree-` prefix to every name. When a prefixed save is still empty, it reads the old name once and saves it under the new one. That's about 10 lines in a class that's already patched, and `check.py --shared-save` needs the new name. It revisits the shared-save decision of 2026-10-31, which expected this ("unique names can come later").
 
 ## Suggested to-dos and order
-1. **The email to the developer** (the user sends it; Claude drafts it). It goes first, so the 4 weeks run while the rest is built.
+1. **The email to the developer** (the user sends it; Claude drafts it). It goes first, so the 4 weeks run while the rest is built. Dropped 2026-10-31: no email (the user's decision, docs/decisions.md).
 2. **Release patches** (small): the shop's free-bomb texts; the save-name prefix with the one-time read of the old names; optionally the release version on the title. One build, all checks.
 3. **Browser test** (small): a renderer option in `play.py`; you measure WebGPU in your browser. If it passes, a GitHub Pages page with Ruffle becomes a to-do.
-4. **Release package** (small): a release file name, such as `Peacefree-Revival-1.0.swf`; a README "Play" section for fans (download, get the projector, open the file); release notes. Then the "Before a public release" list in docs/todo.md.
-5. **Later:** ask Flashpoint's curators.
+4. **AIR app test** (small to medium; added 2026-10-31): the AIR SDK in `tools/`, an app descriptor, v19 packaged as a Windows app with its own runtime, and you play it. If it runs well, the release offers it next to the .swf.
+5. **Release package** (small): a release file name, such as `Peacefree-Revival-1.0.swf`; a README "Play" section for fans (download, get the projector, open the file); release notes. Then the "Before a public release" list in docs/todo.md.
+6. **Later:** ask Flashpoint's curators.
 
 ## Sources
 - Flashpoint database entry 2ff5159c-747f-08e0-b404-2c03ac68064d: https://db-api.unstable.life/search?id=2ff5159c-747f-08e0-b404-2c03ac68064d&filter=false
@@ -99,6 +105,7 @@ Measured in to-do 2 (FPS from the stats box, [performance.md](performance.md)): 
 - Flashpoint FAQ (bundled projectors; secondhand, from a search summary): https://flashpointarchive.org/faq
 - Adobe, Flash Player usage terms: https://www.adobe.com/products/eula/tools/flashplayer_usage.html
 - Adobe, Flash Player distribution: https://www.adobe.com/products/flashplayer/distribution.html
+- Harman, AIR pricing (January 2020; free tier with a splash screen, under $50k a year; secondhand, from a search summary): https://airsdk.harman.com/assets/pdfs/Adobe%20AIR%20-%20Updated%20Pricing.pdf
 - Ruffle progress report, 2023-05-29 (Stage3D only well in the desktop app): https://ruffle.rs/blog/2023/05/29/progress-report
 - Kongregate, Helgravis's profile (latest activity Sep 29, 2017): https://www.kongregate.com/en/accounts/Helgravis
 - Kongregate, the game's page (released July 14, 2014; last updated August 14, 2014; comments): https://www.kongregate.com/en/games/helgravis/peacefree-tactical-warfare

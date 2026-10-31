@@ -1,10 +1,52 @@
 # To do
 
-Next number: 11
+Next number: 15
 
 ## To do
 
-The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9, done), its release (report done in to-do 10: [research/release.md](research/release.md); its choices are decided next and become new to-dos), then the refactor (4) and modding.
+The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9, done), its release (to-do 10's report, [research/release.md](research/release.md), and the six release decisions of 2026-10-31; built in 11-14), then the refactor (4) and modding.
+
+### 11. Release patches (small)
+Goal: the release decisions of 2026-10-31, choices 1 and 6 ("Go with your suggestions"), and choice 4 ("Give them full credits in the release.").
+- Problem: the shop says "Buy 10 for 10 Kreds", but the bombs are free. The save names `game`, `settings` and `save-N` are generic: in the projector, any local Flash game saving under the same name in `"/"` shares the file. The title shows only the game's own "Ver.1.08", so bug reports can't name the build, and the game itself doesn't credit the developer.
+- Read first: docs/decisions.md (2026-10-31: what goes in, save names, permission and credits); docs/research/release.md sections 1 and 6; `decompiled/PeacefreeKong/scripts/game/peacefree/interfaces/ShopInterfacer.as` lines 94, 118, 216, 297; `src/game/library/FileLibrary.as` (`loadSharedData`, `saveData`); `src/game/peacefree/TitleScreen.as:234-242` (`versionTextField`, bottom left, shown at :354); `scripts/check.py:78-79` (`SAVE_NAME`, `SETTINGS_SAVE_NAME`).
+- Approach: copy `ShopInterfacer.as` into `src/` and change its 4 texts ("Get 10 free" on both buttons; "Get 10 Nox Bombs for free?" and the same for Shock). In `FileLibrary`, add `peacefree-` where the name reaches `getLocal`. When the prefixed save has no data, read the old name once and save it under the new one; never delete the old one. On the title, the release version (and the credit line, if the user agrees) in or next to `versionTextField`. In `check.py`, the new names, plus a check that an old-name save carries over (put a `127.0.0.1//game` key in first and expect `127.0.0.1//peacefree-game`).
+- Ask the user: the release version (suggested: "Revival 1.0"); the credit line on the title (suggested: "Ver.1.08 · Revival 1.0, an unofficial fan patch · game by Adventure Cat, LLC (Helgravis)", shortened if it doesn't fit).
+- Test: all six headless checks and the new carry-over check. In the projector, the user checks the shop's texts; that progress and volumes from v19 carried over (same acts unlocked, same sliders); and the title's line.
+
+### 12. AIR app test (small to medium)
+Goal: "if the AIR app test works that should be an option as well" (release decisions, choice 2).
+- Problem: fans should be able to double-click and play without installing a player. Harman's AIR SDK can package the finished .swf as a Windows app with its own runtime, with no recompiling. Whether the game runs well that way is untested; from the code, nothing the patched game runs is blocked in AIR.
+- Read first: docs/research/release.md section 2 (C); docs/decisions.md (2026-10-31: form, players); Harman's AIR SDK pages and license (airsdk.harman.com: the download, the free tier and its splash screen; the current terms weren't read in to-do 10); `src/StarlingPreloader.as` (`fitToWindow`, `handleLostContext`); the Fullscreen button in `src/game/peacefree/interfaces/OptionsInterfacer.as`.
+- Approach:
+  - The AIR SDK into `tools/air/`. If Harman needs an account or a license click, the user does that.
+  - A tracked app descriptor (id, name, a resizable 800x540 window, `renderMode` direct for Stage3D).
+  - `scripts/package_air.py` runs `adt -package -target bundle` on a patched .swf into a versioned, gitignored folder under `patched/`.
+  - Measure the folder's size, the splash screen and where the saves go.
+- Ask the user: the app's name (suggested: "Peacefree Revival"); signing the .exe (suggested: no; Windows warns the first time, and signing costs a yearly fee).
+- Test: Claude checks that the .exe starts and opens its window. The user plays it: the P key's FPS box (about 60 like the projector?), Settings, a mission, saving and loading, resizing, Fullscreen and Esc. If it runs well, to-do 14 offers it next to the .swf; if not, why goes into docs/research/release.md.
+
+### 13. Browser test with Ruffle's WebGPU renderer (small)
+Goal: "any way to have this be playable in the browser, if not download option is fine" (to-do 10's questions).
+- Problem: Ruffle in the browser ran the game at 15-20 fps and drew some graphics wrong (to-do 2), most likely on its WebGL renderer: Ruffle's web .wasm tries `wgpu-webgl` before `webgpu`. WebGPU (in Chrome and Edge on Windows) was never tried.
+- Read first: "Player comparison" in docs/research/performance.md; docs/research/release.md section 3; `scripts/play.py`; `scripts/ruffle_page.py:29` (the Ruffle config).
+- Approach: a `--renderer` option in `play.py` (`webgpu` or `wgpu-webgl`), passed as Ruffle's `preferredRenderer`. The user plays to-do 2's scenes (the title, about 30 s into Act 1) with each renderer and reads the FPS box. Ruffle's log in the browser console shows which renderer it used.
+- Ask the user: which browser (suggested: your default, plus Edge if the default isn't based on Chromium).
+- Test: lint passes; the user's FPS readings and whether the graphics draw right. Close to 60 fps with correct drawing: a new to-do for a GitHub Pages page with Ruffle. Otherwise browser play waits for the refactor; the result goes into docs/research/performance.md.
+
+### 14. Release package and publishing (medium)
+Goal: "a flash version that has quality of life stuff (but not gameplay changes) that we can release" (the roadmap), as the release decisions of 2026-10-31 describe it.
+- Problem: everything for the first public release besides game code: the downloads, a README for fans, credits, release notes, the "Before a public release" list below, the GitHub release, then Flashpoint and Kongregate.
+- Read first: docs/decisions.md (2026-10-31: form, players, permission and credits, where); docs/research/release.md; "Before a public release" below; README.md; docs/local.md (the projector's Wayback Machine link and SHA-256).
+- Approach:
+  - Release files: `Peacefree-Revival-1.0.swf`, plus `Peacefree-Revival-1.0-Windows.zip` if to-do 12 passed.
+  - README: a "Play" section at the top for fans (the AIR app, the projector link with its SHA-256, the Ruffle app); the note "unofficial fan patch; taken down if the developer asks"; Credits naming Adventure Cat, LLC and Helgravis.
+  - Release notes from CHANGELOG.md, and a readme in the AIR zip.
+  - Then the "Before a public release" list. The user makes the repo public and confirms the GitHub release.
+  - Afterwards, Claude drafts and the user posts: the question to Flashpoint's curators and the comment on the game's Kongregate page.
+- Likely three steps (A the package and docs, B the checklist, C publishing and announcing), so it gets its own file, docs/todo/14-release.md, when its build starts.
+- Ask the user: the version number (suggested: 1.0); the license for our own work (in the list below).
+- Test: the user reads the README as a fan would, and runs each download with a fresh save; the list's checks pass; the release page shows both downloads.
 
 ### 4. Refactor and modding assessment (medium, report only)
 Goal: "Explain how hard it would be to add new levels, new enemy types, and new mechanics in this codebase, and whether making a level/content data format would be worthwhile. Briefly compare continuing to patch the .swf with rebuilding the game in HTML5." Narrowed on 2026-10-31 ("then make a refactored version where we can make all our changes"): its release part moved to to-do 10, and it comes after the Flash release.

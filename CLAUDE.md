@@ -50,7 +50,7 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
 
 ## Status
 Done: To do 1-3 and 5-10 (latest build v19; to-do 10 is the release report, docs/research/release.md); what each added: README.md Status and NOTES.md.
-Next: the user decides the report's six choices one at a time (decisions in docs/decisions.md); the build work becomes new to-dos (/add-todo).
+Next: To do 11 (release patches); the release decisions are made (docs/decisions.md, 2026-10-31), built in to-dos 11-14.
 
 ## Decisions
 One line per decision a chat must follow. Reasons, who decided and what was rejected: docs/decisions.md. The gitignore rules in Folder layout come from there too.
@@ -59,9 +59,14 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - Patches are edited copies of whole classes in `src/`, compiled in with ffdec's `-replace`; `decompiled/` stays exactly the original.
 - The game's Kongregate API key stays in the tracked decompiled code: it's the developer's, not an account token.
 - Kongregate is replaced by an offline stand-in (`src/game/library/KongregateAPI.as`): premium owned, bombs counted locally, no network calls.
-- The options menu's "Unlock All Acts" button stays in every build until the public-release decision.
+- The options menu's "Unlock All Acts" button stays in every build, the public release included.
+- The release has everything in v19, free bombs included; the shop's texts say free instead of Kreds, and the title shows a release version (to-do 10's report, choice 1).
+- The release is the patched .swf for any player, plus a Windows AIR app (the .swf packaged as it is, with its own runtime) if a test build runs well; never a projector .exe with the game inside (Adobe's terms).
+- The README lists the players as: AIR app (if its test works), projector (linked to the Wayback Machine's copy of Adobe's download, with its SHA-256; never bundled), Ruffle app. No browser version until Ruffle's WebGPU renderer passes a test.
+- No request to the developer before the release: it's an unofficial fan patch, taken down if they ask, with full credits to Adventure Cat, LLC and Helgravis (README Credits, release notes, the AIR download's readme).
+- The release is a GitHub release in this repo (the repo goes public first); afterwards, ask Flashpoint's curators and announce on the game's Kongregate page. Not on itch.io, Newgrounds, Kongregate or the Internet Archive.
 - Starling's `handleLostContext` stays on (`src/StarlingPreloader.as`): without it, resizing the projector window kills the game.
-- All builds share one save: `src/game/library/FileLibrary.as` passes `"/"` to `getLocal`; save names stay `game` and `save-N`.
+- All builds share one save: `src/game/library/FileLibrary.as` passes `"/"` to `getLocal`; save names are `game`, `settings` and `save-N` until the release patches give them a `peacefree-` prefix, with a one-time read of the old names (old saves never deleted).
 - One options panel (`OptionsInterfacer`) for the mission, title and campaign screens; it's outside a mission when the screen passes a callback (`inMission()`), never judged from `pgame.map`.
 - The Flash version gets quality-of-life changes only, no new gameplay changes; gameplay changes and modding wait for the refactored version (roadmap: to-dos 7-9, release 10, refactor 4).
 - Music and SFX volume (0-100%) and the start speed live in their own `settings` save, read and written by `src/game/library/SoundLibrary.as`; the mute flags stay in the game's save, and the mute icons stay the way to mute.
