@@ -25,8 +25,11 @@ package game.peacefree
       
       public static var FSBUTTON:Bitmap = null;
       
+      // PeacefreeRevival: this project's release version, shown on the title (to-do 11).
+      public static const REVIVAL_VERSION:String = "Revival 1.0";
+
       public static var TWITTERBUTTON:Bitmap = null;
-      
+
       public static var FBBUTTON:Bitmap = null;
       
       public var pgame:PeacefreeGame;
@@ -231,7 +234,9 @@ package game.peacefree
          }
          toggleSFX(false);
          toggleBGM(false);
-         versionTextField = new TextField(200,50,"Ver.1.08",Fonts.getDefaultFont().fontName,16,3355443,true);
+         // PeacefreeRevival: the release version next to the game's own, so bug reports name the
+         // build, and that it's a fan patch (to-do 11). The game's Credits screen credits its makers.
+         versionTextField = new TextField(400,50,"Ver.1.08 - " + REVIVAL_VERSION + ", unofficial fan patch",Fonts.getDefaultFont().fontName,16,3355443,true);
          versionTextField.x = 5;
          versionTextField.y = GameConfig.GAME_HEIGHT - versionTextField.height - 5;
          versionTextField.vAlign = "bottom";

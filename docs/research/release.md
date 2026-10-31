@@ -8,12 +8,12 @@ Sources: the repo (marked measured, or "from the code"), web pages (listed at th
 
 | Choice | Recommendation |
 |---|---|
-| What goes in | Everything in v19. Keep the free bombs and "Unlock All Acts". Change the shop's "10 Kreds" texts to say the bombs are free. **Decided 2026-10-31:** as recommended, with the release version on the title. |
+| What goes in | Everything in v19. Keep the free bombs and "Unlock All Acts". Change the shop's "10 Kreds" texts to say the bombs are free. **Decided 2026-10-31:** as recommended, with the release version on the title. Built in to-do 11 (v21). |
 | Form | The full patched .swf. A patch file only if Helgravis allows patches but not hosting. **Decided 2026-10-31:** the patched .swf for any player, plus a Windows AIR app with the game packaged in, if a test build runs well (section 2). |
 | Player | Link to the Flash Player projector, don't bundle it; the Ruffle app as the second choice. Browser: test Ruffle's WebGPU renderer first. **Decided 2026-10-31:** the README lists the AIR app (if its test works), then the projector (linked to the Wayback Machine's copy of Adobe's download, with its SHA-256), then the Ruffle app; the WebGPU test comes before any browser version. |
 | Permission | One email to the address on the developer's own site before the release. No answer in about 4 weeks: release as an unofficial fan patch, taken down on request. A "no": no release. **Decided 2026-10-31:** no email; an unofficial release, taken down if the developer asks, with full credits to Adventure Cat, LLC and Helgravis. |
 | Where | A GitHub release in this repo (plus a GitHub Pages page if the browser test passes). Ask Flashpoint's curators afterwards. Not itch.io, Newgrounds or Kongregate. **Decided 2026-10-31:** as recommended, plus a comment with the link on the game's Kongregate page; the Internet Archive skipped for now. |
-| Save names | Prefix them (`peacefree-game` and so on), with a one-time read of the old names so existing progress carries over. **Decided 2026-10-31:** as recommended; the old saves are never deleted. |
+| Save names | Prefix them (`peacefree-game` and so on), with a one-time read of the old names so existing progress carries over. **Decided 2026-10-31:** as recommended; the old saves are never deleted. Built in to-do 11 (v21). |
 
 ## 1. What goes in
 v19 holds: the offline Kongregate stand-in (premium owned, bombs counted locally, no network calls), the P key's FPS box, one shared save, the Settings button with volume sliders and Start Speed, music pause and Next, the window fit and Fullscreen button, the Controls page, and "Unlock All Acts". Each is listed in NOTES.md "Patched files".
@@ -50,6 +50,7 @@ Measured in to-do 2 (FPS from the stats box, [performance.md](performance.md)): 
 - **An AIR build** (a Windows app without Flash Player) is part of to-do 4, not this release. Replaced 2026-10-31: packaging the finished .swf as an AIR app needs no recompiling, so it can be part of this release (section 2, C). To-do 4 is about compiling the whole game with the AIR SDK.
 
 ## 4. Permission
+- **The game's own credits** (from the code, found in to-do 11): its Credits screen shows "A Game By" with the Adventure Cat logo, "Program & Art By: Daniel John Pua" with www.adventurecat.us, "Music By: Audionautix" with audionautix.com, and "Copyright © 2014 Adventure Cat, LLC. All Rights Reserved." (`CreditsScreen.as:44-106`). So the game already credits its makers in the game; the release's title line only says it's an unofficial fan patch. The release's credits should name Audionautix for the music too.
 - **The rights holder:** the developer's site names Adventure Cat, LLC ("'Peacefree' is a game created by Adventure Cat, LLC. All rights reserved.", © 2014). Helgravis is the Kongregate account. README's Credits should name both.
 - **Ways to reach them** (checked 2026-10-31):
   - Kongregate: the account's latest activity is from September 2017, so a message there is unlikely to be read. That fits the user's unanswered question.
@@ -89,10 +90,11 @@ Measured in to-do 2 (FPS from the stats box, [performance.md](performance.md)): 
   - `settings` and `game` are generic names. How many Flash games use them under `"/"` is unknown; probably few, an estimate.
 - **Cost of renaming:** fans start fresh anyway, since their old saves can't be read (section 1), so new names cost them nothing. Only existing progress (the user's, and any testers') has to carry over.
 - Recommended: before the release, `FileLibrary` adds a `peacefree-` prefix to every name. When a prefixed save is still empty, it reads the old name once and saves it under the new one. That's about 10 lines in a class that's already patched, and `check.py --shared-save` needs the new name. It revisits the shared-save decision of 2026-10-31, which expected this ("unique names can come later").
+- Built in to-do 11 (v21): a copy of the old save is carried over in memory and written by the game's next save; details in [game-code.md](game-code.md) "Save data".
 
 ## Suggested to-dos and order
 1. **The email to the developer** (the user sends it; Claude drafts it). It goes first, so the 4 weeks run while the rest is built. Dropped 2026-10-31: no email (the user's decision, docs/decisions.md).
-2. **Release patches** (small): the shop's free-bomb texts; the save-name prefix with the one-time read of the old names; optionally the release version on the title. One build, all checks.
+2. **Release patches** (small): the shop's free-bomb texts; the save-name prefix with the one-time read of the old names; optionally the release version on the title. One build, all checks. Built 2026-10-31 (to-do 11, v21).
 3. **Browser test** (small): a renderer option in `play.py`; you measure WebGPU in your browser. If it passes, a GitHub Pages page with Ruffle becomes a to-do.
 4. **AIR app test** (small to medium; added 2026-10-31): the AIR SDK in `tools/`, an app descriptor, v19 packaged as a Windows app with its own runtime, and you play it. If it runs well, the release offers it next to the .swf.
 5. **Release package** (small): a release file name, such as `Peacefree-Revival-1.0.swf`; a README "Play" section for fans (download, get the projector, open the file); release notes. Then the "Before a public release" list in docs/todo.md.

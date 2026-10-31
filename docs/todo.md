@@ -4,15 +4,7 @@ Next number: 15
 
 ## To do
 
-The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9, done), its release (to-do 10's report, [research/release.md](research/release.md), and the six release decisions of 2026-10-31; built in 11-14), then the refactor (4) and modding.
-
-### 11. Release patches (small)
-Goal: the release decisions of 2026-10-31, choices 1 and 6 ("Go with your suggestions"), and choice 4 ("Give them full credits in the release.").
-- Problem: the shop says "Buy 10 for 10 Kreds", but the bombs are free. The save names `game`, `settings` and `save-N` are generic: in the projector, any local Flash game saving under the same name in `"/"` shares the file. The title shows only the game's own "Ver.1.08", so bug reports can't name the build, and the game itself doesn't credit the developer.
-- Read first: docs/decisions.md (2026-10-31: what goes in, save names, permission and credits); docs/research/release.md sections 1 and 6; `decompiled/PeacefreeKong/scripts/game/peacefree/interfaces/ShopInterfacer.as` lines 94, 118, 216, 297; `src/game/library/FileLibrary.as` (`loadSharedData`, `saveData`); `src/game/peacefree/TitleScreen.as:234-242` (`versionTextField`, bottom left, shown at :354); `scripts/check.py:78-79` (`SAVE_NAME`, `SETTINGS_SAVE_NAME`).
-- Approach: copy `ShopInterfacer.as` into `src/` and change its 4 texts ("Get 10 free" on both buttons; "Get 10 Nox Bombs for free?" and the same for Shock). In `FileLibrary`, add `peacefree-` where the name reaches `getLocal`. When the prefixed save has no data, read the old name once and save it under the new one; never delete the old one. On the title, the release version (and the credit line, if the user agrees) in or next to `versionTextField`. In `check.py`, the new names, plus a check that an old-name save carries over (put a `127.0.0.1//game` key in first and expect `127.0.0.1//peacefree-game`).
-- Ask the user: the release version (suggested: "Revival 1.0"); the credit line on the title (suggested: "Ver.1.08 · Revival 1.0, an unofficial fan patch · game by Adventure Cat, LLC (Helgravis)", shortened if it doesn't fit).
-- Test: all six headless checks and the new carry-over check. In the projector, the user checks the shop's texts; that progress and volumes from v19 carried over (same acts unlocked, same sliders); and the title's line.
+The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9, done), its release (to-do 10's report, [research/release.md](research/release.md), and the six release decisions of 2026-10-31; built in 11-14, 11 done), then the refactor (4) and modding.
 
 ### 12. AIR app test (small to medium)
 Goal: "if the AIR app test works that should be an option as well" (release decisions, choice 2).
@@ -40,7 +32,7 @@ Goal: "a flash version that has quality of life stuff (but not gameplay changes)
 - Read first: docs/decisions.md (2026-10-31: form, players, permission and credits, where); docs/research/release.md; "Before a public release" below; README.md; docs/local.md (the projector's Wayback Machine link and SHA-256).
 - Approach:
   - Release files: `Peacefree-Revival-1.0.swf`, plus `Peacefree-Revival-1.0-Windows.zip` if to-do 12 passed.
-  - README: a "Play" section at the top for fans (the AIR app, the projector link with its SHA-256, the Ruffle app); the note "unofficial fan patch; taken down if the developer asks"; Credits naming Adventure Cat, LLC and Helgravis.
+  - README: a "Play" section at the top for fans (the AIR app, the projector link with its SHA-256, the Ruffle app); the note "unofficial fan patch; taken down if the developer asks"; Credits naming Adventure Cat, LLC and Helgravis, and Audionautix for the music (the game's own Credits screen names them; docs/research/release.md section 4).
   - Release notes from CHANGELOG.md, and a readme in the AIR zip.
   - Then the "Before a public release" list. The user makes the repo public and confirms the GitHub release.
   - Afterwards, Claude drafts and the user posts: the question to Flashpoint's curators and the comment on the game's Kongregate page.

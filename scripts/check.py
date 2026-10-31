@@ -18,10 +18,13 @@ With --premium it opens the game with its own show_premium=true flashvar, which
 starts on the campaign screen, and passes when the screen's top button is the
 Shop (premium unlocked); it fails at once on the gold Premium button (locked).
 
-With --shared-save it opens the game the same way (the game saves its settings
-when the campaign screen opens) and passes when the save is stored under the
-root, where all builds share it; it fails at once when the save is stored under
-the file's own path, so each build has its own save.
+With --shared-save it first puts in a save under the old name, `game` (Most
+Kills 4321), then opens the game the same way (the game saves its settings when
+the campaign screen opens). It passes when the game's save is stored under the
+root with the new name, where all builds share it, and holds the old save's
+4321 (carried over). It fails at once when the save is stored under the file's
+own path, so each build has its own save, or when the old save changes (a build
+from before the new names saves there; older builds need it as it was).
 
 With --settings it goes on from the title screen: mutes the music with the
 title's music icon, clicks Settings, checks that the options panel shows, drags
@@ -74,9 +77,12 @@ BUTTON_AREA = (360, 2, 480, 38)
 MIN_BUTTON_SHARE = 0.25
 # Ruffle keeps saves in localStorage as <host><path>/<name>, without the port
 # (measured): the game's save is 127.0.0.1/game.swf/game under the file's path
-# (v04), 127.0.0.1//game under the root (v05).
-SAVE_NAME = "/game"
-SETTINGS_SAVE_NAME = "/settings"  # the volumes (to-do 6), under the root like the game's save
+# (v04), 127.0.0.1//game under the root (v05), 127.0.0.1//peacefree-game with
+# the release's names (v20).
+SAVE_NAME = "/peacefree-game"
+SETTINGS_SAVE_NAME = "/peacefree-settings"  # the volumes (to-do 6), under the root like the game's save
+OLD_SAVE_NAME = "/game"  # --shared-save: the game's save before the names got their prefix
+OLD_MOST_KILLS = 4321  # --shared-save: the old save's mark, which a fresh save (0) doesn't have
 # --settings: the title screen's Settings button and the options panel's buttons
 # (to-do 6). White text shows each: the button's label is 13% white once the
 # title's animation has shown it, and 0% before; the panel's "Music Volume"
@@ -179,6 +185,41 @@ def click(page, box, point: tuple[int, int], wait_ms: int = 1000) -> None:
     """Clicks a point in the player, then waits (the panel fades in or out in 0.5 s)."""
     page.mouse.click(box["x"] + point[0], box["y"] + point[1])
     page.wait_for_timeout(wait_ms)
+
+
+def amf3_int(value: int) -> bytes:
+    """A whole number from 0 to 2^21 - 1 as AMF3 writes it: 7 bits a byte, high bit set while more follow."""
+    if not 0 <= value < 0x200000:
+        raise ValueError(f"amf3_int can't write {value}")
+    groups = [value >> 14 & 0x7F, value >> 7 & 0x7F, value & 0x7F]
+    while len(groups) > 1 and groups[0] == 0:
+        groups.pop(0)
+    return bytes([group | 0x80 for group in groups[:-1]] + groups[-1:])
+
+
+def amf3_string(text: str) -> bytes:
+    data = text.encode()
+    return amf3_int(len(data) << 1 | 1) + data
+
+
+def amf3(value) -> bytes:
+    """A value in AMF3, the game's save format: dicts as plain objects, no references."""
+    if isinstance(value, bool):
+        return b"\x03" if value else b"\x02"
+    if isinstance(value, int):
+        return b"\x04" + amf3_int(value)
+    if isinstance(value, list):
+        return b"\x09" + amf3_int(len(value) << 1 | 1) + b"\x01" + b"".join(amf3(item) for item in value)
+    if isinstance(value, dict):
+        return b"\x0a\x0b\x01" + b"".join(amf3_string(key) + amf3(item) for key, item in value.items()) + b"\x01"
+    raise TypeError(f"amf3 can't write {type(value).__name__}")
+
+
+def sol_file(name: str, entries: dict) -> bytes:
+    """A save (.sol file) as Ruffle keeps it in localStorage, before base64 (the layout measured from Ruffle's own)."""
+    body = b"TCSO\x00\x04\x00\x00\x00\x00" + struct.pack(">H", len(name)) + name.encode() + b"\x00\x00\x00\x03"
+    body += b"".join(amf3_string(key) + amf3(value) + b"\x00" for key, value in entries.items())
+    return b"\x00\xbf" + struct.pack(">I", len(body)) + body
 
 
 def saved_flag(page, key: str, name: bytes) -> bool | None:
@@ -374,6 +415,7 @@ def main() -> int:
     locked = False
     save_key = ""  # --shared-save: the save's localStorage key, once the game has saved
     per_file = False  # --shared-save: the save is under another path, such as the file's own
+    old_changed = False  # --shared-save: the old save is gone or no longer the one put in
     previous = ""  # --premium: what the last screenshot showed, "shop", "locked" or ""
     step_error = ""  # --settings, --mission, --resize: what went wrong after the title screen showed
 
@@ -393,6 +435,9 @@ def main() -> int:
         return 1
     host = urlparse(url).hostname
     root_key = f"{host}/{SAVE_NAME}"  # --shared-save: the save's key under the root
+    old_key = f"{host}/{OLD_SAVE_NAME}"  # --shared-save: the old save's key, put in before the game starts
+    old_data = {"unlockedActs": [], "bEnableFX": True, "bEnabledBGM": True, "longestGame": 1, "mostKills": OLD_MOST_KILLS, "mostRescues": 0}
+    old_save = base64.b64encode(sol_file(OLD_SAVE_NAME[1:], {"content": {"data": old_data}})).decode()
     try:
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
@@ -400,15 +445,21 @@ def main() -> int:
             page.route(lambda u: not u.startswith(url), block)
             page.on("console", log)
             start = time.monotonic()
+            if args.shared_save:  # runs before the page's own scripts, so the old save is there when the game starts
+                page.add_init_script(f"localStorage.getItem('{old_key}') || localStorage.setItem('{old_key}', '{old_save}')")
             page.goto(url + ("?show_premium=true" if args.premium or args.shared_save else ""))
             passed = False
-            while not passed and not locked and not per_file and time.monotonic() - start < TIMEOUT_SECONDS:
+            while not passed and not locked and not per_file and not old_changed and time.monotonic() - start < TIMEOUT_SECONDS:
                 page.wait_for_timeout(1000)  # unlike time.sleep, Playwright keeps handling requests meanwhile
                 if args.shared_save:  # read before the screenshot, so a slow screenshot can't delay it
-                    saves = [k for k in page.evaluate("Object.keys(localStorage)") if k.endswith(SAVE_NAME)]
-                    passed = root_key in saves
-                    per_file = bool(saves) and not passed
-                    save_key = root_key if passed else saves[0] if saves else ""
+                    stored = page.evaluate("Object.fromEntries(Object.entries(localStorage))")
+                    # Saves under any path, with either name, but not the old save put in.
+                    saves = [k for k in stored if k.endswith((SAVE_NAME, OLD_SAVE_NAME)) and k != old_key]
+                    old_changed = stored.get(old_key) != old_save
+                    # The game's own save, not only the carried-over copy: the old save has no achievement data.
+                    passed = not old_changed and b"achievementData" in base64.b64decode(stored.get(root_key, ""))
+                    per_file = bool(saves) and root_key not in saves
+                    save_key = root_key if root_key in saves else saves[0] if saves else ""
                 try:
                     # A page screenshot of the player's box: an element screenshot waits for the
                     # element to be "stable", which never happens on the campaign screen.
@@ -433,6 +484,11 @@ def main() -> int:
                     previous = seen
                 elif not args.shared_save:
                     passed = share(png, LOGO_AREA, is_logo_blue) >= MIN_LOGO_BLUE
+            if passed and args.shared_save:
+                kills = saved_number(page, root_key, b"mostKills")
+                if kills != OLD_MOST_KILLS:
+                    step_error = f"its save ({root_key}) didn't carry over the old save {old_key}: Most Kills is {kills}, not {OLD_MOST_KILLS}"
+                passed = not step_error
             if passed and (args.settings or args.mission):
                 try:
                     step_error, png = try_settings(page, box, host)
@@ -460,7 +516,7 @@ def main() -> int:
         print(f"Blocked request: {request}")
     shown = screenshot.relative_to(ROOT) if png else "none"
     if passed and args.shared_save:
-        print(f"PASS: {swf.name} saves under the root ({save_key}), shared by all builds, after {seconds:.0f} s (screenshot: {shown})")
+        print(f"PASS: {swf.name} saves under the root ({save_key}), shared by all builds, with the old save's progress carried over and the old save left as it was, after {seconds:.0f} s (screenshot: {shown})")
         return 0
     if passed and args.settings:
         print(f"PASS: {swf.name} opens the options panel from the title screen, saves its music slider at {DRAGGED_VOLUME}% (unmuted) and start speed {START_SPEED}x, opens and leaves the Controls page, and closes it, after {seconds:.0f} s (screenshot: {shown})")
@@ -483,6 +539,9 @@ def main() -> int:
         return 1
     if step_error:
         print(f"FAIL: {swf.name}: {step_error} (screenshot: {shown})", file=sys.stderr)
+        return 1
+    if old_changed:
+        print(f"FAIL: {swf.name} changed or removed the old save ({old_key}), which older builds still use: it saves under the old name, or overwrote it (screenshot: {shown})", file=sys.stderr)
         return 1
     if per_file:
         print(f"FAIL: {swf.name} saves under its own path ({save_key}), not the root: builds don't share it (screenshot: {shown})", file=sys.stderr)

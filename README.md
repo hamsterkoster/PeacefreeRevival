@@ -19,7 +19,8 @@ This is an unofficial fan project, not affiliated with Helgravis or Kongregate. 
 - Done: the game grows and shrinks with its window (drag the edge or maximize), keeping its shape with black bars; the options panel has a Fullscreen button (Esc leaves fullscreen).
 - Done: a Controls button in the options panel opens a page listing the keys and what they do; in a mission, the keys do nothing while the options panel is open.
 - Done: a report on releasing the Flash version ([docs/research/release.md](docs/research/release.md)): what goes in, in what form, which player, permission, where, and the save names.
-- Next: building the release: free-bomb texts in the shop, save names of its own and a release version on the title; a test of a Windows app that needs no Flash Player; a test of browser play; then the release itself.
+- Done: the release patches: the shop says the bombs are free, the saves have names of their own (`peacefree-game` and so on; progress from older builds carries over, and their saves stay as they were), and the title shows "Revival 1.0, unofficial fan patch".
+- Next: a test of a Windows app that needs no Flash Player; a test of browser play; then the release itself.
 - Not yet: a ready-to-play release.
 
 ## How it works
@@ -56,7 +57,7 @@ Build a patched file (pick the next free version number and a short name), check
 & "$PWD\tools\flashplayer\flashplayer_32_sa.exe" "$PWD\patched\PeacefreeKong-v10-shortname.swf"
 ```
 
-In patched builds, the P key shows or hides the FPS box, and the options menu has an "Unlock All Acts" button (it can't be undone). From v09, the options menu also opens from the Settings button at the top left of the title and campaign screens. From v05, all builds share one save, so progress carries over to each new build; the original keeps its own. From v16, the game fits its window, and the options menu has a Fullscreen button (the projector's View > Full Screen, Ctrl+F, works too). From v19, the options menu's Controls button lists the keys.
+In patched builds, the P key shows or hides the FPS box, and the options menu has an "Unlock All Acts" button (it can't be undone). From v09, the options menu also opens from the Settings button at the top left of the title and campaign screens. From v05, all builds share one save, so progress carries over to each new build; the original keeps its own. From v16, the game fits its window, and the options menu has a Fullscreen button (the projector's View > Full Screen, Ctrl+F, works too). From v19, the options menu's Controls button lists the keys. From v20, the saves are named `peacefree-game`, `peacefree-settings` and `peacefree-save-N`; the first start copies the older builds' saves over, and those stay for the older builds.
 
 ## Folders and docs
 - `original/`: the original .swf (not in the repo). `decompiled/`: ffdec's output. `src/`: our patched classes. `patched/`: built files (not in the repo). `scripts/`: our build, check and play scripts. `tools/`: downloaded tools (not in the repo).

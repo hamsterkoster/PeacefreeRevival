@@ -39,9 +39,9 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
     - Rebuild: `.venv/Scripts/python scripts/build.py vNN-name` (about 16 s) must end with the SHA-256 line.
     - Headless Ruffle: `.venv/Scripts/python scripts/check.py patched/PeacefreeKong-vNN-name.swf` (about 7 s; a fail takes 60 s) must print PASS. It also lists blocked network requests and Ruffle's errors.
     - Premium: the same with `--premium` before the file (about 11 s) must print PASS (Shop button on the campaign screen).
-    - Shared save: the same with `--shared-save` before the file (about 6 s) must print PASS (the save is under the root path).
+    - Shared save: the same with `--shared-save` before the file (about 7 s) must print PASS (an old `game` save put in first is carried over to `peacefree-game` under the root path and left unchanged).
     - Settings: the same with `--settings` before the file (about 40-55 s) must print PASS (Settings on the title screen opens the options panel, dragging the muted music slider saves 75% and unmutes, the Start Speed row's 1x is saved, Controls opens its page and the page's Back returns, Back closes it).
-    - Mission: the same with `--mission` before the file (about 60-80 s) must print PASS (the settings steps, then Unlock All Acts, Act 2 starts at the saved 1x).
+    - Mission: the same with `--mission` before the file (about 60-90 s) must print PASS (the settings steps, then Unlock All Acts, Act 2 starts at the saved 1x).
     - Resize: the same with `--resize` before the file (about 15 s) must print PASS (a 1400x810 player shows the game at 1200x810 with black bars; Settings clicked at its scaled place opens the panel).
 - Re-decompile (not a per-step check; only after an ffdec update, on a committed tree): `.venv/Scripts/python scripts/decompile.py` (about 4 s) must end with "All scripts decompiled without errors." It refuses to replace a folder with uncommitted changes.
 - Docs to update when behaviour changes: NOTES.md (patches, test results, the patched-files list); docs/research/ (findings and dead ends, by topic); docs/decisions.md; docs/local.md (run commands); README.md (status, setup, build and play steps, Credits; when a section grows past about a screen, move it into docs/NAME.md and link it from the README).
@@ -49,8 +49,8 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
 - Review checklist: none yet: the built-in code-review skill. Add docs/review.md once the project has its own rules to check.
 
 ## Status
-Done: To do 1-3 and 5-10 (latest build v19; to-do 10 is the release report, docs/research/release.md); what each added: README.md Status and NOTES.md.
-Next: To do 11 (release patches); the release decisions are made (docs/decisions.md, 2026-10-31), built in to-dos 11-14.
+Done: To do 1-3 and 5-11 (latest build v21; to-do 10 is the release report, docs/research/release.md); what each added: README.md Status and NOTES.md.
+Next: To do 12 (AIR app test); the release decisions are made (docs/decisions.md, 2026-10-31), built in to-dos 11-14.
 
 ## Decisions
 One line per decision a chat must follow. Reasons, who decided and what was rejected: docs/decisions.md. The gitignore rules in Folder layout come from there too.
@@ -60,13 +60,13 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - The game's Kongregate API key stays in the tracked decompiled code: it's the developer's, not an account token.
 - Kongregate is replaced by an offline stand-in (`src/game/library/KongregateAPI.as`): premium owned, bombs counted locally, no network calls.
 - The options menu's "Unlock All Acts" button stays in every build, the public release included.
-- The release has everything in v19, free bombs included; the shop's texts say free instead of Kreds, and the title shows a release version (to-do 10's report, choice 1).
+- The release has everything in v19, free bombs included; the shop's texts say free instead of Kreds, and the title shows a release version (`TitleScreen.REVIVAL_VERSION`, "Revival 1.0"; raise it for each release) and "unofficial fan patch" (to-do 10's report, choice 1; to-do 11).
 - The release is the patched .swf for any player, plus a Windows AIR app (the .swf packaged as it is, with its own runtime) if a test build runs well; never a projector .exe with the game inside (Adobe's terms).
 - The README lists the players as: AIR app (if its test works), projector (linked to the Wayback Machine's copy of Adobe's download, with its SHA-256; never bundled), Ruffle app. No browser version until Ruffle's WebGPU renderer passes a test.
 - No request to the developer before the release: it's an unofficial fan patch, taken down if they ask, with full credits to Adventure Cat, LLC and Helgravis (README Credits, release notes, the AIR download's readme).
 - The release is a GitHub release in this repo (the repo goes public first); afterwards, ask Flashpoint's curators and announce on the game's Kongregate page. Not on itch.io, Newgrounds, Kongregate or the Internet Archive.
 - Starling's `handleLostContext` stays on (`src/StarlingPreloader.as`): without it, resizing the projector window kills the game.
-- All builds share one save: `src/game/library/FileLibrary.as` passes `"/"` to `getLocal`; save names are `game`, `settings` and `save-N` until the release patches give them a `peacefree-` prefix, with a one-time read of the old names (old saves never deleted).
+- All builds share one save: `src/game/library/FileLibrary.as` passes `"/"` to `getLocal`; from v20 it adds `peacefree-` to every save name and carries over a copy of the old-name save while the new one is empty (old saves never changed or deleted).
 - One options panel (`OptionsInterfacer`) for the mission, title and campaign screens; it's outside a mission when the screen passes a callback (`inMission()`), never judged from `pgame.map`.
 - The Flash version gets quality-of-life changes only, no new gameplay changes; gameplay changes and modding wait for the refactored version (roadmap: to-dos 7-9, release 10, refactor 4).
 - Music and SFX volume (0-100%) and the start speed live in their own `settings` save, read and written by `src/game/library/SoundLibrary.as`; the mute flags stay in the game's save, and the mute icons stay the way to mute.
