@@ -6,14 +6,14 @@ Next number: 5
 
 ### 3. Premium unlock (medium)
 Goal: "Find where the game decides whether premium features/items are owned, and make it always report them as owned. Make the change as small and targeted as possible."
-- Read first: the premium/purchase findings from to-do 1 in NOTES.md.
+- Read first: docs/research/premium.md (the flag, what it unlocks, the bombs) and the Kongregate calls in docs/research/network.md.
 - Patch by adding the changed classes to `src/` and building a new versioned file with `scripts/build.py` (to-do 2); log it in NOTES.md.
 - The user tests in the Flash Player projector (commands in docs/local.md).
 - Test: a checklist of what to look for in the game to confirm each premium feature works.
 
 ### 4. Modding assessment (medium, report only)
 Goal: "Explain how hard it would be to add new levels, new enemy types, and new mechanics in this codebase, and whether making a level/content data format would be worthwhile. Briefly compare continuing to patch the .swf with rebuilding the game in HTML5."
-- Also: what a public release for fans needs: what goes in it, where fans would get it (for example a GitHub release or Flashpoint Archive), and which player they'd use. Read first: to-do 2's player comparison in NOTES.md (projector about 60 fps, Ruffle app 40, Ruffle in the browser 15-20 with drawing errors).
+- Also: what a public release for fans needs: what goes in it, where fans would get it (for example a GitHub release or Flashpoint Archive), and which player they'd use. Read first: "How content is defined" in docs/research/game-code.md, and the player comparison in docs/research/performance.md (projector about 60 fps, Ruffle app 40, Ruffle in the browser 15-20 with drawing errors).
 - No changes to the game; a report only.
 - Test: the user reads the report.
 

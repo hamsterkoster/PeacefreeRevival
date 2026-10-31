@@ -12,10 +12,12 @@ Only when the user has tested the whole step; if part of the test failed, fix th
 - Run the checks in CLAUDE.md "Build specifics"; all must pass.
 - Check that nothing under `original/` changed: the files and their SHA-256 match "Original file" in NOTES.md (`sha256sum original/*`; `original/` is gitignored, so git status can't show it).
 - Check the changed files for anything on the "Never in tracked files" list in CLAUDE.md.
-- Log the step in NOTES.md: findings, patches, test results, and the "Patched files" list for any new file in `patched/`.
+- Log the step in NOTES.md: patches, test results, and the "Patched files" list for any new file in `patched/`.
+- Check that this step's findings, dead ends and decisions are written down: docs/research/ (one file per topic, updated in place) and docs/decisions.md.
 - Finished to-do: remove its entry from docs/todo.md (numbers are never reused) and update "Next:" in CLAUDE.md Status.
 - One step of a bigger to-do: update its Progress list (what was built, choices, test results, what the next step does).
 - Update the other docs the change affects (CLAUDE.md "Build specifics": Docs to update).
+- If the step added anything made by someone else (a tool, library, asset, or copied or adapted code), add it to README.md "Credits" with its author, license and link.
 - Give the commit message as plain text in a code block.
 - Say what comes next: the next step or to-do, and the short message to start it in a new chat.
 
