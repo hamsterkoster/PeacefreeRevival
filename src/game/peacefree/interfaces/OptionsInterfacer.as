@@ -39,6 +39,11 @@ package game.peacefree.interfaces
 
       private var unlockActsButton:GenericScreenButton;
 
+      // PeacefreeRevival: the Start Speed row's buttons (to-do 8), one per speed in START_SPEEDS.
+      private static const START_SPEEDS:Array = [1,4,8];
+
+      private var speedButtons:Array;
+
       // PeacefreeRevival: null in a mission (Map makes the panel with pgame only). Outside a
       // mission (title and campaign screens) the screen's function that updates its sound icons
       // and music after a change; it also marks the panel as outside a mission (inMission), which
@@ -52,6 +57,7 @@ package game.peacefree.interfaces
          var blackFilmQuad:Quad;
          var bgmLabel:TextField;
          var sfxLabel:TextField;
+         var speedLabel:TextField;
          var diffLabel:TextField;
          var closeButton:GenericScreenButton;
          var blackFilmQuad2:Quad;
@@ -137,9 +143,24 @@ package game.peacefree.interfaces
          sfxLabel.touchable = false;
          sfxLabel.autoScale = true;
          addChild(sfxLabel);
+         // PeacefreeRevival: the speed a new act starts at (to-do 8), below the volumes, where the
+         // difficulty was; the difficulty and Exit Game move down.
+         speedButtons = [];
+         for(var i:int = 0; i < START_SPEEDS.length; i++)
+         {
+            speedButtons.push(makeSpeedButton(START_SPEEDS[i],sfxSlider.x + i * 70,GameConfig.GAME_HEIGHT / 2 - 80));
+         }
+         speedLabel = new TextField(200,40,"Start Speed",Fonts.getDefaultFont().fontName,24,16777215,true);
+         speedLabel.x = sfxLabel.x;
+         speedLabel.y = GameConfig.GAME_HEIGHT / 2 - 80;
+         speedLabel.vAlign = "center";
+         speedLabel.hAlign = "right";
+         speedLabel.touchable = false;
+         speedLabel.autoScale = true;
+         addChild(speedLabel);
          diffValueLabel = new TextField(180,40,"NORMAL",Fonts.getDefaultFont().fontName,24,4293759265,true);
          diffValueLabel.x = GameConfig.GAME_WIDTH / 2 - 40;
-         diffValueLabel.y = GameConfig.GAME_HEIGHT / 2 - 80;
+         diffValueLabel.y = GameConfig.GAME_HEIGHT / 2 - 20;
          diffValueLabel.vAlign = "center";
          diffValueLabel.hAlign = "center";
          addChild(diffValueLabel);
@@ -175,7 +196,7 @@ package game.peacefree.interfaces
          confirmPopup.visible = false;
          quitGameButton = new GenericScreenButton(200,50,"Exit Game",24);
          quitGameButton.x = GameConfig.GAME_WIDTH / 2 - quitGameButton.width / 2;
-         quitGameButton.y = GameConfig.GAME_HEIGHT / 2;
+         quitGameButton.y = GameConfig.GAME_HEIGHT / 2 + 35;
          quitGameButton.pressedCallback = function():void
          {
             blackFilmQuad2.visible = true;
@@ -198,7 +219,7 @@ package game.peacefree.interfaces
             diffLabel.visible = false;
             quitGameButton.visible = false;
             resumeButton.textField.text = "Back";
-            resumeButton.y = GameConfig.GAME_HEIGHT / 2 - 40;
+            resumeButton.y = GameConfig.GAME_HEIGHT / 2 - 20;
          }
          // PeacefreeRevival: a button that opens every act on the campaign screen, as if each
          // earlier act was won, and saves that. It can't be undone, hence the confirm popup.
@@ -299,6 +320,26 @@ package game.peacefree.interfaces
          return inMission() ? pgame.map.bEnableBGM : pgame.bEnabledBGM;
       }
 
+      // PeacefreeRevival: a Start Speed button for speed param1 at (param2, param3), added to the
+      // panel. Pressing it saves at once; the chosen speed's button is bright (refresh), like the
+      // mission's own speed buttons.
+      private function makeSpeedButton(param1:int, param2:Number, param3:Number) : GenericScreenButton
+      {
+         var speed:int = param1;
+         var button:GenericScreenButton = new GenericScreenButton(60,40,speed + "x",20);
+         button.bChangeAlpha = false;
+         button.x = param2;
+         button.y = param3;
+         button.pressedCallback = function():void
+         {
+            SoundLibrary.setStartSpeed(speed);
+            SoundLibrary.saveSettings();
+            refresh();
+         };
+         addChild(button);
+         return button;
+      }
+
       // PeacefreeRevival: a volume slider in the row at y = param1, added to the panel (Starling
       // 1.4.1 has none, and build.py can't add a class): a bar, its fill, a knob and a readout.
       // Pressing or dragging calls param2 with the volume under the pointer; letting go saves
@@ -351,7 +392,7 @@ package game.peacefree.interfaces
             onDrag(volumeAt(_loc2_.getLocation(slider).x));
             if(_loc2_.phase == "ended")
             {
-               SoundLibrary.saveVolumes();
+               SoundLibrary.saveSettings();
                if(onRelease != null)
                {
                   onRelease();
@@ -399,7 +440,7 @@ package game.peacefree.interfaces
       {
          // PeacefreeRevival: the sliders save when let go; this also covers a drag that never
          // ended on the slider.
-         SoundLibrary.saveVolumes();
+         SoundLibrary.saveSettings();
          if(inMission())
          {
             pgame.map.hideOptionsInterface();
@@ -449,6 +490,10 @@ package game.peacefree.interfaces
          showSlider(musicSlider,SoundLibrary.getMusicVolume(),isMusicOn());
          showSlider(sfxSlider,SoundLibrary.getSFXVolume(),SoundLibrary.ENABLE_SFX);
          nextButton.alpha = isMusicOn() ? 1 : 0.35;
+         for(var i:int = 0; i < speedButtons.length; i++)
+         {
+            speedButtons[i].alpha = START_SPEEDS[i] == SoundLibrary.getStartSpeed() ? 1 : 0.35;
+         }
       }
       
       override public function dispose() : void
@@ -463,6 +508,7 @@ package game.peacefree.interfaces
          sfxSlider = null;
          nextButton = null;
          unlockActsButton = null;
+         speedButtons = null;
          onSoundChange = null;
          super.dispose();
       }

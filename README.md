@@ -15,6 +15,7 @@ This is an unofficial fan project, not affiliated with Helgravis or Kongregate. 
 - Done: all builds share one save, so progress carries over to each new build.
 - Done: a Settings button on the title and campaign screens opens the options panel there too, with volume sliders for music and sound effects (saved, and shared by all builds).
 - Done: muting the music pauses the song and unmuting continues it, on every screen; in a mission, the options panel has a Next button to skip to the next song.
+- Done: a Start Speed setting (1x, 4x or 8x) in the options panel chooses the speed a new act starts at (the tutorial, Act 1, keeps 4x).
 - Next: quality-of-life changes (game options, controls), then a release of the Flash version.
 - Not yet: a ready-to-play release.
 
@@ -39,7 +40,7 @@ Needs Java 8 or newer and Python 3.13.
    ```
 
 ## Build and play
-Build a patched file (pick the next free version number and a short name), check in headless Ruffle that it reaches the title screen, that premium is unlocked, that the save is shared by all builds and that Settings opens the options panel, then play it in the projector:
+Build a patched file (pick the next free version number and a short name), check in headless Ruffle that it reaches the title screen, that premium is unlocked, that the save is shared by all builds, that Settings opens the options panel and that a new act starts at the Start Speed, then play it in the projector:
 
 ```powershell
 .venv\Scripts\python scripts\build.py v10-shortname
@@ -47,6 +48,7 @@ Build a patched file (pick the next free version number and a short name), check
 .venv\Scripts\python scripts\check.py --premium patched\PeacefreeKong-v10-shortname.swf
 .venv\Scripts\python scripts\check.py --shared-save patched\PeacefreeKong-v10-shortname.swf
 .venv\Scripts\python scripts\check.py --settings patched\PeacefreeKong-v10-shortname.swf
+.venv\Scripts\python scripts\check.py --mission patched\PeacefreeKong-v10-shortname.swf
 & "$PWD\tools\flashplayer\flashplayer_32_sa.exe" "$PWD\patched\PeacefreeKong-v10-shortname.swf"
 ```
 

@@ -5,6 +5,7 @@ Run from the project folder:
     .venv/Scripts/python scripts/check.py --premium patched/PeacefreeKong-v02-premium.swf
     .venv/Scripts/python scripts/check.py --shared-save patched/PeacefreeKong-v05-sharedsave.swf
     .venv/Scripts/python scripts/check.py --settings patched/PeacefreeKong-v06-settings.swf
+    .venv/Scripts/python scripts/check.py --mission patched/PeacefreeKong-v14-startspeed.swf
 
 Opens the file in headless Chromium (Playwright, browser in tools/ms-playwright/)
 on the local Ruffle page, and takes a screenshot every second until the title
@@ -24,8 +25,15 @@ the file's own path, so each build has its own save.
 With --settings it goes on from the title screen: mutes the music with the
 title's music icon, clicks Settings, checks that the options panel shows, drags
 the music slider from 35% to 75% and checks that the settings save holds 75
-(and SFX 100) and the game's save says music is on again (dragging unmutes), then clicks Back and
-checks that the panel has gone.
+(and SFX 100) and the game's save says music is on again (dragging unmutes),
+clicks the Start Speed row's 1x and checks that the settings save holds 1, then
+clicks Back and checks that the panel has gone.
+
+With --mission it does the --settings steps, then goes on into a mission: Play,
+Settings on the campaign screen, Unlock All Acts and Yes, Act 2 (Act 1's
+tutorial hides the speed buttons), Start, and clicks through Act 2's opening
+dialogue until the mission's speed buttons show; it passes when 1x is the lit
+one (the game's own start speed is 4x).
 """
 
 import argparse
@@ -66,7 +74,9 @@ SETTINGS_SAVE_NAME = "/settings"  # the volumes (to-do 6), under the root like t
 # label is 17% white with the panel open, and 0% without (measured).
 SETTINGS_BUTTON = (67, 18)
 MUSIC_ICON = (192, 17)  # the title's music icon, right of the SFX icon (measured)
-BACK_BUTTON = (400, 260)
+BACK_BUTTON = (400, 280)
+SPEED_1X_BUTTON = (390, 210)  # the panel's Start Speed row (to-do 8)
+START_SPEED = 1
 # The music slider's bar runs from x 360 (0%) to 560 (100%) at y 90; its knob
 # starts at the game's own 35%. Dragged to 75%.
 MUSIC_KNOB = (430, 90)
@@ -75,6 +85,24 @@ DRAGGED_VOLUME = 75
 SETTINGS_LABEL_AREA = (25, 5, 110, 30)
 PANEL_LABEL_AREA = (200, 75, 335, 105)
 MIN_TEXT_WHITE = 0.06
+# --mission (to-do 8), measured on v14 screenshots: the title's Play button, the
+# panel's Unlock All Acts and its Yes, the campaign screen's Act 2 and Start
+# buttons, and the dialogue box ("Click Anywhere to Continue"). The Normal
+# difficulty button's label is 21% white once an open act other than Act 1 is
+# chosen, and 0% for Act 1, which has no difficulty buttons.
+PLAY_BUTTON = (289, 465)
+UNLOCK_ACTS_BUTTON = (400, 350)
+UNLOCK_YES = (339, 364)
+ACT_2_BUTTON = (73, 115)
+START_BUTTON = (669, 505)
+DIALOGUE = (400, 470)
+NORMAL_LABEL_AREA = (318, 510, 382, 530)
+# The mission's 1x, 4x and 8x buttons, top right: the lit one is 22-28% bright
+# green, the dimmed ones 0% (measured, v14 at 1x and v13 at 4x). The pause
+# button left of them is left out: pausing lights it without dimming the speed.
+HUD_SPEED_AREAS = {1: (678, 52, 700, 72), 4: (712, 52, 744, 72), 8: (755, 52, 792, 72)}
+MIN_HUD_GREEN = 0.10
+HUD_TIMEOUT_SECONDS = 30
 # Ruffle opens this notice over the game at the first mouse-over when it draws
 # with the CPU, as it does headless; it would catch the clicks.
 HIDE_RUFFLE_NOTICE = """() => {
@@ -103,6 +131,25 @@ def is_premium_gold(r: int, g: int, b: int) -> bool:
 
 def is_white(r: int, g: int, b: int) -> bool:
     return r > 200 and g > 200 and b > 200
+
+
+def is_hud_green(r: int, g: int, b: int) -> bool:
+    return g > 150 and r < 120 and b < 120
+
+
+def shoot(page, box) -> bytes:
+    """A screenshot of the player's box.
+
+    With the options panel open, headless Ruffle takes up to 4 s for one on a
+    busy PC (measured), so 5 s left no margin.
+    """
+    return page.screenshot(clip=box, timeout=15000)
+
+
+def click(page, box, point: tuple[int, int], wait_ms: int = 1000) -> None:
+    """Clicks a point in the player, then waits (the panel fades in or out in 0.5 s)."""
+    page.mouse.click(box["x"] + point[0], box["y"] + point[1])
+    page.wait_for_timeout(wait_ms)
 
 
 def saved_flag(page, key: str, name: bytes) -> bool | None:
@@ -144,19 +191,11 @@ def try_settings(page, box, host: str) -> tuple[str, bytes]:
     """--settings, on the title screen: what went wrong ("" if nothing) and the last screenshot."""
     game_key = f"{host}/{SAVE_NAME}"
     settings_key = f"{host}/{SETTINGS_SAVE_NAME}"
-
-    def shoot() -> bytes:
-        return page.screenshot(clip=box, timeout=5000)
-
-    def click(point: tuple[int, int]) -> None:
-        page.mouse.click(box["x"] + point[0], box["y"] + point[1])
-        page.wait_for_timeout(1000)  # the panel fades in or out in 0.5 s
-
     page.mouse.move(box["x"] + 400, box["y"] + 500)
     page.wait_for_timeout(300)
     page.evaluate(HIDE_RUFFLE_NOTICE)
     for _ in range(20):  # the button shows when the title's animation ends
-        png = shoot()
+        png = shoot(page, box)
         if share(png, SETTINGS_LABEL_AREA, is_white) >= MIN_TEXT_WHITE:
             break
         page.wait_for_timeout(500)
@@ -164,11 +203,11 @@ def try_settings(page, box, host: str) -> tuple[str, bytes]:
         return "no Settings button on the title screen", png
     if saved_flag(page, game_key, b"bEnabledBGM") is not True:  # a new browser: no save but the title's
         return "the save doesn't start with music on", png
-    click(MUSIC_ICON)
+    click(page, box, MUSIC_ICON)
     if saved_flag(page, game_key, b"bEnabledBGM") is not False:
-        return "the title's music icon didn't mute the music", shoot()
-    click(SETTINGS_BUTTON)
-    png = shoot()
+        return "the title's music icon didn't mute the music", shoot(page, box)
+    click(page, box, SETTINGS_BUTTON)
+    png = shoot(page, box)
     if share(png, PANEL_LABEL_AREA, is_white) < MIN_TEXT_WHITE:
         return "Settings didn't open the options panel", png
     page.mouse.move(box["x"] + MUSIC_KNOB[0], box["y"] + MUSIC_KNOB[1])
@@ -178,7 +217,7 @@ def try_settings(page, box, host: str) -> tuple[str, bytes]:
     page.wait_for_timeout(200)
     page.mouse.up()
     page.wait_for_timeout(1000)
-    png = shoot()
+    png = shoot(page, box)
     volume = saved_number(page, settings_key, b"music")
     if volume != DRAGGED_VOLUME:
         return f"the music slider dragged to {DRAGGED_VOLUME}% saved {volume}", png
@@ -187,11 +226,46 @@ def try_settings(page, box, host: str) -> tuple[str, bytes]:
         return f"the settings save holds SFX volume {volume}, not 100", png
     if saved_flag(page, game_key, b"bEnabledBGM") is not True:
         return "dragging the muted music slider didn't unmute the music", png
-    click(BACK_BUTTON)
-    png = shoot()
+    speed = saved_number(page, settings_key, b"startSpeed")
+    if speed != 4:  # saved with the music's volume, at the game's own 4x
+        return f"the settings save holds start speed {speed}, not 4", png
+    click(page, box, SPEED_1X_BUTTON)
+    png = shoot(page, box)
+    speed = saved_number(page, settings_key, b"startSpeed")
+    if speed != START_SPEED:
+        return f"the Start Speed row's {START_SPEED}x saved {speed}", png
+    click(page, box, BACK_BUTTON)
+    png = shoot(page, box)
     if share(png, PANEL_LABEL_AREA, is_white) >= MIN_TEXT_WHITE:
         return "Back didn't close the options panel", png
     return "", png
+
+
+def try_mission(page, box) -> tuple[str, bytes]:
+    """--mission, on the title screen after try_settings: what went wrong ("" if nothing) and the last screenshot."""
+    click(page, box, PLAY_BUTTON, 4000)  # the campaign screen fades in
+    click(page, box, SETTINGS_BUTTON)
+    png = shoot(page, box)
+    if share(png, PANEL_LABEL_AREA, is_white) < MIN_TEXT_WHITE:
+        return "Settings didn't open the options panel on the campaign screen", png
+    click(page, box, UNLOCK_ACTS_BUTTON)
+    click(page, box, UNLOCK_YES, 2500)  # the campaign screen is made again, without the panel
+    click(page, box, ACT_2_BUTTON, 1500)
+    png = shoot(page, box)
+    if share(png, NORMAL_LABEL_AREA, is_white) < MIN_TEXT_WHITE:
+        return "Act 2 isn't open after Unlock All Acts (no difficulty buttons)", png
+    click(page, box, START_BUTTON, 5000)  # the campaign screen fades out and the map loads
+    # Act 2 opens with two lines of dialogue that hide the HUD; each click shows the next.
+    deadline = time.monotonic() + HUD_TIMEOUT_SECONDS
+    while time.monotonic() < deadline:
+        png = shoot(page, box)
+        lit = [speed for speed, area in HUD_SPEED_AREAS.items() if share(png, area, is_hud_green) >= MIN_HUD_GREEN]
+        if lit == [START_SPEED]:
+            return "", png
+        if lit:
+            return f"Act 2 started at {lit[0]}x, not the start speed {START_SPEED}x", png
+        click(page, box, DIALOGUE, 1500)
+    return f"no speed buttons {HUD_TIMEOUT_SECONDS} s after Start in Act 2", png
 
 
 def main() -> int:
@@ -201,6 +275,7 @@ def main() -> int:
     mode.add_argument("--premium", action="store_true", help="check that premium is unlocked instead")
     mode.add_argument("--shared-save", action="store_true", help="check that the save is shared by all builds instead")
     mode.add_argument("--settings", action="store_true", help="also check the title screen's Settings button and options panel")
+    mode.add_argument("--mission", action="store_true", help="also do the --settings steps, then check that Act 2 starts at the start speed")
     args = parser.parse_args()
     swf = args.swf.resolve()
     if not swf.is_file():
@@ -216,7 +291,7 @@ def main() -> int:
     from playwright.sync_api import sync_playwright
 
     SCREENSHOTS.mkdir(exist_ok=True)
-    suffix = "-premium" if args.premium else "-sharedsave" if args.shared_save else "-settings" if args.settings else ""
+    suffix = "-premium" if args.premium else "-sharedsave" if args.shared_save else "-settings" if args.settings else "-mission" if args.mission else ""
     screenshot = SCREENSHOTS / f"check-{swf.stem}{suffix}.png"
     blocked: list[str] = []
     ruffle_log: list[str] = []
@@ -225,7 +300,7 @@ def main() -> int:
     save_key = ""  # --shared-save: the save's localStorage key, once the game has saved
     per_file = False  # --shared-save: the save is under another path, such as the file's own
     previous = ""  # --premium: what the last screenshot showed, "shop", "locked" or ""
-    settings_error = ""  # --settings: what went wrong after the title screen showed
+    step_error = ""  # --settings, --mission: what went wrong after the title screen showed
 
     def block(route):
         blocked.append(route.request.url)
@@ -283,12 +358,14 @@ def main() -> int:
                     previous = seen
                 elif not args.shared_save:
                     passed = share(png, LOGO_AREA, is_logo_blue) >= MIN_LOGO_BLUE
-            if passed and args.settings:
+            if passed and (args.settings or args.mission):
                 try:
-                    settings_error, png = try_settings(page, box, host)
+                    step_error, png = try_settings(page, box, host)
+                    if not step_error and args.mission:
+                        step_error, png = try_mission(page, box)
                 except PlaywrightError as error:
-                    settings_error = f"the browser failed: {str(error).splitlines()[0]}"
-                passed = not settings_error
+                    step_error = f"the browser failed: {str(error).splitlines()[0]}"
+                passed = not step_error
             seconds = time.monotonic() - start
             browser.close()
     finally:
@@ -305,7 +382,10 @@ def main() -> int:
         print(f"PASS: {swf.name} saves under the root ({save_key}), shared by all builds, after {seconds:.0f} s (screenshot: {shown})")
         return 0
     if passed and args.settings:
-        print(f"PASS: {swf.name} opens the options panel from the title screen, saves its music slider at {DRAGGED_VOLUME}% (unmuted) and closes it, after {seconds:.0f} s (screenshot: {shown})")
+        print(f"PASS: {swf.name} opens the options panel from the title screen, saves its music slider at {DRAGGED_VOLUME}% (unmuted) and start speed {START_SPEED}x, and closes it, after {seconds:.0f} s (screenshot: {shown})")
+        return 0
+    if passed and args.mission:
+        print(f"PASS: {swf.name} starts Act 2 at the start speed set in Settings ({START_SPEED}x), after {seconds:.0f} s (screenshot: {shown})")
         return 0
     if passed and args.premium:
         print(f"PASS: {swf.name} shows the Shop button (premium unlocked) after {seconds:.0f} s (screenshot: {shown})")
@@ -316,8 +396,8 @@ def main() -> int:
     if locked:
         print(f"FAIL: {swf.name} shows the gold Premium button: premium is locked (screenshot: {shown})", file=sys.stderr)
         return 1
-    if settings_error:
-        print(f"FAIL: {swf.name}: {settings_error} (screenshot: {shown})", file=sys.stderr)
+    if step_error:
+        print(f"FAIL: {swf.name}: {step_error} (screenshot: {shown})", file=sys.stderr)
         return 1
     if per_file:
         print(f"FAIL: {swf.name} saves under its own path ({save_key}), not the root: builds don't share it (screenshot: {shown})", file=sys.stderr)

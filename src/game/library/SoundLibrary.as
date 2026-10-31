@@ -31,6 +31,10 @@ package game.library
 
       private static var sfxVolume:int = savedVolume("sfx",100);
 
+      // PeacefreeRevival: the speed a new act starts at (to-do 8): 1, 4 or 8, the game's own 4
+      // by default. Kept here because this class writes the settings save.
+      private static var startSpeed:int = savedStartSpeed();
+
       public static var BGM_VOLUME:SoundTransform = new SoundTransform(musicVolume / 100);
 
       public static var SFX_VOLUME:SoundTransform = new SoundTransform(sfxVolume / 100);
@@ -276,13 +280,24 @@ package game.library
          SFX_VOLUME = new SoundTransform(param1 / 100);
       }
 
-      // PeacefreeRevival: both volumes in their own save, shared by all builds like the game's
-      // (FileLibrary); the mute flags stay in the game's save.
-      public static function saveVolumes() : void
+      public static function getStartSpeed() : int
+      {
+         return startSpeed;
+      }
+
+      public static function setStartSpeed(param1:int) : void
+      {
+         startSpeed = param1;
+      }
+
+      // PeacefreeRevival: both volumes and the start speed in their own save, shared by all
+      // builds like the game's (FileLibrary); the mute flags stay in the game's save.
+      public static function saveSettings() : void
       {
          FileLibrary.saveData("settings",{
             "music":musicVolume,
-            "sfx":sfxVolume
+            "sfx":sfxVolume,
+            "startSpeed":startSpeed
          });
       }
 
@@ -295,6 +310,18 @@ package game.library
             return int(_loc3_);
          }
          return param2;
+      }
+
+      // PeacefreeRevival: the start speed from the settings save, or 4 when it's missing or not
+      // one of the game's speeds.
+      private static function savedStartSpeed() : int
+      {
+         var _loc1_:* = FileLibrary.getData("settings")["startSpeed"];
+         if(_loc1_ === 1 || _loc1_ === 4 || _loc1_ === 8)
+         {
+            return int(_loc1_);
+         }
+         return 4;
       }
       
       public function loadLibrary(param1:String, param2:Function, param3:Function = null, param4:Function = null, param5:String = null) : void

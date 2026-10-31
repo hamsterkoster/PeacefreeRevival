@@ -40,15 +40,16 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
     - Headless Ruffle: `.venv/Scripts/python scripts/check.py patched/PeacefreeKong-vNN-name.swf` (about 7 s; a fail takes 60 s) must print PASS. It also lists blocked network requests and Ruffle's errors.
     - Premium: the same with `--premium` before the file (about 11 s) must print PASS (Shop button on the campaign screen).
     - Shared save: the same with `--shared-save` before the file (about 6 s) must print PASS (the save is under the root path).
-    - Settings: the same with `--settings` before the file (about 15 s) must print PASS (Settings on the title screen opens the options panel, dragging the muted music slider saves 75% and unmutes, Back closes it).
+    - Settings: the same with `--settings` before the file (about 15-40 s) must print PASS (Settings on the title screen opens the options panel, dragging the muted music slider saves 75% and unmutes, the Start Speed row's 1x is saved, Back closes it).
+    - Mission: the same with `--mission` before the file (about 60-80 s) must print PASS (the settings steps, then Unlock All Acts, Act 2 starts at the saved 1x).
 - Re-decompile (not a per-step check; only after an ffdec update, on a committed tree): `.venv/Scripts/python scripts/decompile.py` (about 4 s) must end with "All scripts decompiled without errors." It refuses to replace a folder with uncommitted changes.
 - Docs to update when behaviour changes: NOTES.md (patches, test results, the patched-files list); docs/research/ (findings and dead ends, by topic); docs/decisions.md; docs/local.md (run commands); README.md (status, setup, build and play steps, Credits; when a section grows past about a screen, move it into docs/NAME.md and link it from the README).
-- Must keep working: the game reaches its title screen (the headless check); in patched builds, P shows and hides the FPS box, premium is unlocked (the premium check), all builds share one save (the shared-save check), the Settings button opens the options panel on the title and campaign screens and its volume sliders are saved (the settings check covers the title), mute pauses and unmute continues the same song (a projector test: the checks can't hear), and resizing the projector window doesn't stop the game.
+- Must keep working: the game reaches its title screen (the headless check); in patched builds, P shows and hides the FPS box, premium is unlocked (the premium check), all builds share one save (the shared-save check), the Settings button opens the options panel on the title and campaign screens and its volume sliders are saved (the settings check covers the title), a new act other than Act 1 starts at the Start Speed (the mission check), mute pauses and unmute continues the same song (a projector test: the checks can't hear), and resizing the projector window doesn't stop the game.
 - Review checklist: none yet: the built-in code-review skill. Add docs/review.md once the project has its own rules to check.
 
 ## Status
-Done: To do 1-3 and 5-7 (latest build v13); what each added: README.md Status and NOTES.md.
-Next: To do 8 (game options: start speed, fullscreen, window sizes).
+Done: To do 1-3 and 5-7, To do 8 step A (latest build v15); what each added: README.md Status and NOTES.md.
+Next: To do 8, step B (the game scales with its window, a Fullscreen button).
 
 ## Decisions
 One line per decision a chat must follow. Reasons, who decided and what was rejected: docs/decisions.md. The gitignore rules in Folder layout come from there too.
@@ -62,7 +63,9 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - All builds share one save: `src/game/library/FileLibrary.as` passes `"/"` to `getLocal`; save names stay `game` and `save-N`.
 - One options panel (`OptionsInterfacer`) for the mission, title and campaign screens; it's outside a mission when the screen passes a callback (`inMission()`), never judged from `pgame.map`.
 - The Flash version gets quality-of-life changes only, no new gameplay changes; gameplay changes and modding wait for the refactored version (roadmap: to-dos 7-9, release 10, refactor 4).
-- Music and SFX volume (0-100%) live in their own `settings` save, read and written by `src/game/library/SoundLibrary.as`; the mute flags stay in the game's save, and the mute icons stay the way to mute.
+- Music and SFX volume (0-100%) and the start speed live in their own `settings` save, read and written by `src/game/library/SoundLibrary.as`; the mute flags stay in the game's save, and the mute icons stay the way to mute.
+- The start speed applies in `CampaignSelectorScreen.startAct` to every new act but Act 1 (the tutorial keeps 4x); loaded saves keep their own speed.
+- Window sizes come from the game scaling to fit its window (its own shape, black bars, at most 2048 wide), fullscreen included; no launcher, no stretching.
 - Mute pauses and unmute continues the song (`SoundLibrary.pauseBGM`/`resumeBGM`; a paused song counts as playing in `isBGMPlaying`); only screen and story changes stop it for good. Missions go through `src/game/peacefree/Map.as` (`setEnableBGM`, `nextBGM` for the panel's Next button).
 
 ## Project docs

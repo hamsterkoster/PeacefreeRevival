@@ -502,6 +502,13 @@ package game.peacefree
          }
          var _loc3_:Act = Act.getAct(actSelected);
          _loc2_ = new Map(pgame,_loc3_,true,difficulty);
+         // PeacefreeRevival: the start speed from Settings (to-do 8) instead of Map's own 4x; a
+         // loaded save keeps its own speed, and the title's demo map keeps 4x. Act 1 (the
+         // tutorial) keeps 4x too: it hides the speed buttons until late in it (Act1.as:112).
+         if(actSelected != 1)
+         {
+            _loc2_.mapHUD.changeSpeed(SoundLibrary.getStartSpeed());
+         }
          pgame.loadMap(_loc2_);
       }
       
