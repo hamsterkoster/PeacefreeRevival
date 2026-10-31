@@ -49,8 +49,8 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
 - Review checklist: none yet: the built-in code-review skill. Add docs/review.md once the project has its own rules to check.
 
 ## Status
-Done: To do 1-3 and 5-9 (latest build v19); what each added: README.md Status and NOTES.md.
-Next: To do 10 (release prep report for the Flash version).
+Done: To do 1-3 and 5-10 (latest build v19; to-do 10 is the release report, docs/research/release.md); what each added: README.md Status and NOTES.md.
+Next: the user decides the report's six choices one at a time (decisions in docs/decisions.md); the build work becomes new to-dos (/add-todo).
 
 ## Decisions
 One line per decision a chat must follow. Reasons, who decided and what was rejected: docs/decisions.md. The gitignore rules in Folder layout come from there too.
@@ -76,7 +76,7 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - docs/local.md: this PC's paths and commands (gitignored).
 - docs/todo.md: the to-do list.
 - docs/decisions.md: every decision with its reason.
-- docs/research/: findings by topic: game-code.md (the file, code map, content format, saves), premium.md, network.md, performance.md.
+- docs/research/: findings by topic: game-code.md (the file, code map, content format, saves), premium.md, network.md, performance.md, release.md (to-do 10's release report: what goes in, form, player, permission, where, save names).
 - NOTES.md: patch, build and test log.
 
 ## Never in tracked files

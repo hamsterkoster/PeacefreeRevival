@@ -32,6 +32,18 @@ One line per file in `patched/`: what it contains and its test status. The files
 
 ## Log
 
+### 2026-10-31, To do 10: release report
+A report on releasing the Flash version, with a recommendation per choice: docs/research/release.md. No changes to the game, no build. The user decides each choice next; the build work becomes new to-dos.
+
+**Done**
+- `docs/research/release.md`: what goes in, form, player (and the browser), permission, where, save names; suggested to-dos and their order; sources (secondhand ones marked).
+- Measured for it: the original and v19 differ only in their two code tags (DoABC, 166 KB and 414 KB of 7,463,589 bytes uncompressed; the other 47 tags byte-identical); git's binary delta of the two tags is about 105 KB (82 KB and 23 KB raw). Ruffle's web .wasm lists its renderers as `wgpu-webgl`, then `webgpu`, so the user's browser test in to-do 2 most likely ran on WebGL. Flashpoint already has the game (the developer's Gloebit build); Helgravis's Kongregate account was last active in September 2017; the developer's site and its contact page are still up (checked 2026-10-31).
+- The user's answers: they asked Helgravis on the game's Kongregate page years ago, with no answer; browser play if possible, otherwise a download; publishing is fine, with a takedown if Helgravis asks.
+
+**Test results**
+- Lint passes; the original's SHA-256 matches. The slow checks weren't run: no code changed.
+- The user read the report.
+
 ### 2026-10-31, To do 9: a Controls page
 The options panel has a Controls button that opens a page listing the keys (step A). Rebindable keys (step B) were dropped from the Flash version: docs/decisions.md. Findings: "Keys" in docs/research/game-code.md.
 
