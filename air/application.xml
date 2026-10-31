@@ -12,6 +12,15 @@
     <versionNumber>0.0.0</versionNumber>
     <versionLabel>Revival 0.0</versionLabel>
     <copyright>Peacefree: Tactical Warfare by Helgravis, (c) Adventure Cat, LLC. Unofficial fan patch.</copyright>
+    <!-- The .exe's icon: the red chevron of the game's title screen (the sprite sheet's title_logo,
+         centred in a square), from air/icons/, which package_air.py packages as icons/. -->
+    <icon>
+        <image16x16>icons/icon-16.png</image16x16>
+        <image32x32>icons/icon-32.png</image32x32>
+        <image48x48>icons/icon-48.png</image48x48>
+        <image128x128>icons/icon-128.png</image128x128>
+        <image256x256>icons/icon-256.png</image256x256>
+    </icon>
     <initialWindow>
         <content>Peacefree.swf</content>
         <title>Peacefree: Tactical Warfare - Revival</title>

@@ -4,10 +4,7 @@ Next number: 15
 
 ## To do
 
-The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9, done), its release (to-do 10's report, [research/release.md](research/release.md), and the six release decisions of 2026-10-31; built in 11-14, 11 done, 12 step A done), then the refactor (4) and modding.
-
-### 12. AIR app: a Windows app that needs no Flash Player (medium)
-Goal: "if the AIR app test works that should be an option as well" (release decisions, choice 2). In its own file with its Progress list: docs/todo/12-air-app.md (step A done: the app runs well; next step B, an installer and a zip).
+The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9, done), its release (to-do 10's report, [research/release.md](research/release.md), and the six release decisions of 2026-10-31; built in 11-14, 11 and 12 done), then the refactor (4) and modding.
 
 ### 13. Browser test with Ruffle's WebGPU renderer (small)
 Goal: "any way to have this be playable in the browser, if not download option is fine" (to-do 10's questions).
@@ -22,7 +19,7 @@ Goal: "a flash version that has quality of life stuff (but not gameplay changes)
 - Problem: everything for the first public release besides game code: the downloads, a README for fans, credits, release notes, the "Before a public release" list below, the GitHub release, then Flashpoint and Kongregate.
 - Read first: docs/decisions.md (2026-10-31: form, players, permission and credits, where); docs/research/release.md; "Before a public release" below; README.md; docs/local.md (the projector's Wayback Machine link and SHA-256).
 - Approach:
-  - Release files: `Peacefree-Revival-1.0.swf`, plus the AIR app (to-do 12) as an installer and a zip, such as `Peacefree-Revival-1.0-Windows-Setup.exe` and `Peacefree-Revival-1.0-Windows.zip`.
+  - Release files: `Peacefree-Revival-1.0.swf`, plus the AIR app (to-do 12) as an installer and a zip, such as `Peacefree-Revival-1.0-Windows-Setup.exe` and `Peacefree-Revival-1.0-Windows.zip`. `scripts/release_air.py` makes both, named after the app folder (to-do 12, step B), so they're renamed or copied for the release.
   - A one-line privacy statement (the game collects nothing and makes no network calls): the AIR license asks for one, linked in the app (docs/research/release.md, "The AIR SDK's current terms").
   - README: a "Play" section at the top for fans (the AIR app, the projector link with its SHA-256, the Ruffle app); the note "unofficial fan patch; taken down if the developer asks"; Credits naming Adventure Cat, LLC and Helgravis, and Audionautix for the music (the game's own Credits screen names them; docs/research/release.md section 4).
   - Release notes from CHANGELOG.md, and a readme in the AIR zip and installer.

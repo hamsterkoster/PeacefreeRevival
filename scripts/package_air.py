@@ -5,7 +5,7 @@ Run from the project folder:
     .venv/Scripts/python scripts/package_air.py --check patched/air/PeacefreeRevival-v21-release-1
 
 Packaging copies the .swf into a temporary folder as Peacefree.swf, next to air/application.xml
-with its version filled in from TitleScreen.REVIVAL_VERSION, and runs the AIR SDK's ADT with
+with its version filled in from TitleScreen.REVIVAL_VERSION and the icons from air/icons/, and runs the AIR SDK's ADT with
 -target bundle -arch x64: a 64-bit app with the runtime in its folder (AIR's free tier adds a
 splash screen). It writes patched/air/PeacefreeRevival-<label>-N/, after the .swf's label with
 the next free N, so it never overwrites an older folder.
@@ -52,6 +52,8 @@ ADT_JAR = ROOT / "tools" / "air" / "AIRSDK_51.5.1" / "lib" / "adt.jar"
 CERTIFICATE = ROOT / "tools" / "air" / "peacefree-revival.p12"
 CERTIFICATE_PASSWORD = CERTIFICATE.with_suffix(".password")
 DESCRIPTOR = ROOT / "air" / "application.xml"
+ICONS = ROOT / "air" / "icons"  # the descriptor's <icon> files, packaged as icons/
+PACKAGED_DESCRIPTOR = Path("META-INF", "AIR", "application.xml")  # in an app folder, as ADT filled it in
 TITLE_SCREEN = ROOT / "src" / "game" / "peacefree" / "TitleScreen.as"
 APPS = PATCHED / "air"
 APP_NAME = "PeacefreeRevival"
@@ -64,12 +66,17 @@ PW_CLIENTONLY = 0x1
 PW_RENDERFULLCONTENT = 0x2
 
 
-def descriptor_text(name: str) -> str:
+def shown(path: Path) -> Path:
+    """The path to print: relative to the project folder when it's in it."""
+    return path.resolve().relative_to(ROOT) if path.resolve().is_relative_to(ROOT) else path
+
+
+def descriptor_text(name: str, descriptor: Path = DESCRIPTOR) -> str:
     """The text of the descriptor's top-level or initialWindow element of this name."""
-    root = ET.parse(DESCRIPTOR).getroot()
+    root = ET.parse(descriptor).getroot()
     text = root.findtext(f"{{*}}{name}") or root.findtext(f"{{*}}initialWindow/{{*}}{name}")
     if not text:
-        raise SystemExit(f"error: no <{name}> in {DESCRIPTOR.relative_to(ROOT)}")
+        raise SystemExit(f"error: no <{name}> in {shown(descriptor)}")
     return text
 
 
@@ -160,9 +167,10 @@ def package(swf: Path) -> int:
     with tempfile.TemporaryDirectory() as temp:
         inputs = Path(temp)
         shutil.copyfile(swf, inputs / CONTENT)
+        shutil.copytree(ICONS, inputs / ICONS.name)
         (inputs / "application.xml").write_text(filled_descriptor(version_label, version_number), encoding="utf-8")
         command = ["java", "-jar", str(ADT_JAR), "-package", *signing_options(), "-target", "bundle", "-arch", "x64",
-                   str(staging), str(inputs / "application.xml"), "-C", str(inputs), CONTENT]
+                   str(staging), str(inputs / "application.xml"), "-C", str(inputs), CONTENT, ICONS.name]
         result = subprocess.run(command, capture_output=True, text=True, check=False)
     seconds = time.monotonic() - start
     exe = staging / f"{descriptor_text('filename')}.exe"
@@ -176,7 +184,8 @@ def package(swf: Path) -> int:
     if result.stdout.strip() or result.stderr.strip():
         print((result.stdout + result.stderr).strip())
     files, size = folder_size(out)
-    # No SHA-256 of the .exe: it's AIR's launcher, the same in every package (measured).
+    # No SHA-256 of the .exe: it's AIR's launcher with the icons in it, the same in every package
+    # with the same icons (measured), so it says nothing about the game inside.
     print(f"Packaged {out.relative_to(ROOT)} in {seconds:.1f} s ({files} files, {size:,} bytes), from {swf.name}")
     return 0
 
@@ -237,17 +246,23 @@ def grab_game(hwnd: int) -> bytes:
     return png.getvalue()
 
 
-def check(folder: Path) -> int:
-    exe = folder / f"{descriptor_text('filename')}.exe"
+def check(folder: Path, name: str = "") -> int:
+    """PASS if the app in folder reaches its title screen; its screenshot is named after name,
+    or the folder."""
+    descriptor = folder / PACKAGED_DESCRIPTOR
+    if not descriptor.is_file():
+        print(f"error: {shown(folder)} is not an app folder (no {PACKAGED_DESCRIPTOR.as_posix()})", file=sys.stderr)
+        return 1
+    exe = folder / f"{descriptor_text('filename', descriptor)}.exe"
     if not exe.is_file():
         print(f"error: no {exe.name} in {folder}", file=sys.stderr)
         return 1
-    title = descriptor_text("title")
+    title = descriptor_text("title", descriptor)
     # PrintWindow draws the window at its own size; AIR's windows ignore Windows' display scaling,
     # and so does this process then, so GetClientRect gives the same size (measured at 150%).
     ctypes.windll.user32.SetProcessDpiAwarenessContext(DPI_AWARENESS_UNAWARE)
     SCREENSHOTS.mkdir(exist_ok=True)
-    screenshot = SCREENSHOTS / f"check-air-{folder.name}.png"
+    screenshot = SCREENSHOTS / f"check-air-{name or folder.name}.png"
     png = hwnd = None
     error = f"no title screen after {TIMEOUT_SECONDS} s"
     start = time.monotonic()
@@ -281,11 +296,11 @@ def check(folder: Path) -> int:
     if png:
         screenshot.write_bytes(png)
 
-    shown = screenshot.relative_to(ROOT) if png else "none"
+    picture = screenshot.relative_to(ROOT) if png else "none"
     if not error:
-        print(f"PASS: {exe.name} shows the title screen after {seconds:.0f} s (screenshot: {shown})")
+        print(f"PASS: {exe.name} shows the title screen after {seconds:.0f} s (screenshot: {picture})")
         return 0
-    print(f"FAIL: {exe.name}: {error} (last screenshot: {shown})", file=sys.stderr)
+    print(f"FAIL: {exe.name}: {error} (last screenshot: {picture})", file=sys.stderr)
     return 1
 
 
