@@ -40,7 +40,7 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
     - Headless Ruffle: `.venv/Scripts/python scripts/check.py patched/PeacefreeKong-vNN-name.swf` (about 7 s; a fail takes 60 s) must print PASS. It also lists blocked network requests and Ruffle's errors.
     - Premium: the same with `--premium` before the file (about 11 s) must print PASS (Shop button on the campaign screen).
     - Shared save: the same with `--shared-save` before the file (about 6 s) must print PASS (the save is under the root path).
-    - Settings: the same with `--settings` before the file (about 15-40 s) must print PASS (Settings on the title screen opens the options panel, dragging the muted music slider saves 75% and unmutes, the Start Speed row's 1x is saved, Controls opens its page and the page's Back returns, Back closes it).
+    - Settings: the same with `--settings` before the file (about 40-55 s) must print PASS (Settings on the title screen opens the options panel, dragging the muted music slider saves 75% and unmutes, the Start Speed row's 1x is saved, Controls opens its page and the page's Back returns, Back closes it).
     - Mission: the same with `--mission` before the file (about 60-80 s) must print PASS (the settings steps, then Unlock All Acts, Act 2 starts at the saved 1x).
     - Resize: the same with `--resize` before the file (about 15 s) must print PASS (a 1400x810 player shows the game at 1200x810 with black bars; Settings clicked at its scaled place opens the panel).
 - Re-decompile (not a per-step check; only after an ffdec update, on a committed tree): `.venv/Scripts/python scripts/decompile.py` (about 4 s) must end with "All scripts decompiled without errors." It refuses to replace a folder with uncommitted changes.
@@ -49,8 +49,8 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
 - Review checklist: none yet: the built-in code-review skill. Add docs/review.md once the project has its own rules to check.
 
 ## Status
-Done: To do 1-3 and 5-8 (latest build v17); what each added: README.md Status and NOTES.md.
-Next: To do 9, step A (a Controls page listing the mission keys).
+Done: To do 1-3 and 5-9 (latest build v19); what each added: README.md Status and NOTES.md.
+Next: To do 10 (release prep report for the Flash version).
 
 ## Decisions
 One line per decision a chat must follow. Reasons, who decided and what was rejected: docs/decisions.md. The gitignore rules in Folder layout come from there too.
@@ -69,6 +69,7 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - Window sizes come from the game scaling to fit its window (its own shape, black bars, at most 2048 wide), fullscreen included; no launcher, no stretching.
 - Only `StarlingPreloader.fitToWindow` sets Starling's viewport; Flash objects over the game go on `Starling.current.nativeOverlay`, and game code reads the mouse from it, not from the stage (window pixels).
 - Mute pauses and unmute continues the song (`SoundLibrary.pauseBGM`/`resumeBGM`; a paused song counts as playing in `isBGMPlaying`); only screen and story changes stop it for good. Missions go through `src/game/peacefree/Map.as` (`setEnableBGM`, `nextBGM` for the panel's Next button).
+- Keys aren't rebindable in the Flash version: the panel's Controls page (`OptionsInterfacer.CONTROLS`) only lists them, and a changed or new key goes there too; rebinding waits for the refactored version. Mission keys do nothing while the panel is open (`Map.onKeyDown`).
 
 ## Project docs
 - README.md: what the project is, setup, build and play, Credits.

@@ -4,10 +4,7 @@ Next number: 11
 
 ## To do
 
-The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9; 7 and 8 are done), its release (10), then the refactor (4) and modding.
-
-### 9. Controls: a list of the mission keys, then rebindable keys (large)
-Goal: "Controls list might even have customizable hotkeys instead, if possible." In its own file with its Progress list: docs/todo/09-controls.md (step A built; B undecided).
+The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9, done), its release (10), then the refactor (4) and modding.
 
 ### 10. Release prep for the Flash version (medium, report first)
 Goal: "I want to make a flash version that has quality of life stuff (but not gameplay changes) that we can release, then make a refactored version where we can make all our changes."
@@ -26,6 +23,7 @@ Goal: "Explain how hard it would be to add new levels, new enemy types, and new 
 
 ## Later, only if the user asks
 - Gameplay changes, new levels, enemies and mechanics, and modding: in the refactored version (to-do 4), not the Flash version.
+- Rebindable keys (to-do 9's dropped step B): in the refactored version, with the key names in on-screen texts taken from the bindings. Each row of the Controls page's key a button that waits for the next key press; bindings in the `settings` save; a key already in use swaps with the other action; P, Esc and 1-9 stay fixed; "Reset to defaults". Why not in the Flash version: docs/decisions.md (2026-10-31); the texts that name keys: "Keys" in docs/research/game-code.md.
 
 ## Before a public release
 - Pick a license (LICENSE file; ask the user, with a suggestion). It can only cover our own work (`scripts/`, the docs); the game's code in `decompiled/` and `src/` stays Helgravis's.
