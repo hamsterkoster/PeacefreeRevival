@@ -37,7 +37,8 @@ const player = window.RufflePlayer.newest().createPlayer();
 player.style.width = "800px";
 player.style.height = "540px";
 document.getElementById("game").appendChild(player);
-player.ruffle().load("/game.swf");
+// The page's query string becomes the game's flashvars, for example ?show_premium=true.
+player.ruffle().load({{ url: "/game.swf", parameters: location.search }});
 </script>
 </body>
 </html>

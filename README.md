@@ -10,7 +10,8 @@ This is an unofficial fan project, not affiliated with Helgravis or Kongregate. 
 
 ## Status
 - Done: the game is decompiled and mapped ([docs/research/](docs/research/)). The lag came from the player, not the game: the Flash Player projector runs it at about 60 fps.
-- Next: the premium unlock.
+- Done: premium is unlocked. Kongregate is replaced by an offline stand-in, so the game makes no network calls; bombs are free in the shop. Resizing the window no longer stops the game.
+- Next: one save shared by all builds.
 - Not yet: a ready-to-play release.
 
 ## How it works
@@ -34,15 +35,16 @@ Needs Java 8 or newer and Python 3.13.
    ```
 
 ## Build and play
-Build a patched file (pick the next free version number and a short name), check that it reaches the title screen in headless Ruffle, then play it in the projector:
+Build a patched file (pick the next free version number and a short name), check in headless Ruffle that it reaches the title screen and that premium is unlocked, then play it in the projector:
 
 ```powershell
-.venv\Scripts\python scripts\build.py v02-shortname
-.venv\Scripts\python scripts\check.py patched\PeacefreeKong-v02-shortname.swf
-& "$PWD\tools\flashplayer\flashplayer_32_sa.exe" "$PWD\patched\PeacefreeKong-v02-shortname.swf"
+.venv\Scripts\python scripts\build.py v05-shortname
+.venv\Scripts\python scripts\check.py patched\PeacefreeKong-v05-shortname.swf
+.venv\Scripts\python scripts\check.py --premium patched\PeacefreeKong-v05-shortname.swf
+& "$PWD\tools\flashplayer\flashplayer_32_sa.exe" "$PWD\patched\PeacefreeKong-v05-shortname.swf"
 ```
 
-In patched builds, the P key shows or hides the FPS box.
+In patched builds, the P key shows or hides the FPS box, and the options menu inside a mission has an "Unlock All Acts" button (it can't be undone).
 
 ## Folders and docs
 - `original/`: the original .swf (not in the repo). `decompiled/`: ffdec's output. `src/`: our patched classes. `patched/`: built files (not in the repo). `scripts/`: our build, check and play scripts. `tools/`: downloaded tools (not in the repo).

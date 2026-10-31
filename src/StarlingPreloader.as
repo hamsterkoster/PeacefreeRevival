@@ -72,6 +72,10 @@ package
          this.gotoAndStop(2);
          var _loc3_:Class = getDefinitionByName("starling.core.Starling") as Class;
          var _loc2_:Class = getDefinitionByName("game.peacefree.PeacefreeGame") as Class;
+         // PeacefreeRevival: rebuild the graphics when Windows resets the graphics device (resizing
+         // the projector window does). Without this, Starling stops with "Fatal error: The
+         // application lost the device context!". Must be set before Starling is created.
+         Starling.handleLostContext = true;
          this._starling = new _loc3_(_loc2_,this.stage);
          this._starling.start();
          this.stage.addEventListener("keyDown",onStatsKey);
