@@ -17,6 +17,7 @@ Only when the user has tested the whole step; if part of the test failed, fix th
 - Finished to-do: remove its entry from docs/todo.md (numbers are never reused) and update "Next:" in CLAUDE.md Status.
 - One step of a bigger to-do: update its Progress list (what was built, choices, test results, what the next step does).
 - Update the other docs the change affects (CLAUDE.md "Build specifics": Docs to update).
+- If CHANGELOG.md exists and users can see the change, add one plain-language line under Unreleased (not for refactors or tests).
 - If the step added anything made by someone else (a tool, library, asset, or copied or adapted code), add it to README.md "Credits" with its author, license and link.
 - Give the commit message as plain text in a code block.
 - Say what comes next: the next step or to-do, and the command to start it in a new chat, in its own code block: `/build-todo N`, or `/build-todo N, step B` for the next step of a bigger to-do.

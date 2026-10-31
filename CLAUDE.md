@@ -7,7 +7,7 @@ Revive "Peacefree: Tactical Warfare" (by Helgravis, an abandoned Kongregate Flas
 3. Quality-of-life changes, no gameplay changes, then a public release of this Flash version for fans.
 4. Later: a refactored version (to-do 4 decides how) that's moddable (new levels, enemies, mechanics).
 
-Only the user plays it for now.
+Only the user plays it for now. Don't build what's under "Later" in docs/todo.md until asked.
 
 ## User and environment
 - Windows 11, PowerShell in the VS Code terminal.
@@ -42,12 +42,12 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
     - Shared save: the same with `--shared-save` before the file (about 6 s) must print PASS (the save is under the root path).
     - Settings: the same with `--settings` before the file (about 15 s) must print PASS (Settings on the title screen opens the options panel, dragging the muted music slider saves 75% and unmutes, Back closes it).
 - Re-decompile (not a per-step check; only after an ffdec update, on a committed tree): `.venv/Scripts/python scripts/decompile.py` (about 4 s) must end with "All scripts decompiled without errors." It refuses to replace a folder with uncommitted changes.
-- Docs to update when behaviour changes: NOTES.md (patches, test results, the patched-files list); docs/research/ (findings and dead ends, by topic); docs/decisions.md; docs/local.md (run commands); README.md (status, setup, build and play steps, Credits).
+- Docs to update when behaviour changes: NOTES.md (patches, test results, the patched-files list); docs/research/ (findings and dead ends, by topic); docs/decisions.md; docs/local.md (run commands); README.md (status, setup, build and play steps, Credits; when a section grows past about a screen, move it into docs/NAME.md and link it from the README).
 - Must keep working: the game reaches its title screen (the headless check); in patched builds, P shows and hides the FPS box, premium is unlocked (the premium check), all builds share one save (the shared-save check), the Settings button opens the options panel on the title and campaign screens and its volume sliders are saved (the settings check covers the title), mute pauses and unmute continues the same song (a projector test: the checks can't hear), and resizing the projector window doesn't stop the game.
 - Review checklist: none yet: the built-in code-review skill. Add docs/review.md once the project has its own rules to check.
 
 ## Status
-Done: To do 1 (decompiled into `decompiled/PeacefreeKong/`; findings in docs/research/), To do 2 (performance: the projector runs it at about 60 fps; build, check and play scripts), To do 3 (premium unlock through an offline Kongregate stand-in, "Unlock All Acts" button, resize-crash fix; v04), To do 5 (one save shared by all builds; v05), To do 6 (Settings button on the title and campaign screens, music and SFX volume sliders in a `settings` save; v11), To do 7 (mute pauses and unmute continues the song everywhere, a Next button in the mission's options panel; v13).
+Done: To do 1-3 and 5-7 (latest build v13); what each added: README.md Status and NOTES.md.
 Next: To do 8 (game options: start speed, fullscreen, window sizes).
 
 ## Decisions
