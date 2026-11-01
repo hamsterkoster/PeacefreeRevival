@@ -23,7 +23,7 @@ Get the files from the [latest release](https://github.com/hamsterkoster/Peacefr
    - Open it, then File > Open and pick the .swf, or drag the .swf onto `flashplayer_32_sa.exe`.
 3. **`Peacefree-Revival-1.0.swf` in [Ruffle](https://ruffle.rs/downloads)'s desktop app** (Windows, macOS, Linux), a Flash Player emulator: open the .swf with it (tested with its nightly build of 2026-10-29). It's slower (about 40 fps on our test PC) and draws some things wrong.
 
-There's no browser version: Ruffle in a browser runs this game at about 15 fps.
+There's no browser version: Ruffle in a browser runs this game at about 15 fps. A separate, from-scratch HTML5 rewrite that would run in a browser and be moddable is planned as its own open-source project, **PeacefreeWeb** — an independent hobby effort, not maintained here, and it may or may not get finished.
 
 ## What's new
 Compared with the original (version 1.08 on Kongregate). All changes: [CHANGELOG.md](CHANGELOG.md).

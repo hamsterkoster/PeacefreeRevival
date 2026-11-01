@@ -1,5 +1,10 @@
 # Refactor and modding assessment (to-do 4)
 
+> The rewrite decided here lives in its own repo, **PeacefreeWeb**
+> (`github.com/hamsterkoster/PeacefreeWeb`, planned — add the link once it's live).
+> It's a separate hobby project, open-sourced so anyone can continue it, and does
+> not share code with this one. This repo stays the Flash version's home.
+
 A report, not a change. It answers: how hard is it to add new levels, enemy types
 and mechanics in this codebase; is a level/content data format worthwhile; and
 should we keep patching the .swf, compile the decompiled game with the AIR SDK, or
