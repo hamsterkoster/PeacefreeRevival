@@ -68,7 +68,7 @@ Release 1.0 is out: the repo is public, and the GitHub release `v1.0` has the th
 - CHANGELOG.md: 1.0 dated 2026-11-01 under its own heading, Unreleased left empty above it, and Keep a Changelog's link targets at the bottom; committed and pushed first (`cd27c81`, a check-in commit), since the tag points at it.
 - The release: Claude made a draft with `gh release create v1.0 --draft --target cd27c81...` (title "Peacefree Revival 1.0", the three files; the notes from a scratch file: intro, "Which file?", the changelog's 1.0 section copied by a script, the SHA-256s, credits with the notices link at the tag). The user read the draft, made the repo public, set the README's screenshot as the social preview image, and published it (09:34 UTC), which made the tag.
 - docs/building.md: Status says 1.0 is released; "Make a release" steps 5-8 give the changelog change, the notes, the `gh` commands, the digest check and the logged-out check.
-- Announcements: Claude drafted the Flashpoint request and the Kongregate comment; the user skipped both for now (decision); the drafts are in docs/research/release.md section 8.
+- Announcements: Claude drafted the Flashpoint request and the Kongregate comment; the user skipped both for now (decision), then posted the Kongregate comment later the same day; the Flashpoint request stays skipped. The drafts are in docs/research/release.md section 8.
 - To-do 14 removed from docs/todo.md, with docs/todo/14-release.md. CLAUDE.md: the repo is public, Status (next: to-do 4), the release decision.
 
 **Test results**
