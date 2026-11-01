@@ -3,7 +3,7 @@
 For developers: how the patches are made, and how to set up, build, check and release them. For players: [README.md](../README.md).
 
 ## Status
-Revival 1.0 is being prepared for release (to-do 14). What changed for players: [CHANGELOG.md](../CHANGELOG.md). Every patch, build and test: [NOTES.md](../NOTES.md). What's next: [todo.md](todo.md).
+Revival 1.0 was released on 2026-11-01 ([release page](https://github.com/hamsterkoster/PeacefreeRevival/releases/tag/v1.0)). What changed for players: [CHANGELOG.md](../CHANGELOG.md). Every patch, build and test: [NOTES.md](../NOTES.md). What's next: [todo.md](todo.md).
 
 ## How it works
 The patches are edited copies of the game's classes in `src/`. `scripts/build.py` compiles them into a copy of the original .swf with ffdec and writes `patched/PeacefreeKong-vNN-name.swf`. The original file is never changed. The Windows app is that .swf packaged as it is with the AIR SDK, with its own runtime (`scripts/package_air.py`), and its installer and zip are made by `scripts/release_air.py`.
@@ -74,7 +74,7 @@ Make that app's two downloads next to its folder, an installer (`PeacefreeReviva
    .venv\Scripts\python scripts\release_air.py --release patched\air\PeacefreeRevival-v10-shortname-1
    ```
 
-5. In [CHANGELOG.md](../CHANGELOG.md), Unreleased becomes the version with its date.
+5. In [CHANGELOG.md](../CHANGELOG.md), Unreleased's entries move under a new `## [<version>] - <date>` heading (the day the release is published), with Unreleased left empty above it, and the link targets at the bottom follow: `[Unreleased]` compares `v<version>...HEAD`, and `[<version>]` links the new release's tag. Commit and push this: the release's tag points at this commit.
 6. A GitHub release, tag `v<version>`, with the three files and the notes from CHANGELOG.md. To-do 14, step C, writes down the exact steps when it makes the first one.
 
 ## Folders and docs

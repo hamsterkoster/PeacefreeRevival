@@ -3,7 +3,9 @@
 What changed for players in each release of Peacefree Revival, the unofficial fan patch of Peacefree: Tactical Warfare. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the version is the one on the title screen ("Revival 1.0"). Compared with the original game, version 1.08 from Kongregate.
 
 ## [Unreleased]
-The first release, 1.0; it gets its date when it's published.
+
+## [1.0] - 2026-11-01
+The first release.
 
 ### Added
 - A Windows app that runs the game without Flash Player, as an installer (for your user only, no admin prompt; a Start menu entry and a desktop shortcut) or a zip, with a readme that the installer shows first and the license notices of the game's libraries, font and music.
@@ -29,3 +31,6 @@ The first release, 1.0; it gets its date when it's published.
 
 ### Fixed
 - Resizing the window no longer stops the game.
+
+[Unreleased]: https://github.com/hamsterkoster/PeacefreeRevival/compare/v1.0...HEAD
+[1.0]: https://github.com/hamsterkoster/PeacefreeRevival/releases/tag/v1.0
