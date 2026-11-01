@@ -75,7 +75,22 @@ Make that app's two downloads next to its folder, an installer (`PeacefreeReviva
    ```
 
 5. In [CHANGELOG.md](../CHANGELOG.md), Unreleased's entries move under a new `## [<version>] - <date>` heading (the day the release is published), with Unreleased left empty above it, and the link targets at the bottom follow: `[Unreleased]` compares `v<version>...HEAD`, and `[<version>]` links the new release's tag. Commit and push this: the release's tag points at this commit.
-6. A GitHub release, tag `v<version>`, with the three files and the notes from CHANGELOG.md. To-do 14, step C, writes down the exact steps when it makes the first one.
+6. Write the release notes into a file outside the repo, starting from the previous release's (`gh release view v1.0 --json body --jq .body`): the intro, "Which file?", "What's new" (the version's changelog section as it is), the three SHA-256s from step 4, and the credits, whose THIRD-PARTY-NOTICES.txt link points at the new tag.
+7. Make the GitHub release as a draft with `gh` (signed in as an admin of the repo), its tag pointed at the pushed commit of step 5 (for example, version 1.1):
+
+   ```powershell
+   $sha = git rev-parse HEAD
+   $d = "patched\release\PeacefreeRevival-v10-shortname-1"
+   gh release create v1.1 --draft --target $sha --title "Peacefree Revival 1.1" --notes-file ..\release-notes-1.1.md "$d\Peacefree-Revival-1.1.swf" "$d\Peacefree-Revival-1.1-Windows-Setup.exe" "$d\Peacefree-Revival-1.1-Windows.zip"
+   ```
+
+   Check that GitHub's SHA-256 of each upload (`digest`) matches step 4's:
+
+   ```powershell
+   gh release view v1.1 --json assets --jq '.assets[] | {name, digest}'
+   ```
+
+8. Read the draft on GitHub's releases page, then publish it there, with "Set as the latest release" ticked; publishing makes the tag. Then `git fetch --tags`, and check logged out (a private browser window) that the README's "latest release" link leads to the new release and its three downloads give the same SHA-256s.
 
 ## Folders and docs
 - `original/`: the original .swf (not in the repo). `decompiled/`: ffdec's output. `src/`: our patched classes. `patched/`: built files, Windows apps and release files (not in the repo). `air/`: the Windows app's settings, icons, readme and installer script. `scripts/`: our build, check, packaging and play scripts. `tools/`: downloaded tools (not in the repo).

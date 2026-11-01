@@ -12,7 +12,7 @@ Sources: the repo (marked measured, or "from the code"), web pages (listed at th
 | Form | The full patched .swf. A patch file only if Helgravis allows patches but not hosting. **Decided 2026-10-31:** the patched .swf for any player, plus a Windows AIR app with the game packaged in, if a test build runs well (section 2). |
 | Player | Link to the Flash Player projector, don't bundle it; the Ruffle app as the second choice. Browser: test Ruffle's WebGPU renderer first. **Decided 2026-10-31:** the README lists the AIR app (if its test works), then the projector (linked to the Wayback Machine's copy of Adobe's download, with its SHA-256), then the Ruffle app; the WebGPU test comes before any browser version. **Tested 2026-10-31 (to-do 13):** WebGPU freezes the tab and WebGL is as slow as before, so there is no browser version. |
 | Permission | One email to the address on the developer's own site before the release. No answer in about 4 weeks: release as an unofficial fan patch, taken down on request. A "no": no release. **Decided 2026-10-31:** no email; an unofficial release, taken down if the developer asks, with full credits to Adventure Cat, LLC and Helgravis. |
-| Where | A GitHub release in this repo (plus a GitHub Pages page if the browser test passes). Ask Flashpoint's curators afterwards. Not itch.io, Newgrounds or Kongregate. **Decided 2026-10-31:** as recommended, plus a comment with the link on the game's Kongregate page; the Internet Archive skipped for now. The browser test failed (to-do 13), so no GitHub Pages page. |
+| Where | A GitHub release in this repo (plus a GitHub Pages page if the browser test passes). Ask Flashpoint's curators afterwards. Not itch.io, Newgrounds or Kongregate. **Decided 2026-10-31:** as recommended, plus a comment with the link on the game's Kongregate page; the Internet Archive skipped for now. The browser test failed (to-do 13), so no GitHub Pages page. **Published 2026-11-01** (to-do 14): the GitHub release `v1.0`; Flashpoint and the Kongregate comment skipped for now (section 8). |
 | Save names | Prefix them (`peacefree-game` and so on), with a one-time read of the old names so existing progress carries over. **Decided 2026-10-31:** as recommended; the old saves are never deleted. Built in to-do 11 (v21). |
 
 ## 1. What goes in
@@ -133,18 +133,47 @@ All measured on 2026-11-01 unless marked otherwise.
 - **The particle extension's license:** `LICENSE.md` in Gamua/Starling-Extension-Particle-System has one commit (2011-09-02), so every release of the extension (v1.1-v1.8, 2013-2016) has the same text.
 - **Audionautix's terms** (audionautix.com, read today): "Creative Commons Attribution 4.0 International License"; all music by Jason Shaw, free to use "as long as you provide credit".
 
+## 8. Publishing (to-do 14, step C, 2026-11-01)
+All measured on 2026-11-01 unless marked otherwise.
+- **The release:** `v1.0`, "Peacefree Revival 1.0", published at 09:34 UTC by the user from a draft Claude made with `gh release create --draft --target` (commit `cd27c81`, the dated changelog); GitHub made the tag on publishing. GitHub keeps its own SHA-256 of each upload (the `digest` field of `gh release view --json assets`), and all three matched ours; whether the web page shows it wasn't checked. Content types: `application/x-msdownload` (.exe), `application/zip`, `application/octet-stream` (.swf, so browsers download it). The release page says "<account> released this" with the personal push account (a User, not the organization), as expected in section 7.
+- **Logged out** (`curl`, no token): the repo is public; `releases/latest` redirects (302) to `releases/tag/v1.0`; the three downloads give the same SHA-256s as `patched/release/PeacefreeRevival-v21-release-9/` (under 1 s each); all 46 links in README.md, CHANGELOG.md, LICENSE, THIRD-PARTY-NOTICES.txt, air/README.txt, docs/building.md and the release notes answer 200 or 206, the Wayback Machine's too. The README as GitHub renders it has the anchors the links use: `#privacy` (the AIR license's privacy link in `air/README.txt`), `#download-and-play`, `#credits` and `#license`. CHANGELOG.md's headings render as links, with no brackets. The repo's social preview image is the README's screenshot (its `og:image` is on repository-images.githubusercontent.com).
+- **Flashpoint:** its entry (section 5) launches `peacefreegbit.swf` in `flashplayer_32_sa.exe`, Flash Player 32's projector, the player our .swf is tested in (the database API). Flashpoint takes requests on its Discord (flashpointarchive.org/discord redirects to the invite). A 2019 news post sends game requests to #request-a-game; no channel or process for adding an alternate version to an existing entry was found, and the channels can't be read without an account. Its Discord rules (from a search summary, secondhand) allow self-promotion only for things about Flashpoint or digital preservation, and ban contacting developers about preservation without staff consent.
+- **Announcements skipped for now** (the user; docs/decisions.md). The drafts below, in the user's voice, are ready to post.
+
+Kongregate, a comment on the game's page (it shows the poster's Kongregate username; if Kongregate refuses the link, "search GitHub for PeacefreeRevival" instead):
+
+```text
+Peacefree lives again! I made an unofficial fan patch: premium unlocked (it can't be bought anymore), no network needed, plus volume sliders, a start-speed setting, fullscreen and a resizable window. Gameplay unchanged. Play it as a Windows app (no Flash needed) or the .swf in Flash Player or Ruffle: github.com/hamsterkoster/PeacefreeRevival
+Not endorsed by the developer; it comes down if they ask.
+```
+
+Flashpoint, on its Discord: in #request-a-game, unless #rules-and-faq names a better channel. The last sentence commits the poster to learning Flashpoint's curation tool; drop it if that's not wanted:
+
+```text
+Hi! I made an unofficial fan patch of Peacefree Tactical Warfare (Adventure Cat, 2014). Flashpoint already has the game: entry 2ff5159c-747f-08e0-b404-2c03ac68064d, the developer's Gloebit build. Would you consider adding the patch as an alternate version of that entry, or point me to the right place to ask?
+
+What it is: the game's Kongregate build (1.08) with premium unlocked, since it was sold through Kongregate and can't be bought anymore. It makes no network connections and has quality-of-life changes only (volume sliders, a start-speed setting, fullscreen, a resizable window, a list of keys); the gameplay is unchanged. It's one .swf that runs in Flash Player 32's projector, the player your entry uses.
+
+Release, with the .swf, its SHA-256 and every change: https://github.com/hamsterkoster/PeacefreeRevival/releases/tag/v1.0
+Every patch's source: https://github.com/hamsterkoster/PeacefreeRevival
+
+It isn't endorsed by the developer, and it comes down if they ask. If it's easier, I can try making the curation myself.
+```
+
 ## Suggested to-dos and order
 1. **The email to the developer** (the user sends it; Claude drafts it). It goes first, so the 4 weeks run while the rest is built. Dropped 2026-10-31: no email (the user's decision, docs/decisions.md).
 2. **Release patches** (small): the shop's free-bomb texts; the save-name prefix with the one-time read of the old names; optionally the release version on the title. One build, all checks. Built 2026-10-31 (to-do 11, v21).
 3. **Browser test** (small): a renderer option in `play.py`; you measure WebGPU in your browser. If it passes, a GitHub Pages page with Ruffle becomes a to-do. Built 2026-10-31 (to-do 13): it didn't pass, so no browser version.
 4. **AIR app test** (small to medium; added 2026-10-31): the AIR SDK in `tools/`, an app descriptor, v19 packaged as a Windows app with its own runtime, and you play it. If it runs well, the release offers it next to the .swf. Built 2026-10-31 (to-do 12, step A, v21: it runs well); next an installer and a zip (step B).
-5. **Release package** (small): a release file name, such as `Peacefree-Revival-1.0.swf`; a README "Play" section for fans (download, get the projector, open the file); release notes. Then the "Before a public release" list in docs/todo.md.
-6. **Later:** ask Flashpoint's curators.
+5. **Release package** (small): a release file name, such as `Peacefree-Revival-1.0.swf`; a README "Play" section for fans (download, get the projector, open the file); release notes. Then the "Before a public release" list in docs/todo.md. Built in to-do 14, steps A-B; published in step C (section 8).
+6. **Later:** ask Flashpoint's curators. Drafted on 2026-11-01 and skipped for now (section 8).
 
 ## Sources
 - Flashpoint database entry 2ff5159c-747f-08e0-b404-2c03ac68064d: https://db-api.unstable.life/search?id=2ff5159c-747f-08e0-b404-2c03ac68064d&filter=false
 - Flashpoint curation format, "Hacked" and Additional Applications: https://flashpointarchive.org/datahub/Curation_Format/meta
 - Flashpoint not-accepted list: https://flashpointarchive.org/datahub/Not_Accepted_Games
+- Flashpoint's Discord and its rules (redirects to the invite; the rules from a search summary, secondhand): https://flashpointarchive.org/discord
+- Flashpoint news, the Discord's channels (#request-a-game, 2019): https://flashpointarchive.org/news/discord
 - Flashpoint FAQ (bundled projectors; secondhand, from a search summary): https://flashpointarchive.org/faq
 - Adobe, Flash Player usage terms: https://www.adobe.com/products/eula/tools/flashplayer_usage.html
 - Adobe, Flash Player distribution: https://www.adobe.com/products/flashplayer/distribution.html

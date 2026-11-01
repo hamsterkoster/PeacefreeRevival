@@ -4,10 +4,7 @@ Next number: 15
 
 ## To do
 
-The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9, done), its release (to-do 10's report, [research/release.md](research/release.md), and the six release decisions of 2026-10-31; built in 11-14, 11-13 done), then the refactor (4) and modding.
-
-### 14. Release package and publishing (medium)
-In its own file with its Progress list: [todo/14-release.md](todo/14-release.md) (three steps: A the package and docs and B the "Before a public release" list, both done; C publishing and announcing).
+The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9, done), its release (to-do 10's report, [research/release.md](research/release.md), and the six release decisions of 2026-10-31; built in 11-14, all done: release 1.0 was published on 2026-11-01), then the refactor (4) and modding.
 
 ### 4. Refactor and modding assessment (medium, report only)
 Goal: "Explain how hard it would be to add new levels, new enemy types, and new mechanics in this codebase, and whether making a level/content data format would be worthwhile. Briefly compare continuing to patch the .swf with rebuilding the game in HTML5." Narrowed on 2026-10-31 ("then make a refactored version where we can make all our changes"): its release part moved to to-do 10, and it comes after the Flash release.

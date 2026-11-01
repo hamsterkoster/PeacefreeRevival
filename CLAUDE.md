@@ -7,12 +7,12 @@ Revive "Peacefree: Tactical Warfare" (by Helgravis, an abandoned Kongregate Flas
 3. Quality-of-life changes, no gameplay changes, then a public release of this Flash version for fans.
 4. Later: a refactored version (to-do 4 decides how) that's moddable (new levels, enemies, mechanics).
 
-Only the user plays it for now. Don't build what's under "Later" in docs/todo.md until asked.
+Release 1.0 is public (the GitHub release `v1.0`, 2026-11-01). Don't build what's under "Later" in docs/todo.md until asked.
 
 ## User and environment
 - Windows 11, PowerShell in the VS Code terminal.
 - git 2.56, Java 8 (1.8.0_431), Python 3.13, winget, gh (signed in). No Node.
-- GitHub: the repo is hamsterkoster/PeacefreeRevival (private), owned by the hamsterkoster organization; pushes and gh use a personal account, an admin of it (named in docs/local.md).
+- GitHub: the repo is hamsterkoster/PeacefreeRevival (public since 2026-11-01), owned by the hamsterkoster organization; pushes and gh use a personal account, an admin of it (named in docs/local.md).
 - Real paths: docs/local.md (gitignored).
 
 ## Folder layout
@@ -53,12 +53,12 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
 - Review checklist: none yet: the built-in code-review skill. Add docs/review.md once the project has its own rules to check.
 
 ## Status
-Done: To do 1-3 and 5-13, and to-do 14's steps A and B (latest build v21, latest AIR app `PeacefreeRevival-v21-release-9` with its installer and zip; release 1.0's files in `patched/release/PeacefreeRevival-v21-release-9/`; to-do 10 is the release report, docs/research/release.md; 12 is the AIR app; 13 the browser test, failed); what each added: CHANGELOG.md and NOTES.md.
-Next: To do 14, step C (publishing: the repo goes public, the GitHub release, then Flashpoint and Kongregate; docs/todo/14-release.md).
+Done: To do 1-3 and 5-14 (latest build v21, latest AIR app `PeacefreeRevival-v21-release-9` with its installer and zip; release 1.0 published on 2026-11-01 as the GitHub release `v1.0`, its files from `patched/release/PeacefreeRevival-v21-release-9/`; to-do 10 is the release report, docs/research/release.md; 12 is the AIR app; 13 the browser test, failed); what each added: CHANGELOG.md and NOTES.md.
+Next: To do 4 (the refactor and modding assessment, a report only; docs/todo.md).
 
 ## Decisions
 One line per decision a chat must follow. Reasons, who decided and what was rejected: docs/decisions.md. The gitignore rules in Folder layout come from there too.
-- Private now, public later: "Never in tracked files" applies from the first commit.
+- Public since 2026-11-01 with its full history, so "Never in tracked files" applies to every commit.
 - Play in the Flash Player projector; no fixes for Ruffle. Ruffle's web version is only the headless smoke test.
 - Patches are edited copies of whole classes in `src/`, compiled in with ffdec's `-replace`; `decompiled/` stays exactly the original.
 - The game's Kongregate API key stays in the tracked decompiled code: it's the developer's, not an account token.
@@ -70,7 +70,7 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - The installer (`air/installer.iss`, Inno Setup 6, made with the zip by `scripts/release_air.py`) installs for the current user with no admin prompt, uses the app's ID as its AppId, and keeps the saves on uninstall.
 - The README lists the players as: AIR app (if its test works), projector (linked to Adobe's own download, the Wayback Machine's copy as backup, with its SHA-256; never bundled), Ruffle app. No browser version of the Flash release: Ruffle's WebGPU renderer froze the tab and WebGL ran about 15 fps (to-do 13); browser play waits for the refactor.
 - No request to the developer before the release: it's an unofficial fan patch, taken down if they ask, with full credits to Adventure Cat, LLC and Helgravis (README Credits, release notes, the AIR download's readme).
-- The release is a GitHub release in this repo (the repo goes public first); afterwards, ask Flashpoint's curators and announce on the game's Kongregate page. Not on itch.io, Newgrounds, Kongregate or the Internet Archive. Where the refactor lives is to-do 4's question.
+- Releases are GitHub releases in this repo (1.0: tag `v1.0`), made as drafts with `gh` and published by the user (docs/building.md "Make a release"). Asking Flashpoint's curators and the comment on the game's Kongregate page are skipped for now (drafts in docs/research/release.md section 8). Not on itch.io, Newgrounds, Kongregate or the Internet Archive. Where the refactor lives is to-do 4's question.
 - The personal push account may show on GitHub (the release, the Activity page, commits through the commit email, which stays on it); only tracked files keep its login out.
 - Release 1.0: tag `v1.0`, files `Peacefree-Revival-1.0.swf`, `-Windows-Setup.exe` and `-Windows.zip` (`release_air.py --release`, all three from one app folder).
 - The LICENSE is MIT for our own work only: everything in the repo except the game (`decompiled/`, `src/`, `air/icons/`, `docs/images/`, which stay Adventure Cat, LLC's) and `THIRD-PARTY-NOTICES.txt`.
@@ -94,11 +94,11 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - docs/local.md: this PC's paths and commands (gitignored).
 - docs/todo.md: the to-do list; a bigger to-do has its own file in docs/todo/ with its Progress list.
 - docs/decisions.md: every decision with its reason.
-- docs/research/: findings by topic: game-code.md (the file, code map, content format, saves), premium.md, network.md, performance.md, release.md (to-do 10's release report: what goes in, form, player, permission, where, save names; the AIR SDK's terms and the AIR app, measured; section 7, before going public: the history search, what GitHub shows, the docs check).
+- docs/research/: findings by topic: game-code.md (the file, code map, content format, saves), premium.md, network.md, performance.md, release.md (to-do 10's release report: what goes in, form, player, permission, where, save names; the AIR SDK's terms and the AIR app, measured; section 7, before going public: the history search, what GitHub shows, the docs check; section 8, publishing: release 1.0, the logged-out check, the announcement drafts).
 - NOTES.md: patch, build and test log.
 
 ## Never in tracked files
-The repo goes public later, with its full history.
+The repo is public, with its full history.
 - Personal paths (user folder, drive paths): they go in docs/local.md.
 - Kongregate account names, IDs or tokens (for example from save data or test logs).
 - The GitHub login used for pushes: it goes in docs/local.md. Current files only; old commits that hold it are fine.

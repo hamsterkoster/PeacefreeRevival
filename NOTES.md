@@ -54,9 +54,24 @@ AIR app downloads in `patched/air/`, made by `scripts/release_air.py` from an ap
 
 Release files in `patched/release/`, copied from one app folder by `scripts/release_air.py --release` (gitignored; the same bytes as their sources):
 - `PeacefreeRevival-v21-release-7/`: `Peacefree-Revival-1.0.swf` (v21, SHA-256 `1b64660a9c88455a8894dcacf7d0642ab4a6192eefa62ca32bd9153940d3d257`), `Peacefree-Revival-1.0-Windows-Setup.exe` (`feef9174...`) and `Peacefree-Revival-1.0-Windows.zip` (`820ae9a4...`), as above. Tested by the user (to-do 14, step A). Replaced by -9 (to-do 14, step B).
-- `PeacefreeRevival-v21-release-9/`: release 1.0. `Peacefree-Revival-1.0.swf` (v21, the same bytes as -7's, SHA-256 `1b64660a9c88455a8894dcacf7d0642ab4a6192eefa62ca32bd9153940d3d257`), `Peacefree-Revival-1.0-Windows-Setup.exe` (`441316f5...`) and `Peacefree-Revival-1.0-Windows.zip` (`c1f1a6da...`), as above. Tested by the user (to-do 14, step B).
+- `PeacefreeRevival-v21-release-9/`: release 1.0. `Peacefree-Revival-1.0.swf` (v21, the same bytes as -7's, SHA-256 `1b64660a9c88455a8894dcacf7d0642ab4a6192eefa62ca32bd9153940d3d257`), `Peacefree-Revival-1.0-Windows-Setup.exe` (`441316f5...`) and `Peacefree-Revival-1.0-Windows.zip` (`c1f1a6da...`), as above. Tested by the user (to-do 14, step B). Published on 2026-11-01 as the GitHub release `v1.0` (to-do 14, step C).
 
 ## Log
+
+### 2026-11-01, To do 14, step C: publishing
+Release 1.0 is out: the repo is public, and the GitHub release `v1.0` has the three files of `patched/release/PeacefreeRevival-v21-release-9/`. To-do 14 is done. Choices: docs/decisions.md (two entries of 2026-11-01, to-do 14 step C); findings and the announcement drafts: docs/research/release.md section 8.
+
+**Done**
+- CHANGELOG.md: 1.0 dated 2026-11-01 under its own heading, Unreleased left empty above it, and Keep a Changelog's link targets at the bottom; committed and pushed first (`cd27c81`, a check-in commit), since the tag points at it.
+- The release: Claude made a draft with `gh release create v1.0 --draft --target cd27c81...` (title "Peacefree Revival 1.0", the three files; the notes from a scratch file: intro, "Which file?", the changelog's 1.0 section copied by a script, the SHA-256s, credits with the notices link at the tag). The user read the draft, made the repo public, set the README's screenshot as the social preview image, and published it (09:34 UTC), which made the tag.
+- docs/building.md: Status says 1.0 is released; "Make a release" steps 5-8 give the changelog change, the notes, the `gh` commands, the digest check and the logged-out check.
+- Announcements: Claude drafted the Flashpoint request and the Kongregate comment; the user skipped both for now (decision); the drafts are in docs/research/release.md section 8.
+- To-do 14 removed from docs/todo.md, with docs/todo/14-release.md. CLAUDE.md: the repo is public, Status (next: to-do 4), the release decision.
+
+**Test results**
+- Claude, measured: GitHub's SHA-256 of each upload matches ours. Logged out: the repo is public, `releases/latest` leads to v1.0, the three downloads give the same SHA-256s, all 46 links of the docs and the release notes answer, the README's anchors (`#privacy` among them) render, and CHANGELOG.md's headings show as links.
+- The user read the draft release and published it.
+- Finish: lint passes; the headless title check on v21 PASSes (4 s); no game code changed, so no rebuild and no other checks; the original's SHA-256 matches.
 
 ### 2026-11-01, To do 14, step B: the "Before a public release" list
 The repo is ready to go public: its history holds no personal paths or Kongregate names, the docs were checked against the code by a fresh subagent and fixed, the README has a screenshot, and the game's parts by others have their license notices, in the repo and in the Windows app. Release 1.0's files were made again (`patched/release/PeacefreeRevival-v21-release-9/`) for the app's new readme and notices; the game is still v21. Choices: docs/decisions.md (four entries of 2026-11-01, to-do 14 step B); findings: docs/research/release.md section 7. Next, step C: publishing (docs/todo/14-release.md).
