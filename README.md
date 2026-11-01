@@ -4,7 +4,7 @@ An unofficial fan patch of [Peacefree: Tactical Warfare](https://www.kongregate.
 
 It isn't made or endorsed by Adventure Cat, LLC, Helgravis or Kongregate. If the developer asks, it comes down.
 
-<!-- A screenshot of the game goes here (to-do 14, step B). -->
+![A mission: the base, a forest's info panel, the minimap and the resource bar](docs/images/screenshot.png)
 
 ## Download and play
 Get the files from the [latest release](https://github.com/hamsterkoster/PeacefreeRevival/releases/latest) and pick one way to play:
@@ -13,7 +13,7 @@ Get the files from the [latest release](https://github.com/hamsterkoster/Peacefr
    - `Peacefree-Revival-1.0-Windows-Setup.exe` installs it for your user only, with no admin prompt, a Start menu entry and a desktop shortcut. Uninstall it in Windows' Settings > Apps > Installed apps; your saves stay.
    - Or `Peacefree-Revival-1.0-Windows.zip`: unzip it and open `Peacefree Revival.exe` in the `Peacefree Revival` folder.
    - The first time, Windows says "Windows protected your PC", because the app isn't code-signed: click More info, then Run anyway. A splash screen shows for about 2 seconds before the game (the free AIR SDK's).
-2. **`Peacefree-Revival-1.0.swf` in the Flash Player projector** (Windows). The game runs best in it (about 60 fps on our test PC). Adobe no longer offers the projector; the Wayback Machine keeps Adobe's own download: [flashplayer_32_sa.exe](https://web.archive.org/web/2021id_/https://fpdownload.macromedia.com/pub/flashplayer/updaters/32/flashplayer_32_sa.exe) (version 32.0.0.465, signed by Adobe Inc.).
+2. **`Peacefree-Revival-1.0.swf` in the Flash Player projector** (Windows). It runs as smoothly as the Windows app (about 60 fps on our test PC). Adobe no longer lists it on its site, but its old download link still works: [flashplayer_32_sa.exe](https://fpdownload.macromedia.com/pub/flashplayer/updaters/32/flashplayer_32_sa.exe) (version 32.0.0.465, signed by Adobe Inc.), or the [Wayback Machine's copy](https://web.archive.org/web/2021id_/https://fpdownload.macromedia.com/pub/flashplayer/updaters/32/flashplayer_32_sa.exe) if Adobe's is gone.
    - Check it before running it. In PowerShell, this must print `A4B333AC1DA12026989549015303D82231982838BCCFB544BA5FD188746066F0`:
 
      ```powershell
@@ -21,15 +21,15 @@ Get the files from the [latest release](https://github.com/hamsterkoster/Peacefr
      ```
 
    - Open it, then File > Open and pick the .swf, or drag the .swf onto `flashplayer_32_sa.exe`.
-3. **`Peacefree-Revival-1.0.swf` in [Ruffle](https://ruffle.rs/downloads)'s desktop app** (Windows, macOS, Linux), a Flash Player emulator: open the .swf with it. It's slower (about 40 fps on our test PC) and draws some things wrong.
+3. **`Peacefree-Revival-1.0.swf` in [Ruffle](https://ruffle.rs/downloads)'s desktop app** (Windows, macOS, Linux), a Flash Player emulator: open the .swf with it (tested with its nightly build of 2026-10-29). It's slower (about 40 fps on our test PC) and draws some things wrong.
 
 There's no browser version: Ruffle in a browser runs this game at about 15 fps.
 
 ## What's new
 Compared with the original (version 1.08 on Kongregate). All changes: [CHANGELOG.md](CHANGELOG.md).
-- Premium unlocked, and free Shock and Nox bombs: 10 of each at the start of every game, and 10 more from the shop.
+- Premium unlocked, and free Shock and Nox bombs: 10 of each every time you start the game (the count isn't saved), and 10 more from the shop whenever you like.
 - A Settings button on the title and campaign screens: music and sound volume, the speed new acts start at, Fullscreen, and a Controls page listing every key.
-- Muting the music pauses the song; in a mission, a Next button skips to the next song.
+- Muting the music pauses the song; in a mission, the options panel's Next button skips to the next song.
 - The window can be resized or made fullscreen; the game keeps its shape with black bars.
 - "Unlock All Acts" in the options opens every act at once. It can't be undone.
 - No network connections, and no Kongregate account needed.
@@ -44,12 +44,15 @@ This was one of my favorite Flash games when it came out, and it's an underrated
 I actually held the top score on the Endless Boss Run leaderboard for a very long time. There's also a prequel, [Peacefree: ILA](https://www.newgrounds.com/portal/view/612878), which is rougher around the edges but has a full storyline, bad (charming?) voice acting, and soldiers you can equip one by one during battle. It seemed like the developer had bigger plans for the series, but they never came to be, and the games sat abandoned. After Flash died, this game was no longer fully playable. So I decided to unlock all the premium content and add a few quality-of-life changes, while keeping the original gameplay the same.
 
 ## Privacy
-Peacefree Revival collects no data and makes no network connections: the game's link to Kongregate is replaced by an offline stand-in, and your saves stay on your PC. The only links are the title screen's Facebook and Twitter buttons, which open the developer's pages in your browser when you click them. The Windows app's AIR runtime sends nothing either: Wipro's [AIR SDK License Agreement](https://airsdk.wxlift.com/assets/pdfs/Wipro%20AIR%20SDK%20License%20Agreement.pdf) (section 6.4) says the runtime inside an app doesn't send its users' information back to the SDK's maker.
+Peacefree Revival collects no data and makes no network connections: the game's link to Kongregate is replaced by an offline stand-in, and your saves stay on your PC. The only links are the Facebook and Twitter buttons that appear on the Tech screen after you click "Want Free Medals?"; they open the developer's pages in your browser when you click them. As for the Windows app's AIR runtime, Wipro's [AIR SDK License Agreement](https://airsdk.wxlift.com/assets/pdfs/Wipro%20AIR%20SDK%20License%20Agreement.pdf) (section 6.4) says it doesn't send your information back to Wipro.
 
 ## Credits
 The game:
-- **Peacefree: Tactical Warfare**, (c) 2014 Adventure Cat, LLC: program and art by Daniel John Pua, music by [Audionautix](https://audionautix.com), published on Kongregate by Helgravis. All rights to the game remain with them. The Windows app's icon is the game's own title-screen chevron.
-- **[Starling Framework](https://github.com/Gamua/Starling-Framework)** 1.4.1 by Gamua GmbH, Simplified BSD License: the game's GPU rendering library, part of the original .swf.
+- **Peacefree: Tactical Warfare**, (c) 2014 Adventure Cat, LLC: program and art by Daniel John Pua, published on Kongregate by Helgravis. All rights to the game remain with them, except the parts by others below. The Windows app's icon is the game's own title-screen chevron.
+- Parts by others, in the original .swf (their license texts: [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt), also in the Windows app's folder):
+  - **[Starling Framework](https://github.com/Gamua/Starling-Framework)** 1.4.1 by Gamua, Simplified BSD License: the game's GPU rendering library, with its [particle system extension](https://github.com/Gamua/Starling-Extension-Particle-System) and Adobe's AGALMiniAssembler (BSD license).
+  - **[Cuprum](https://fonts.google.com/specimen/Cuprum)**, the game's font, by Jovanny Lemonad, SIL Open Font License 1.1.
+  - **The music** by Jason Shaw, [Audionautix](https://audionautix.com), Creative Commons Attribution 4.0.
 
 In the Windows app's downloads:
 - **[AIR SDK](https://airsdk.wxlift.com/download)** 51.5.1 by Wipro Connected Services (formerly HARMAN), with the Adobe AIR runtime: the app's runtime, packaged with the game. Proprietary ([AIR SDK License Agreement](https://airsdk.wxlift.com/assets/pdfs/Wipro%20AIR%20SDK%20License%20Agreement.pdf), free tier).
@@ -65,7 +68,7 @@ Tools that build and check the patch, not included:
 - **[Ruff](https://docs.astral.sh/ruff)** 0.17.3 by Astral, MIT: lints our scripts.
 
 ## License
-Our own work in this repo (the scripts, the Windows app's settings and installer script, and the docs) is under the MIT License: [LICENSE](LICENSE). The game itself isn't: its code in `decompiled/` and `src/`, its art, sound and music, and the game in the downloads stay Adventure Cat, LLC's.
+Our own work in this repo (everything except the game's code, icons and screenshots, and THIRD-PARTY-NOTICES.txt) is under the MIT License: [LICENSE](LICENSE). The game itself isn't: its code in `decompiled/` and `src/`, its art, sound and music, and the game in the downloads stay Adventure Cat, LLC's, except the parts by others, which are under their own licenses ([THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt)).
 
 ## For developers
 How the patches are made, and how to set up, build, check and release: [docs/building.md](docs/building.md). The log of every patch, build and test: [NOTES.md](NOTES.md). Findings by topic: [docs/research/](docs/research/). Decisions and their reasons: [docs/decisions.md](docs/decisions.md). The to-do list: [docs/todo.md](docs/todo.md).

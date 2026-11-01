@@ -1,16 +1,17 @@
 What this license covers
 ========================
 
-The MIT License below covers only Peacefree Revival's own work in this repository: the scripts in
-scripts/, the Windows app's descriptor, readme and installer script (air/application.xml,
-air/README.txt, air/installer.iss), and the documentation (README.md, CHANGELOG.md, NOTES.md and
-docs/).
+The MIT License below covers Peacefree Revival's own work: everything in this repository except
+the game (decompiled/, src/, air/icons/ and docs/images/, below) and THIRD-PARTY-NOTICES.txt,
+which holds other people's license texts.
 
 It does not cover the game. Peacefree: Tactical Warfare is (c) 2014 Adventure Cat, LLC, all
 rights reserved: its code (decompiled/, and the edited copies of its classes in src/), its art,
-sound and music (the icons in air/icons/ are made from its art), and the game inside the release
-downloads. The Windows app's downloads also hold the AIR runtime, under Wipro's AIR SDK License
-Agreement.
+sound and music (the icons in air/icons/ are made from its art, and docs/images/ holds screenshots
+of it), and the game inside the release downloads. The parts of the game made by others (the
+Starling Framework, its particle system extension, Adobe's AGALMiniAssembler, the Cuprum font
+and Audionautix's music) are under their own licenses, listed in THIRD-PARTY-NOTICES.txt. The
+Windows app's downloads also hold the AIR runtime, under Wipro's AIR SDK License Agreement.
 
 
 MIT License

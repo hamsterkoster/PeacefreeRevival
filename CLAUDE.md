@@ -20,7 +20,7 @@ Only the user plays it for now. Don't build what's under "Later" in docs/todo.md
 - `decompiled/`: ffdec output, one folder per .swf, made by `scripts/decompile.py`. Scripts, texts and binaryData are tracked; exported media is gitignored.
 - `src/`: our edited copies of only the classes we patch, same layout as `decompiled/PeacefreeKong/scripts/`, tracked.
 - `patched/`: rebuilt .swf files with versioned names (`PeacefreeKong-vNN-name.swf`), made by `scripts/build.py`, gitignored (SHA-256 in NOTES.md); never overwrite an older one. `patched/air/`: AIR apps made from them (`PeacefreeRevival-vNN-name-N/`) by `scripts/package_air.py`, and each app's installer and zip (`...-N-Setup.exe`, `...-N.zip`) by `scripts/release_air.py`, gitignored, never overwritten either. `patched/release/PeacefreeRevival-vNN-name-N/`: the release files (`Peacefree-Revival-X.Y.swf`, `-Windows-Setup.exe`, `-Windows.zip`), copied from that app folder by `release_air.py --release`, gitignored, never overwritten.
-- `air/`: the AIR app's descriptor (`application.xml`), icons (`icons/`), readme (`README.txt`, packed into the app with its `{version}` filled in, shown by the installer) and installer script (`installer.iss`, Inno Setup), tracked.
+- `air/`: the AIR app's descriptor (`application.xml`), icons (`icons/`), readme (`README.txt`, packed into the app with its `{version}` filled in, shown by the installer; the root's `THIRD-PARTY-NOTICES.txt` is packed next to it) and installer script (`installer.iss`, Inno Setup), tracked.
 - `scripts/`: our own scripts (Python), tracked.
 - `tools/`: downloaded tools (ffdec, Ruffle, Flash Player projector, the AIR SDK in `tools/air/`, Inno Setup in `tools/innosetup/`), gitignored.
 - `NOTES.md`: log of every patch, build and test result.
@@ -45,7 +45,7 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
     - Mission: the same with `--mission` before the file (about 60-90 s) must print PASS (the settings steps, then Unlock All Acts, Act 2 starts at the saved 1x).
     - Resize: the same with `--resize` before the file (about 15 s) must print PASS (a 1400x810 player shows the game at 1200x810 with black bars; Settings clicked at its scaled place opens the panel).
     - AIR app: `.venv/Scripts/python scripts/package_air.py patched/PeacefreeKong-vNN-name.swf` (about 5 s; the build must hold `REVIVAL_VERSION` from `src/`) prints the new folder, then the same with `--check` before that folder (about 10 s) must print PASS (the app's window reaches the title screen; a window opens and closes; it starts the app's real save, as a player would).
-    - AIR downloads: `.venv/Scripts/python scripts/release_air.py patched/air/PeacefreeRevival-vNN-name-N` (about 8 s) makes the installer and the zip next to that folder, each with its SHA-256, then the same with `--check` before that folder (about 18 s; it refuses while the app is installed for real) must print PASS (a silent install into a temp folder holds the README.txt, reaches the title screen and uninstalls without leftovers; the unzipped app holds it and reaches the title too).
+    - AIR downloads: `.venv/Scripts/python scripts/release_air.py patched/air/PeacefreeRevival-vNN-name-N` (about 8 s) makes the installer and the zip next to that folder, each with its SHA-256, then the same with `--check` before that folder (about 18 s; it refuses while the app is installed for real) must print PASS (a silent install into a temp folder holds the README.txt and THIRD-PARTY-NOTICES.txt, reaches the title screen and uninstalls without leftovers; the unzipped app holds them and reaches the title too).
 - Release files (not a per-step check; once per release, after the AIR checks): `.venv/Scripts/python scripts/release_air.py --release patched/air/PeacefreeRevival-vNN-name-N` (about 18 s) runs the downloads' check, then copies the app's .swf, installer and zip into `patched/release/<app folder>/` under their release names and prints their SHA-256s; steps in docs/building.md "Make a release".
 - Re-decompile (not a per-step check; only after an ffdec update, on a committed tree): `.venv/Scripts/python scripts/decompile.py` (about 4 s) must end with "All scripts decompiled without errors." It refuses to replace a folder with uncommitted changes.
 - Docs to update when behaviour changes: NOTES.md (patches, test results, the patched-files list); docs/research/ (findings and dead ends, by topic); docs/decisions.md; docs/local.md (run commands); README.md (for players: download and play, what's new, privacy, Credits; when a section grows past about a screen, move it into docs/NAME.md and link it from the README); CHANGELOG.md (one plain line under Unreleased for each change players see); docs/building.md (status, setup, build, check and release steps); air/README.txt (the Windows app's readme).
@@ -53,8 +53,8 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
 - Review checklist: none yet: the built-in code-review skill. Add docs/review.md once the project has its own rules to check.
 
 ## Status
-Done: To do 1-3 and 5-13, and to-do 14's step A (latest build v21, latest AIR app `PeacefreeRevival-v21-release-7` with its installer and zip; release 1.0's files in `patched/release/PeacefreeRevival-v21-release-7/`; to-do 10 is the release report, docs/research/release.md; 12 is the AIR app; 13 the browser test, failed); what each added: CHANGELOG.md and NOTES.md.
-Next: To do 14, step B (the "Before a public release" list; docs/todo/14-release.md), then step C (publishing).
+Done: To do 1-3 and 5-13, and to-do 14's steps A and B (latest build v21, latest AIR app `PeacefreeRevival-v21-release-9` with its installer and zip; release 1.0's files in `patched/release/PeacefreeRevival-v21-release-9/`; to-do 10 is the release report, docs/research/release.md; 12 is the AIR app; 13 the browser test, failed); what each added: CHANGELOG.md and NOTES.md.
+Next: To do 14, step C (publishing: the repo goes public, the GitHub release, then Flashpoint and Kongregate; docs/todo/14-release.md).
 
 ## Decisions
 One line per decision a chat must follow. Reasons, who decided and what was rejected: docs/decisions.md. The gitignore rules in Folder layout come from there too.
@@ -68,11 +68,13 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - The release is the patched .swf for any player, plus a Windows AIR app (the .swf packaged as it is, with its own runtime) if a test build runs well; never a projector .exe with the game inside (Adobe's terms).
 - The AIR app (`air/application.xml`, `scripts/package_air.py`; Wipro's free tier, 64-bit, .exe unsigned) ships as both an installer and a zip; its ID `io.github.hamsterkoster.PeacefreeRevival` decides the save folder and never changes after the release.
 - The installer (`air/installer.iss`, Inno Setup 6, made with the zip by `scripts/release_air.py`) installs for the current user with no admin prompt, uses the app's ID as its AppId, and keeps the saves on uninstall.
-- The README lists the players as: AIR app (if its test works), projector (linked to the Wayback Machine's copy of Adobe's download, with its SHA-256; never bundled), Ruffle app. No browser version of the Flash release: Ruffle's WebGPU renderer froze the tab and WebGL ran about 15 fps (to-do 13); browser play waits for the refactor.
+- The README lists the players as: AIR app (if its test works), projector (linked to Adobe's own download, the Wayback Machine's copy as backup, with its SHA-256; never bundled), Ruffle app. No browser version of the Flash release: Ruffle's WebGPU renderer froze the tab and WebGL ran about 15 fps (to-do 13); browser play waits for the refactor.
 - No request to the developer before the release: it's an unofficial fan patch, taken down if they ask, with full credits to Adventure Cat, LLC and Helgravis (README Credits, release notes, the AIR download's readme).
 - The release is a GitHub release in this repo (the repo goes public first); afterwards, ask Flashpoint's curators and announce on the game's Kongregate page. Not on itch.io, Newgrounds, Kongregate or the Internet Archive. Where the refactor lives is to-do 4's question.
+- The personal push account may show on GitHub (the release, the Activity page, commits through the commit email, which stays on it); only tracked files keep its login out.
 - Release 1.0: tag `v1.0`, files `Peacefree-Revival-1.0.swf`, `-Windows-Setup.exe` and `-Windows.zip` (`release_air.py --release`, all three from one app folder).
-- The LICENSE is MIT for our own work only (scripts, `air/`'s descriptor, readme and installer script, the docs); it says the game, `decompiled/`, `src/` and `air/icons/` stay Adventure Cat, LLC's.
+- The LICENSE is MIT for our own work only: everything in the repo except the game (`decompiled/`, `src/`, `air/icons/`, `docs/images/`, which stay Adventure Cat, LLC's) and `THIRD-PARTY-NOTICES.txt`.
+- Other people's parts of the game (Starling and its particle extension, AGALMiniAssembler, the Cuprum font, Audionautix's music) are named with their license texts in `THIRD-PARTY-NOTICES.txt`, packed into the app; LICENSE and the README point to it.
 - The AIR license's privacy policy is the README's "Privacy" section; its link is in `air/README.txt`, inside the app and shown by the installer, not in the game.
 - Starling's `handleLostContext` stays on (`src/StarlingPreloader.as`): without it, resizing the projector window kills the game.
 - All builds share one save: `src/game/library/FileLibrary.as` passes `"/"` to `getLocal`; from v20 it adds `peacefree-` to every save name and carries over a copy of the old-name save while the new one is empty (old saves never changed or deleted).
@@ -88,11 +90,11 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 ## Project docs
 - README.md: for players: what the project is, download and play, what's new, privacy, Credits, license.
 - docs/building.md: for developers: status, how it works, setup, build, check and release steps.
-- CHANGELOG.md: what changed for players, per release (Keep a Changelog). LICENSE: MIT for our own work only.
+- CHANGELOG.md: what changed for players, per release (Keep a Changelog). LICENSE: MIT for our own work only. THIRD-PARTY-NOTICES.txt: the game's parts by others and their license texts.
 - docs/local.md: this PC's paths and commands (gitignored).
 - docs/todo.md: the to-do list; a bigger to-do has its own file in docs/todo/ with its Progress list.
 - docs/decisions.md: every decision with its reason.
-- docs/research/: findings by topic: game-code.md (the file, code map, content format, saves), premium.md, network.md, performance.md, release.md (to-do 10's release report: what goes in, form, player, permission, where, save names; the AIR SDK's terms and the AIR app, measured).
+- docs/research/: findings by topic: game-code.md (the file, code map, content format, saves), premium.md, network.md, performance.md, release.md (to-do 10's release report: what goes in, form, player, permission, where, save names; the AIR SDK's terms and the AIR app, measured; section 7, before going public: the history search, what GitHub shows, the docs check).
 - NOTES.md: patch, build and test log.
 
 ## Never in tracked files

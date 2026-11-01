@@ -14,7 +14,8 @@ ADT put in the app, and it shows the app's README.txt before installing.
 --check installs the installer silently into a temporary folder, without the desktop shortcut,
 checks that the installed app reaches its title screen (package_air.py's check), uninstalls it
 silently and checks that its folder, Start menu entry and installed-apps entry are gone. Then it
-unzips the zip into a temporary folder and checks that app too. Both must hold the README.txt.
+unzips the zip into a temporary folder and checks that app too. Both must hold the README.txt and
+THIRD-PARTY-NOTICES.txt.
 It refuses while the app is installed for real, whose installed-apps entry a test install would
 share. Like package_air.py --check, it starts the app with its real saves, and the uninstall
 leaves them.
@@ -45,7 +46,7 @@ from package_air import (
     CONTENT,
     ICONS,
     PACKAGED_DESCRIPTOR,
-    README,
+    TEXTS,
     check,
     descriptor_text,
     short_version,
@@ -53,7 +54,7 @@ from package_air import (
 )
 from PIL import Image
 
-# Installed with winget into tools/ (docs/local.md).
+# Installed with winget into tools/ ('Set up' in docs/building.md).
 ISCC = ROOT / "tools" / "innosetup" / "ISCC.exe"
 INSTALLER_SCRIPT = ROOT / "air" / "installer.iss"
 ICON_SIZES = [16, 32, 48, 256]  # the installer's own icon, from air/icons/icon-256.png
@@ -83,11 +84,17 @@ def downloads(folder: Path) -> tuple[Path, Path]:
     return folder.with_name(f"{folder.name}-Setup.exe"), folder.with_name(f"{folder.name}.zip")
 
 
-def has_readme(folder: Path) -> bool:
-    """Whether the app holds README.txt, which the installer shows and every release needs."""
-    if not (folder / README.name).is_file():
-        print(f"error: {shown(folder)} has no {README.name} (packaged before to-do 14); package the .swf again",
-              file=sys.stderr)
+def missing_texts(folder: Path) -> list[str]:
+    """Which of the text files every release needs (README.txt, shown by the installer, and the
+    third-party notices) the app folder lacks."""
+    return [name for name in TEXTS if not (folder / name).is_file()]
+
+
+def has_texts(folder: Path) -> bool:
+    missing = missing_texts(folder)
+    if missing:
+        print(f"error: {shown(folder)} has no {' or '.join(missing)} (packaged by an older package_air.py); "
+              "package the .swf again", file=sys.stderr)
         return False
     return True
 
@@ -121,9 +128,9 @@ def make(folder: Path) -> int:
             print(f"error: {path.relative_to(ROOT)} exists already; delete both to make them again", file=sys.stderr)
             return 1
     if not ISCC.is_file():
-        print(f"error: Inno Setup is missing: {ISCC.relative_to(ROOT)} (docs/local.md says how to get it)", file=sys.stderr)
+        print(f"error: Inno Setup is missing: {ISCC.relative_to(ROOT)} ('Set up' in docs/building.md says how to get it)", file=sys.stderr)
         return 1
-    if not has_readme(folder):
+    if not has_texts(folder):
         return 1
     info = app_info(folder)
 
@@ -193,8 +200,7 @@ def check_installer(setup: Path, folder: Path, info: dict[str, str], temp: Path)
                 problems.append(f"no Start menu entry {shortcut.name}")
             if not installed(info["AppId"]):
                 problems.append("no entry in Windows' installed apps")
-            if not (target / README.name).is_file():
-                problems.append(f"no {README.name} in the installed app")
+            problems += [f"no {name} in the installed app" for name in missing_texts(target)]
             if check(target, target.name) != 0:
                 problems.append("the installed app didn't reach its title screen")
     finally:
@@ -239,8 +245,7 @@ def check_downloads(folder: Path) -> int:
         unzipped = Path(temp, f"{folder.name}-unzipped")
         with zipfile.ZipFile(archive) as zip_file:
             zip_file.extractall(unzipped)
-        if not (unzipped / info["AppName"] / README.name).is_file():
-            problems.append(f"no {README.name} in the zip's app")
+        problems += [f"no {name} in the zip's app" for name in missing_texts(unzipped / info["AppName"])]
         if check(unzipped / info["AppName"], unzipped.name) != 0:
             problems.append("the unzipped app didn't reach its title screen")
 
@@ -258,7 +263,7 @@ def release(folder: Path) -> int:
     if out.exists():
         print(f"error: {out.relative_to(ROOT)} exists already; a release folder is never overwritten", file=sys.stderr)
         return 1
-    # Only downloads that pass their check (which also checks the folder and its readme) go out.
+    # Only downloads that pass their check (which also checks the folder and its text files) go out.
     if check_downloads(folder) != 0:
         print("error: the downloads didn't pass their check; nothing was copied", file=sys.stderr)
         return 1

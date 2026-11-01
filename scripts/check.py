@@ -399,7 +399,7 @@ def main() -> int:
         print(f"error: file not found: {swf}", file=sys.stderr)
         return 1
     if not BROWSERS.is_dir():
-        print(f"error: Playwright's browser is missing; see docs/local.md to install it into {BROWSERS}", file=sys.stderr)
+        print(f"error: Playwright's browser is missing; see 'Set up' in docs/building.md to install it into {BROWSERS}", file=sys.stderr)
         return 1
 
     # Imported only after the browser path is set.

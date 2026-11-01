@@ -43,16 +43,18 @@ Uninstall
 Privacy
 -------
 Peacefree Revival collects no data and makes no network connections. The only links are the
-title screen's Facebook and Twitter buttons, which open the developer's pages in your browser
-when you click them. Privacy policy:
+Facebook and Twitter buttons that appear on the Tech screen after you click "Want Free
+Medals?"; they open the developer's pages in your browser when you click them. Privacy policy:
 https://github.com/hamsterkoster/PeacefreeRevival#privacy
 
 
 Credits
 -------
 - Peacefree: Tactical Warfare, (c) 2014 Adventure Cat, LLC. Program and art by Daniel John
-  Pua, music by Audionautix (audionautix.com), published on Kongregate by Helgravis. All rights
-  to the game remain with them.
+  Pua, published on Kongregate by Helgravis. All rights to the game remain with them, except
+  the parts by others: the Starling Framework by Gamua, the Cuprum font by Jovanny Lemonad and
+  the music by Jason Shaw (audionautix.com). Their licenses: THIRD-PARTY-NOTICES.txt, next to
+  this file.
 - The AIR runtime (Adobe AIR) by Wipro Connected Services (formerly HARMAN), on the AIR SDK's
   free tier. The installer is made with Inno Setup by Jordan Russell and Martijn Laan.
 - The fan patch: Peacefree Revival, https://github.com/hamsterkoster/PeacefreeRevival

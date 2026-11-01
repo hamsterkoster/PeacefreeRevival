@@ -6,7 +6,8 @@ Run from the project folder:
 
 Packaging copies the .swf into a temporary folder as Peacefree.swf, next to air/application.xml
 with its version filled in from TitleScreen.REVIVAL_VERSION, the icons from air/icons/ and
-air/README.txt with the same version (the release's readme, shown by the installer), and runs the AIR SDK's ADT with
+air/README.txt with the same version (the release's readme, shown by the installer) and
+THIRD-PARTY-NOTICES.txt (the licenses of the game's libraries, font and music), and runs the AIR SDK's ADT with
 -target bundle -arch x64: a 64-bit app with the runtime in its folder (AIR's free tier adds a
 splash screen). It writes patched/air/PeacefreeRevival-<label>-N/, after the .swf's label with
 the next free N, so it never overwrites an older folder.
@@ -55,6 +56,8 @@ CERTIFICATE_PASSWORD = CERTIFICATE.with_suffix(".password")
 DESCRIPTOR = ROOT / "air" / "application.xml"
 ICONS = ROOT / "air" / "icons"  # the descriptor's <icon> files, packaged as icons/
 README = ROOT / "air" / "README.txt"  # packaged next to the .exe, with its {version} filled in
+NOTICES = ROOT / "THIRD-PARTY-NOTICES.txt"  # the licenses of the game's libraries, font and music, packaged next to it
+TEXTS = (README.name, NOTICES.name)  # the text files every app folder holds
 PACKAGED_DESCRIPTOR = Path("META-INF", "AIR", "application.xml")  # in an app folder, as ADT filled it in
 TITLE_SCREEN = ROOT / "src" / "game" / "peacefree" / "TitleScreen.as"
 APPS = PATCHED / "air"
@@ -122,12 +125,21 @@ def short_version(label: str) -> str:
     return label.removeprefix("Revival ")
 
 
+def plain_text(path: Path) -> str:
+    """A text file to package, which must be plain ASCII, so Inno Setup's info page and Notepad show it the same."""
+    if not path.is_file():
+        raise SystemExit(f"error: {path.relative_to(ROOT)} is missing")
+    text = path.read_text(encoding="utf-8")
+    if not text.isascii():
+        raise SystemExit(f"error: {path.relative_to(ROOT)} needs only plain ASCII characters")
+    return text
+
+
 def filled_readme(label: str) -> str:
     """air/README.txt with its {version} filled in."""
-    text = README.read_text(encoding="utf-8")
-    # Plain ASCII, so Inno Setup's info page and Notepad show it the same.
-    if "{version}" not in text or not text.isascii():
-        raise SystemExit(f"error: {README.relative_to(ROOT)} needs a {{version}} and only plain ASCII characters")
+    text = plain_text(README)
+    if "{version}" not in text:
+        raise SystemExit(f"error: {README.relative_to(ROOT)} needs a {{version}}")
     return text.replace("{version}", short_version(label))
 
 
@@ -162,7 +174,7 @@ def package(swf: Path) -> int:
         print(f"error: {swf} doesn't exist", file=sys.stderr)
         return 1
     if not ADT_JAR.is_file():
-        print(f"error: the AIR SDK is missing: {ADT_JAR.relative_to(ROOT)} (docs/local.md says how to get it)", file=sys.stderr)
+        print(f"error: the AIR SDK is missing: {ADT_JAR.relative_to(ROOT)} ('Set up' in docs/building.md says how to get it)", file=sys.stderr)
         return 1
     # The app's version comes from src/, so the build must be one made from it.
     version_label, version_number = revival_version()
@@ -186,8 +198,9 @@ def package(swf: Path) -> int:
         shutil.copytree(ICONS, inputs / ICONS.name)
         (inputs / "application.xml").write_text(filled_descriptor(version_label, version_number), encoding="utf-8")
         (inputs / README.name).write_text(filled_readme(version_label), encoding="ascii", newline="\r\n")
+        (inputs / NOTICES.name).write_text(plain_text(NOTICES), encoding="ascii", newline="\r\n")
         command = ["java", "-jar", str(ADT_JAR), "-package", *signing_options(), "-target", "bundle", "-arch", "x64",
-                   str(staging), str(inputs / "application.xml"), "-C", str(inputs), CONTENT, ICONS.name, README.name]
+                   str(staging), str(inputs / "application.xml"), "-C", str(inputs), CONTENT, ICONS.name, *TEXTS]
         result = subprocess.run(command, capture_output=True, text=True, check=False)
     seconds = time.monotonic() - start
     exe = staging / f"{descriptor_text('filename')}.exe"

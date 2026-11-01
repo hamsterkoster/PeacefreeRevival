@@ -6,9 +6,9 @@ What changed for players in each release of Peacefree Revival, the unofficial fa
 The first release, 1.0; it gets its date when it's published.
 
 ### Added
-- A Windows app that runs the game without Flash Player, as an installer (for your user only, no admin prompt; a Start menu entry and a desktop shortcut) or a zip, with a readme that the installer shows first.
+- A Windows app that runs the game without Flash Player, as an installer (for your user only, no admin prompt; a Start menu entry and a desktop shortcut) or a zip, with a readme that the installer shows first and the license notices of the game's libraries, font and music.
 - Premium is unlocked, since it can no longer be bought: Cross Zap, the Shock and Nox bombs, the extra watchtower upgrades (Blaster, Noxxer, Zap sentry), the bonus resources at the start of a mission, and Act 11, the Endless Boss Run.
-- 10 Shock and 10 Nox bombs at the start of every game; the shop gives 10 more of each for free.
+- 10 Shock and 10 Nox bombs every time the game starts (the count isn't saved, as in the original); the shop gives 10 more of each for free, any time.
 - A Settings button at the top left of the title and campaign screens opens the options panel there too.
 - Music and sound effect volume sliders in the options panel, saved between games.
 - A Start Speed setting (1x, 4x or 8x) for the speed new acts start at; Act 1, the tutorial, keeps 4x.
