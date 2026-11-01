@@ -58,6 +58,9 @@ Release files in `patched/release/`, copied from one app folder by `scripts/rele
 
 ## Log
 
+### 2026-11-01, To do 4: refactor and modding assessment (report only)
+A report, no game changes: docs/research/refactor.md. Compared keeping the ffdec `-replace` patching, compiling the decompiled AS3 as an AIR SDK project, and rebuilding in HTML5 — effort, risk, how hard new levels/enemies/mechanics get, and whether a content data format is worthwhile. Measured: our game code is 121 classes, ~32,000 lines of AS3 (excl. Starling's ~12,900); un-obfuscated. Light web research (2026-11-01): the as3hx→Haxe→OpenFL transpile route and Starling's HTML5 target, the AS32JS converter, and Phaser-rewrite migration advice. Only an HTML5 rebuild meets both refactor goals (new code + browser play). The user decided: a clean HTML5 rewrite (Phaser/Pixi, TypeScript) in a new repo, choosing the heavier rewrite over the cheaper transpile route for a better moddable base ("more effort now to get something better later"). This repo stays the Flash version's home. Decision: docs/decisions.md (2026-11-01). To-do 4 done; week/month figures are estimates.
+
 ### 2026-11-01, To do 14, step C: publishing
 Release 1.0 is out: the repo is public, and the GitHub release `v1.0` has the three files of `patched/release/PeacefreeRevival-v21-release-9/`. To-do 14 is done. Choices: docs/decisions.md (two entries of 2026-11-01, to-do 14 step C); findings and the announcement drafts: docs/research/release.md section 8.
 

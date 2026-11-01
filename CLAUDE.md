@@ -53,8 +53,8 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
 - Review checklist: none yet: the built-in code-review skill. Add docs/review.md once the project has its own rules to check.
 
 ## Status
-Done: To do 1-3 and 5-14 (latest build v21, latest AIR app `PeacefreeRevival-v21-release-9` with its installer and zip; release 1.0 published on 2026-11-01 as the GitHub release `v1.0`, its files from `patched/release/PeacefreeRevival-v21-release-9/`; to-do 10 is the release report, docs/research/release.md; 12 is the AIR app; 13 the browser test, failed); what each added: CHANGELOG.md and NOTES.md.
-Next: To do 4 (the refactor and modding assessment, a report only; docs/todo.md).
+Done: To do 1-14 (latest build v21, latest AIR app `PeacefreeRevival-v21-release-9` with its installer and zip; release 1.0 published on 2026-11-01 as the GitHub release `v1.0`, its files from `patched/release/PeacefreeRevival-v21-release-9/`; to-do 10 is the release report, docs/research/release.md; 12 is the AIR app; 13 the browser test, failed; 4 is the refactor assessment, docs/research/refactor.md); what each added: CHANGELOG.md and NOTES.md.
+Next: nothing in this repo. The Flash revival and its v1.0 release are done. The next work is the refactor — a clean HTML5 rewrite (Phaser/Pixi, TypeScript) in a new repo (decision below); this repo stays the Flash version's home. The "Later" items in docs/todo.md live there.
 
 ## Decisions
 One line per decision a chat must follow. Reasons, who decided and what was rejected: docs/decisions.md. The gitignore rules in Folder layout come from there too.
@@ -86,6 +86,7 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - Only `StarlingPreloader.fitToWindow` sets Starling's viewport; Flash objects over the game go on `Starling.current.nativeOverlay`, and game code reads the mouse from it, not from the stage (window pixels).
 - Mute pauses and unmute continues the song (`SoundLibrary.pauseBGM`/`resumeBGM`; a paused song counts as playing in `isBGMPlaying`); only screen and story changes stop it for good. Missions go through `src/game/peacefree/Map.as` (`setEnableBGM`, `nextBGM` for the panel's Next button).
 - Keys aren't rebindable in the Flash version: the panel's Controls page (`OptionsInterfacer.CONTROLS`) only lists them, and a changed or new key goes there too; rebinding waits for the refactored version. Mission keys do nothing while the panel is open (`Map.onKeyDown`).
+- The refactor is a clean HTML5 rewrite (Phaser/Pixi, TypeScript) in a new repo, not a patch or an AIR project; this repo stays the Flash version's home, and the decompiled AS3 is its behaviour spec (to-do 4, docs/research/refactor.md). Modding (new levels, enemies, mechanics, a content data format) lives in the rewrite.
 
 ## Project docs
 - README.md: for players: what the project is, download and play, what's new, privacy, Credits, license.
@@ -94,7 +95,7 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - docs/local.md: this PC's paths and commands (gitignored).
 - docs/todo.md: the to-do list; a bigger to-do has its own file in docs/todo/ with its Progress list.
 - docs/decisions.md: every decision with its reason.
-- docs/research/: findings by topic: game-code.md (the file, code map, content format, saves), premium.md, network.md, performance.md, release.md (to-do 10's release report: what goes in, form, player, permission, where, save names; the AIR SDK's terms and the AIR app, measured; section 7, before going public: the history search, what GitHub shows, the docs check; section 8, publishing: release 1.0, the logged-out check, the announcement drafts).
+- docs/research/: findings by topic: game-code.md (the file, code map, content format, saves), premium.md, network.md, performance.md, release.md (to-do 10's release report: what goes in, form, player, permission, where, save names; the AIR SDK's terms and the AIR app, measured; section 7, before going public: the history search, what GitHub shows, the docs check; section 8, publishing: release 1.0, the logged-out check, the announcement drafts), refactor.md (to-do 4: the three refactor paths compared, the content-format verdict, and the decision — a clean HTML5 rewrite in a new repo).
 - NOTES.md: patch, build and test log.
 
 ## Never in tracked files
