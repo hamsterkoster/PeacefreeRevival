@@ -8,6 +8,8 @@ original/
 patched/*.swf
 # AIR apps made from them (scripts/package_air.py), with the AIR runtime
 patched/air/
+# Release files copied from an app folder (scripts/release_air.py --release)
+patched/release/
 
 # Downloaded tools (ffdec, Ruffle, Flash Player projector)
 tools/

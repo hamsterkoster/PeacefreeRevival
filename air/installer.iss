@@ -35,6 +35,9 @@ DisableProgramGroupPage=yes
 ; The app is 64-bit only (package_air.py's -arch x64).
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
+; The app's readme (air/README.txt, packed into the app by package_air.py) on a page before the
+; install: the unofficial status, the Windows warning and the privacy policy's link.
+InfoBeforeFile={#AppFolder}\README.txt
 SetupIconFile={#SetupIcon}
 UninstallDisplayIcon={app}\{#ExeName}
 OutputDir={#OutputDir}

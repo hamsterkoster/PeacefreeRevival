@@ -7,23 +7,11 @@ Next number: 15
 The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9, done), its release (to-do 10's report, [research/release.md](research/release.md), and the six release decisions of 2026-10-31; built in 11-14, 11-13 done), then the refactor (4) and modding.
 
 ### 14. Release package and publishing (medium)
-Goal: "a flash version that has quality of life stuff (but not gameplay changes) that we can release" (the roadmap), as the release decisions of 2026-10-31 describe it.
-- Problem: everything for the first public release besides game code: the downloads, a README for fans, credits, release notes, the "Before a public release" list below, the GitHub release, then Flashpoint and Kongregate.
-- Read first: docs/decisions.md (2026-10-31: form, players, permission and credits, where); docs/research/release.md; "Before a public release" below; README.md; docs/local.md (the projector's Wayback Machine link and SHA-256).
-- Approach:
-  - Release files: `Peacefree-Revival-1.0.swf`, plus the AIR app (to-do 12) as an installer and a zip, such as `Peacefree-Revival-1.0-Windows-Setup.exe` and `Peacefree-Revival-1.0-Windows.zip`. `scripts/release_air.py` makes both, named after the app folder (to-do 12, step B), so they're renamed or copied for the release.
-  - A one-line privacy statement (the game collects nothing and makes no network calls): the AIR license asks for one, linked in the app (docs/research/release.md, "The AIR SDK's current terms").
-  - README: a "Play" section at the top for fans (the AIR app, the projector link with its SHA-256, the Ruffle app); the note "unofficial fan patch; taken down if the developer asks"; Credits naming Adventure Cat, LLC and Helgravis, and Audionautix for the music (the game's own Credits screen names them; docs/research/release.md section 4).
-  - Release notes from CHANGELOG.md, and a readme in the AIR zip and installer.
-  - Then the "Before a public release" list. The user makes the repo public and confirms the GitHub release.
-  - Afterwards, Claude drafts and the user posts: the question to Flashpoint's curators and the comment on the game's Kongregate page.
-- Likely three steps (A the package and docs, B the checklist, C publishing and announcing), so it gets its own file, docs/todo/14-release.md, when its build starts.
-- Ask the user: the version number (suggested: 1.0); the license for our own work (in the list below).
-- Test: the user reads the README as a fan would, and runs each download with a fresh save; the list's checks pass; the release page shows both downloads.
+In its own file with its Progress list: [todo/14-release.md](todo/14-release.md) (three steps: A the package and docs, B the "Before a public release" list below, C publishing and announcing).
 
 ### 4. Refactor and modding assessment (medium, report only)
 Goal: "Explain how hard it would be to add new levels, new enemy types, and new mechanics in this codebase, and whether making a level/content data format would be worthwhile. Briefly compare continuing to patch the .swf with rebuilding the game in HTML5." Narrowed on 2026-10-31 ("then make a refactored version where we can make all our changes"): its release part moved to to-do 10, and it comes after the Flash release.
-- Compare: keep patching (ffdec `-replace`, existing classes only); compile the whole decompiled game as a project with the AIR SDK (maintained by Harman: new classes, and a Windows app without Flash Player, with window sizes through `NativeWindow`); rebuild it in HTML5 or another engine. For each: effort, risk, and how hard new levels, enemies and mechanics get; and whether a level/content data format is worthwhile.
+- Compare: keep patching (ffdec `-replace`, existing classes only); compile the whole decompiled game as a project with the AIR SDK (maintained by Harman: new classes, and a Windows app without Flash Player, with window sizes through `NativeWindow`); rebuild it in HTML5 or another engine. For each: effort, risk, and how hard new levels, enemies and mechanics get; and whether a level/content data format is worthwhile. Also where the refactor lives (asked by the user in to-do 14): a rebuild fits a new repo, with this one staying the Flash version's home and its releases; a project compiled from the decompiled code could grow here.
 - Read first: "How content is defined" in docs/research/game-code.md; the player comparison in docs/research/performance.md (projector about 60 fps, Ruffle app 40, Ruffle in the browser 15-20 with drawing errors, and its WebGPU renderer freezes the tab, to-do 13); the release report ([research/release.md](research/release.md), to-do 10).
 - No changes to the game; a report only.
 - Test: the user reads the report.

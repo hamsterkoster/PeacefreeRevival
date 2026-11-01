@@ -5,7 +5,8 @@ Run from the project folder:
     .venv/Scripts/python scripts/package_air.py --check patched/air/PeacefreeRevival-v21-release-1
 
 Packaging copies the .swf into a temporary folder as Peacefree.swf, next to air/application.xml
-with its version filled in from TitleScreen.REVIVAL_VERSION and the icons from air/icons/, and runs the AIR SDK's ADT with
+with its version filled in from TitleScreen.REVIVAL_VERSION, the icons from air/icons/ and
+air/README.txt with the same version (the release's readme, shown by the installer), and runs the AIR SDK's ADT with
 -target bundle -arch x64: a 64-bit app with the runtime in its folder (AIR's free tier adds a
 splash screen). It writes patched/air/PeacefreeRevival-<label>-N/, after the .swf's label with
 the next free N, so it never overwrites an older folder.
@@ -53,6 +54,7 @@ CERTIFICATE = ROOT / "tools" / "air" / "peacefree-revival.p12"
 CERTIFICATE_PASSWORD = CERTIFICATE.with_suffix(".password")
 DESCRIPTOR = ROOT / "air" / "application.xml"
 ICONS = ROOT / "air" / "icons"  # the descriptor's <icon> files, packaged as icons/
+README = ROOT / "air" / "README.txt"  # packaged next to the .exe, with its {version} filled in
 PACKAGED_DESCRIPTOR = Path("META-INF", "AIR", "application.xml")  # in an app folder, as ADT filled it in
 TITLE_SCREEN = ROOT / "src" / "game" / "peacefree" / "TitleScreen.as"
 APPS = PATCHED / "air"
@@ -115,6 +117,20 @@ def filled_descriptor(label: str, number: str) -> str:
     return text
 
 
+def short_version(label: str) -> str:
+    """The version players see in file names and the readme: "1.0" from "Revival 1.0"."""
+    return label.removeprefix("Revival ")
+
+
+def filled_readme(label: str) -> str:
+    """air/README.txt with its {version} filled in."""
+    text = README.read_text(encoding="utf-8")
+    # Plain ASCII, so Inno Setup's info page and Notepad show it the same.
+    if "{version}" not in text or not text.isascii():
+        raise SystemExit(f"error: {README.relative_to(ROOT)} needs a {{version}} and only plain ASCII characters")
+    return text.replace("{version}", short_version(label))
+
+
 def signing_options() -> list[str]:
     """ADT's options to sign with CERTIFICATE, which it makes first if it's missing."""
     if not CERTIFICATE.is_file():
@@ -169,8 +185,9 @@ def package(swf: Path) -> int:
         shutil.copyfile(swf, inputs / CONTENT)
         shutil.copytree(ICONS, inputs / ICONS.name)
         (inputs / "application.xml").write_text(filled_descriptor(version_label, version_number), encoding="utf-8")
+        (inputs / README.name).write_text(filled_readme(version_label), encoding="ascii", newline="\r\n")
         command = ["java", "-jar", str(ADT_JAR), "-package", *signing_options(), "-target", "bundle", "-arch", "x64",
-                   str(staging), str(inputs / "application.xml"), "-C", str(inputs), CONTENT, ICONS.name]
+                   str(staging), str(inputs / "application.xml"), "-C", str(inputs), CONTENT, ICONS.name, README.name]
         result = subprocess.run(command, capture_output=True, text=True, check=False)
     seconds = time.monotonic() - start
     exe = staging / f"{descriptor_text('filename')}.exe"
