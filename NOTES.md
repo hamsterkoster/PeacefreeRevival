@@ -44,6 +44,20 @@ AIR app downloads in `patched/air/`, made by `scripts/release_air.py` from an ap
 
 ## Log
 
+### 2026-10-31, To do 13: browser test with Ruffle's WebGPU renderer
+Ruffle's web version can't run the game smoothly in a browser: its WebGL renderer is as slow as in to-do 2 and draws the background white, and its WebGPU renderer freezes the tab. So the release is downloads only, and browser play waits for the refactor (docs/decisions.md). Findings: docs/research/performance.md, "Player comparison" and "Rendering".
+
+**Done**
+- `scripts/ruffle_page.py`: `start_server(swf, renderer)` puts `preferredRenderer` in the page's Ruffle config (`RENDERERS`: `webgpu`, `wgpu-webgl`; none keeps Ruffle's own order, `wgpu-webgl` first). Ruffle falls back to the next renderer without telling the page and only logs the one it used ("Used renderer: X" in its "New Ruffle instance created" line), so the page wraps `console.log` and shows "Renderer: X" under the game.
+- `scripts/play.py` and `scripts/check.py`: `--renderer webgpu|wgpu-webgl`. check.py prints a note when Ruffle used another renderer than the one asked for.
+- Review (built-in code-review, medium), 6 findings. Fixed: with `--renderer webgpu`, check.py passed without saying that Ruffle had fallen back (now the note). Not taken: a screenshot name per renderer (headless always ends up on WebGL); a null guard for the page's renderer line (the line is on the page before Ruffle starts); DevTools naming the page as the source of Ruffle's log lines (matters only while debugging in the console); the default order named in two help texts; the docs (written here, after the user's test).
+
+**Test results**
+- Claude, measured: lint passes; the headless title check on v21 PASSes with each renderer (3-4 s). With `webgpu`, headless Chromium has no GPU, so Ruffle logs "Error creating wgpu webgpu renderer: ... no compatible graphics device was found supporting Web GPU" and uses `wgpu-webgl`; the page line shows it.
+- The user, in Edge 156 (the default browser), v21: with `wgpu-webgl`, about 15 fps in Act 1 (the title's FPS not read) and the background white again; with `webgpu`, the page line said webgpu, but the game never showed.
+- Claude, measured in headless Edge 156 through Playwright (`channel="msedge"`), which has the PC's GPU (an Intel Gen-12LP adapter): with `webgpu`, the page answered once, 1.2 s after start (21 page frames in that second), then not again in 30 s (three 8 s probes timed out), with no console message after "Loading SWF file". With `wgpu-webgl` it stayed responsive, at 15-18 page frames per second on the title screen (requestAnimationFrame calls, not the game's FPS box: a hint, close to the user's readings).
+- Finish: the six headless checks on v21 PASS (title 4 s, premium 13 s, shared save 7 s, settings 39 s, mission 92 s, resize 13 s); no game code changed, so no rebuild; the AIR checks weren't run (they don't use the changed page); the original's SHA-256 matches.
+
 ### 2026-10-31, To do 12, step B: the AIR app's installer and zip
 The AIR app now comes as the two release downloads: an installer that installs for the current user with no admin prompt, and a zip; the app, its shortcuts and the installer show the title screen's red chevron. To-do 12 is done. Choices: docs/decisions.md (the AIR app's installer); findings: docs/research/release.md, "The AIR app's downloads, measured".
 

@@ -21,7 +21,8 @@ This is an unofficial fan project, not affiliated with Helgravis or Kongregate. 
 - Done: a report on releasing the Flash version ([docs/research/release.md](docs/research/release.md)): what goes in, in what form, which player, permission, where, and the save names.
 - Done: the release patches: the shop says the bombs are free, the saves have names of their own (`peacefree-game` and so on; progress from older builds carries over, and their saves stay as they were), and the title shows "Revival 1.0, unofficial fan patch".
 - Done: a Windows app that runs the game without Flash Player (built with the AIR SDK, its own runtime included); it plays like the projector. It comes as an installer (for your user only, no admin prompt; a Start menu entry and a desktop shortcut; uninstalling keeps your saves) and as a zip, with the title screen's red chevron as its icon.
-- Next: a test of browser play; then the release itself.
+- Done: a test of browser play with Ruffle: its WebGL renderer is still slow (about 15 fps) and draws the background white, and its WebGPU renderer freezes the page. So the release is downloads only; browser play waits for a rebuilt version of the game.
+- Next: the release itself.
 - Not yet: a ready-to-play release.
 
 ## How it works

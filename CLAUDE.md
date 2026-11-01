@@ -52,8 +52,8 @@ Git doesn't track empty folders; each shows up in the repo once it holds files.
 - Review checklist: none yet: the built-in code-review skill. Add docs/review.md once the project has its own rules to check.
 
 ## Status
-Done: To do 1-3 and 5-12 (latest build v21, latest AIR app `PeacefreeRevival-v21-release-5` with its installer and zip; to-do 10 is the release report, docs/research/release.md; 12 is the AIR app); what each added: README.md Status and NOTES.md.
-Next: To do 13 (browser test with Ruffle's WebGPU renderer); the release decisions are made (docs/decisions.md, 2026-10-31), built in to-dos 11-14.
+Done: To do 1-3 and 5-13 (latest build v21, latest AIR app `PeacefreeRevival-v21-release-5` with its installer and zip; to-do 10 is the release report, docs/research/release.md; 12 is the AIR app; 13 the browser test, failed); what each added: README.md Status and NOTES.md.
+Next: To do 14 (release package and publishing); the release decisions are made (docs/decisions.md, 2026-10-31), built in to-dos 11-14.
 
 ## Decisions
 One line per decision a chat must follow. Reasons, who decided and what was rejected: docs/decisions.md. The gitignore rules in Folder layout come from there too.
@@ -67,7 +67,7 @@ One line per decision a chat must follow. Reasons, who decided and what was reje
 - The release is the patched .swf for any player, plus a Windows AIR app (the .swf packaged as it is, with its own runtime) if a test build runs well; never a projector .exe with the game inside (Adobe's terms).
 - The AIR app (`air/application.xml`, `scripts/package_air.py`; Wipro's free tier, 64-bit, .exe unsigned) ships as both an installer and a zip; its ID `io.github.hamsterkoster.PeacefreeRevival` decides the save folder and never changes after the release.
 - The installer (`air/installer.iss`, Inno Setup 6, made with the zip by `scripts/release_air.py`) installs for the current user with no admin prompt, uses the app's ID as its AppId, and keeps the saves on uninstall.
-- The README lists the players as: AIR app (if its test works), projector (linked to the Wayback Machine's copy of Adobe's download, with its SHA-256; never bundled), Ruffle app. No browser version until Ruffle's WebGPU renderer passes a test.
+- The README lists the players as: AIR app (if its test works), projector (linked to the Wayback Machine's copy of Adobe's download, with its SHA-256; never bundled), Ruffle app. No browser version of the Flash release: Ruffle's WebGPU renderer froze the tab and WebGL ran about 15 fps (to-do 13); browser play waits for the refactor.
 - No request to the developer before the release: it's an unofficial fan patch, taken down if they ask, with full credits to Adventure Cat, LLC and Helgravis (README Credits, release notes, the AIR download's readme).
 - The release is a GitHub release in this repo (the repo goes public first); afterwards, ask Flashpoint's curators and announce on the game's Kongregate page. Not on itch.io, Newgrounds, Kongregate or the Internet Archive.
 - Starling's `handleLostContext` stays on (`src/StarlingPreloader.as`): without it, resizing the projector window kills the game.

@@ -5,6 +5,7 @@ The server listens on 127.0.0.1 only and serves three things: the page at /,
 the .swf at /game.swf, and the Ruffle files from tools/ruffle/web/.
 """
 
+import json
 import threading
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -15,6 +16,9 @@ from decompile import ROOT
 
 RUFFLE_WEB = ROOT / "tools" / "ruffle" / "web"
 
+# Ruffle's renderers worth comparing for Stage3D (to-do 13). Without one, Ruffle tries wgpu-webgl first.
+RENDERERS = ("webgpu", "wgpu-webgl")
+
 # 800x540 is the game's stage size; Kongregate shows it at that size too.
 PAGE = """<!DOCTYPE html>
 <html>
@@ -24,14 +28,23 @@ PAGE = """<!DOCTYPE html>
 <style>
 html, body {{ margin: 0; background: #222; }}
 #game {{ width: 800px; height: 540px; margin: 20px auto; }}
+#renderer {{ margin: 0; color: #aaa; font: 14px sans-serif; text-align: center; }}
 </style>
 <script>
-window.RufflePlayer = {{ config: {{ autoplay: "on", unmuteOverlay: "hidden", splashScreen: false }} }};
+window.RufflePlayer = {{ config: {{ autoplay: "on", unmuteOverlay: "hidden", splashScreen: false, preferredRenderer: {renderer} }} }};
+// Ruffle quietly falls back to another renderer when one fails, and only logs the one it used: show it under the game.
+const consoleLog = console.log;
+console.log = (...args) => {{
+  const used = /Used renderer: ([a-z-]+)/.exec(String(args[0]));
+  if (used) document.getElementById("renderer").textContent = "Renderer: " + used[1];
+  consoleLog.apply(console, args);
+}};
 </script>
 <script src="/ruffle.js"></script>
 </head>
 <body>
 <div id="game"></div>
+<p id="renderer"></p>
 <script>
 const player = window.RufflePlayer.newest().createPlayer();
 player.style.width = "800px";
@@ -48,14 +61,15 @@ player.ruffle().load({{ url: "/game.swf", parameters: location.search }});
 class Handler(SimpleHTTPRequestHandler):
     extensions_map: ClassVar = {**SimpleHTTPRequestHandler.extensions_map, ".wasm": "application/wasm"}
 
-    def __init__(self, *args, swf: Path, **kwargs):
+    def __init__(self, *args, swf: Path, renderer: str | None, **kwargs):
         self.swf = swf
+        self.renderer = renderer
         super().__init__(*args, directory=str(RUFFLE_WEB), **kwargs)
 
     def do_GET(self):
         path = self.path.split("?")[0]
         if path == "/":
-            self.send_bytes(PAGE.format(title=self.swf.name).encode("utf-8"), "text/html; charset=utf-8")
+            self.send_bytes(PAGE.format(title=self.swf.name, renderer=json.dumps(self.renderer)).encode("utf-8"), "text/html; charset=utf-8")
         elif path == "/game.swf":
             self.send_bytes(self.swf.read_bytes(), "application/x-shockwave-flash")
         else:
@@ -73,11 +87,14 @@ class Handler(SimpleHTTPRequestHandler):
         pass
 
 
-def start_server(swf: Path) -> tuple[ThreadingHTTPServer, str]:
-    """Serve the page for swf on a free port in a background thread; returns the server and its URL."""
+def start_server(swf: Path, renderer: str | None = None) -> tuple[ThreadingHTTPServer, str]:
+    """Serve the page for swf on a free port in a background thread; returns the server and its URL.
+
+    renderer, one of RENDERERS, is the one Ruffle tries first; None keeps Ruffle's own order.
+    """
     if not (RUFFLE_WEB / "ruffle.js").is_file():
         raise FileNotFoundError(f"Ruffle's web version is missing: unzip it into {RUFFLE_WEB}")
-    server = ThreadingHTTPServer(("127.0.0.1", 0), partial(Handler, swf=swf.resolve()))
+    server = ThreadingHTTPServer(("127.0.0.1", 0), partial(Handler, swf=swf.resolve(), renderer=renderer))
     threading.Thread(target=server.serve_forever, daemon=True).start()
     return server, f"http://127.0.0.1:{server.server_address[1]}/"
 

@@ -61,7 +61,7 @@ from urllib.parse import urlparse
 
 from decompile import ROOT
 from PIL import Image
-from ruffle_page import start_server, stop_server
+from ruffle_page import RENDERERS, start_server, stop_server
 
 BROWSERS = ROOT / "tools" / "ms-playwright"
 SCREENSHOTS = ROOT / "screenshots"
@@ -392,6 +392,7 @@ def main() -> int:
     mode.add_argument("--settings", action="store_true", help="also check the title screen's Settings button and options panel")
     mode.add_argument("--mission", action="store_true", help="also do the --settings steps, then check that Act 2 starts at the start speed")
     mode.add_argument("--resize", action="store_true", help="also check that the game fits a 1400x810 player")
+    parser.add_argument("--renderer", choices=RENDERERS, help="the renderer Ruffle tries first (default: Ruffle's own order); Ruffle's log line below names the one it used")
     args = parser.parse_args()
     swf = args.swf.resolve()
     if not swf.is_file():
@@ -429,7 +430,7 @@ def main() -> int:
             ruffle_log.append(re.sub(r"\s+(color|background):.*", "", message.text.replace("%c", "")))
 
     try:
-        server, url = start_server(swf)
+        server, url = start_server(swf, args.renderer)
     except FileNotFoundError as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
@@ -512,6 +513,9 @@ def main() -> int:
 
     for line in ruffle_log:
         print(f"Ruffle: {line[:200]}")
+    used = next((m.group(1) for line in ruffle_log if (m := re.search(r"Used renderer: ([a-z-]+)", line))), "")
+    if args.renderer and used != args.renderer:
+        print(f"Note: Ruffle was asked to try {args.renderer} first but used {used or 'none it named'}; the result below is for that one")
     for request in blocked:
         print(f"Blocked request: {request}")
     shown = screenshot.relative_to(ROOT) if png else "none"

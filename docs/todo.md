@@ -4,15 +4,7 @@ Next number: 15
 
 ## To do
 
-The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9, done), its release (to-do 10's report, [research/release.md](research/release.md), and the six release decisions of 2026-10-31; built in 11-14, 11 and 12 done), then the refactor (4) and modding.
-
-### 13. Browser test with Ruffle's WebGPU renderer (small)
-Goal: "any way to have this be playable in the browser, if not download option is fine" (to-do 10's questions).
-- Problem: Ruffle in the browser ran the game at 15-20 fps and drew some graphics wrong (to-do 2), most likely on its WebGL renderer: Ruffle's web .wasm tries `wgpu-webgl` before `webgpu`. WebGPU (in Chrome and Edge on Windows) was never tried.
-- Read first: "Player comparison" in docs/research/performance.md; docs/research/release.md section 3; `scripts/play.py`; `scripts/ruffle_page.py:29` (the Ruffle config).
-- Approach: a `--renderer` option in `play.py` (`webgpu` or `wgpu-webgl`), passed as Ruffle's `preferredRenderer`. The user plays to-do 2's scenes (the title, about 30 s into Act 1) with each renderer and reads the FPS box. Ruffle's log in the browser console shows which renderer it used.
-- Ask the user: which browser (suggested: your default, plus Edge if the default isn't based on Chromium).
-- Test: lint passes; the user's FPS readings and whether the graphics draw right. Close to 60 fps with correct drawing: a new to-do for a GitHub Pages page with Ruffle. Otherwise browser play waits for the refactor; the result goes into docs/research/performance.md.
+The order follows the roadmap in docs/decisions.md (2026-10-31): quality of life in the Flash version (7-9, done), its release (to-do 10's report, [research/release.md](research/release.md), and the six release decisions of 2026-10-31; built in 11-14, 11-13 done), then the refactor (4) and modding.
 
 ### 14. Release package and publishing (medium)
 Goal: "a flash version that has quality of life stuff (but not gameplay changes) that we can release" (the roadmap), as the release decisions of 2026-10-31 describe it.
@@ -32,7 +24,7 @@ Goal: "a flash version that has quality of life stuff (but not gameplay changes)
 ### 4. Refactor and modding assessment (medium, report only)
 Goal: "Explain how hard it would be to add new levels, new enemy types, and new mechanics in this codebase, and whether making a level/content data format would be worthwhile. Briefly compare continuing to patch the .swf with rebuilding the game in HTML5." Narrowed on 2026-10-31 ("then make a refactored version where we can make all our changes"): its release part moved to to-do 10, and it comes after the Flash release.
 - Compare: keep patching (ffdec `-replace`, existing classes only); compile the whole decompiled game as a project with the AIR SDK (maintained by Harman: new classes, and a Windows app without Flash Player, with window sizes through `NativeWindow`); rebuild it in HTML5 or another engine. For each: effort, risk, and how hard new levels, enemies and mechanics get; and whether a level/content data format is worthwhile.
-- Read first: "How content is defined" in docs/research/game-code.md; the player comparison in docs/research/performance.md (projector about 60 fps, Ruffle app 40, Ruffle in the browser 15-20 with drawing errors); the release report ([research/release.md](research/release.md), to-do 10).
+- Read first: "How content is defined" in docs/research/game-code.md; the player comparison in docs/research/performance.md (projector about 60 fps, Ruffle app 40, Ruffle in the browser 15-20 with drawing errors, and its WebGPU renderer freezes the tab, to-do 13); the release report ([research/release.md](research/release.md), to-do 10).
 - No changes to the game; a report only.
 - Test: the user reads the report.
 
